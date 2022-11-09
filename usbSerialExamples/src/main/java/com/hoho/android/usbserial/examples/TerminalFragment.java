@@ -74,6 +74,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         };
         mainLooper = new Handler(Looper.getMainLooper());
     }
+    /* Hoot adds */
+    static boolean cmd_busy = false;
 
     /*
      * Lifecycle
@@ -292,10 +294,59 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
     private void receive(byte[] data) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
-        spn.append("receive " + data.length + " bytes\n");
         if(data.length > 0)
+        {
+            spn.append("receive " + data.length + " bytes\n");
             spn.append(HexDump.dumpHexString(data)).append("\n");
+            //parse(data);
+        }
         receiveText.append(spn);
+    }
+
+    private void parse(byte[] data)
+    {
+        String rx = new String(data);
+        String keyString = new String("");
+        //String valueString = null;
+        boolean key = false;
+        boolean value = false;
+        String KEY = "";
+        String VALUE = "";
+
+        if(rx.length() > 0){
+            for(int k = 0; k < rx.length(); k++){
+                switch(rx.charAt(k)) {
+                    case '{':
+                        key = true;
+                        break;
+                    case '}':
+                        key = false;
+                        value = false;
+                        VALUE = keyString;
+                        keyString = "";
+                        break;
+                    case ':':
+                        key = false;
+                        KEY = keyString;
+                        value = true;
+                        keyString = "";
+                        break;
+                    case '"':
+                    case ' ':
+                        break;
+                    case '\n':
+                        receiveText.append(String.format("%s:%s\n", KEY, VALUE));
+                        keyString = "";
+                        break;
+                    default:
+                        if(key)
+                            keyString = keyString.concat(String.valueOf(rx.charAt(k)));
+                        else if (value)
+                            keyString = keyString.concat(String.valueOf(rx.charAt(k)));
+                        break;
+                }
+            }
+        }
     }
 
     void status(String str) {
