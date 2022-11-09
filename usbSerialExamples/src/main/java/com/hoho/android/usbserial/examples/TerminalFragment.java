@@ -298,9 +298,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         {
             spn.append("receive " + data.length + " bytes\n");
             spn.append(HexDump.dumpHexString(data)).append("\n");
-            //parse(data);
+            parse(data);
         }
-        receiveText.append(spn);
+        //receiveText.append(spn);
     }
 
     private void parse(byte[] data)
@@ -314,16 +314,20 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         String VALUE = "";
 
         if(rx.length() > 0){
+            //receiveText.append(rx + "\n");
+
             for(int k = 0; k < rx.length(); k++){
                 switch(rx.charAt(k)) {
                     case '{':
                         key = true;
+                        keyString = "";
                         break;
                     case '}':
                         key = false;
                         value = false;
                         VALUE = keyString;
                         keyString = "";
+                        receiveText.append(KEY + VALUE +  rx + "\n");
                         break;
                     case ':':
                         key = false;
@@ -332,16 +336,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         keyString = "";
                         break;
                     case '"':
+                    case '\n':
+                    case '\r':
                     case ' ':
                         break;
-                    case '\n':
-                        receiveText.append(String.format("%s:%s\n", KEY, VALUE));
-                        keyString = "";
-                        break;
                     default:
-                        if(key)
-                            keyString = keyString.concat(String.valueOf(rx.charAt(k)));
-                        else if (value)
+                        //if(key)
+                        //    keyString = keyString.concat(String.valueOf(rx.charAt(k)));
+                        //else if (value)
                             keyString = keyString.concat(String.valueOf(rx.charAt(k)));
                         break;
                 }
