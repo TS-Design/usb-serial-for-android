@@ -76,6 +76,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     /* Hoot adds */
     static boolean cmd_busy = false;
+    static String keyString = new String("");
+    static String KEY = "";
+    static String VALUE = "";
 
     /*
      * Lifecycle
@@ -306,12 +309,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private void parse(byte[] data)
     {
         String rx = new String(data);
-        String keyString = new String("");
         //String valueString = null;
         boolean key = false;
         boolean value = false;
-        String KEY = "";
-        String VALUE = "";
 
         if(rx.length() > 0){
             //receiveText.append(rx + "\n");
@@ -327,7 +327,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         value = false;
                         VALUE = keyString;
                         keyString = "";
-                        receiveText.append(KEY + VALUE +  rx + "\n");
+                        receiveText.append(KEY + ":" + VALUE  + "\n");
                         break;
                     case ':':
                         key = false;
