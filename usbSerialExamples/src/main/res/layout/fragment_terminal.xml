@@ -82,11 +82,100 @@
         android:background="?android:attr/listDivider"
         android:layout_height="2dp" />
 
+    <RadioGroup
+        android:id="@+id/_mode"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:visibility="visible"
+        android:orientation="horizontal">
+
+
+    <RadioButton
+            android:id="@+id/_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Off" />
+
+        <RadioButton
+            android:id="@+id/_anr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ANR" />
+
+        <RadioButton
+            android:id="@+id/_spray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Spray" />
+
+        <RadioButton
+            android:id="@+id/_drip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Drip" />
+
+        <RadioButton
+            android:id="@+id/_demand"
+            android:layout_width="176dp"
+            android:layout_height="wrap_content"
+            android:text="Demand" />
+
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/_fieldFlush"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Field Flush" />
+
+    <Button
+        android:id="@+id/_recirculate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@+id/_fieldFlush"
+
+        android:text="Recirculate" />
+
+    <Button
+        android:id="@+id/_peristalic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@+id/_recirculate"
+        android:text="Peristalic" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <Button
+            android:id="@+id/_effpump1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@+id/_recirculate"
+            android:text="Eff Pump" />
+        <Button
+            android:id="@+id/_effpump2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@+id/_recirculate"
+            android:text="Alt Pump" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/receive_text"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:clickable="false"
+        android:enabled="true"
         android:freezesText="true"
         android:gravity="bottom"
         android:scrollbars="vertical"

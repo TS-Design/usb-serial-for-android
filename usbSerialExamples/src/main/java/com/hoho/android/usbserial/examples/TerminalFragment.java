@@ -75,8 +75,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         mainLooper = new Handler(Looper.getMainLooper());
     }
     /* Hoot adds */
-    static boolean cmd_busy = false;
-    static String keyString = new String("");
+    //static boolean cmd_busy = false;
+    static String keyString = "";
     static String KEY = "";
     static String VALUE = "";
 
