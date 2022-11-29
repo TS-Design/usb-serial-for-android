@@ -81,7 +81,10 @@
         android:layout_width="match_parent"
         android:background="?android:attr/listDivider"
         android:layout_height="2dp" />
-
+    <View
+        android:layout_width="match_parent"
+        android:background="?android:attr/listDivider"
+        android:layout_height="2dp" />
     <RadioGroup
         android:id="@+id/_mode"
         android:layout_width="match_parent"
@@ -90,34 +93,39 @@
         android:orientation="horizontal">
 
 
-    <RadioButton
-            android:id="@+id/_off"
+        <RadioButton
+            android:id="@+id/bOFF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="48sp"
             android:text="Off" />
 
         <RadioButton
-            android:id="@+id/_anr"
+            android:id="@+id/bANR"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="48sp"
             android:text="ANR" />
 
         <RadioButton
-            android:id="@+id/_spray"
+            android:id="@+id/bSPY"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="48sp"
             android:text="Spray" />
 
         <RadioButton
-            android:id="@+id/_drip"
+            android:id="@+id/bDMD"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="48sp"
             android:text="Drip" />
 
         <RadioButton
             android:id="@+id/_demand"
             android:layout_width="176dp"
             android:layout_height="wrap_content"
+            android:minWidth="48sp"
             android:text="Demand" />
 
 
@@ -128,46 +136,87 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/_fieldFlush"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Field Flush" />
+        <TextView
+            android:id="@+id/_fieldFlush"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:paddingRight="10pt"
+            android:text="Field Flush" />
 
-    <Button
-        android:id="@+id/_recirculate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@+id/_fieldFlush"
+        <TextView
+            android:id="@+id/_recirculate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10pt"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Recirculate" />
 
-        android:text="Recirculate" />
+        <TextView
+            android:id="@+id/_peristalic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:paddingRight="10pt"
+            android:text="Peristalic" />
 
-    <Button
-        android:id="@+id/_peristalic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@+id/_recirculate"
-        android:text="Peristalic" />
+        <TextView
+            android:id="@+id/_effpump1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10pt"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Eff Pump" />
+
+        <TextView
+            android:id="@+id/_effpump2"
+            android:layout_width="wrap_content"
+            android:paddingRight="10pt"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Alt Pump" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-    <Button
-            android:id="@+id/_effpump1"
+
+        <TextView
+            android:id="@+id/_effluentlabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@+id/_recirculate"
-            android:text="Eff Pump" />
-        <Button
-            android:id="@+id/_effpump2"
+            android:textColor="@color/colorPrimaryDark"
+            android:paddingRight="10pt"
+            android:text="Effluent Cycles" />
+
+        <TextView
+            android:id="@+id/_effluentcount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@+id/_recirculate"
-            android:text="Alt Pump" />
+            android:textColor ="@color/design_default_color_on_primary"
+            android:paddingRight="10pt"
+            android:text="0" />
+
+        <TextView
+            android:id="@+id/_airpressuelabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:paddingRight="10pt"
+            android:text="Air Pressure" />
+
+        <TextView
+            android:id="@+id/_airpressure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor ="@color/design_default_color_on_primary"
+            android:paddingRight="10pt"
+            android:text="0" />
 
     </LinearLayout>
+
 
     <TextView
         android:id="@+id/receive_text"
@@ -177,7 +226,7 @@
         android:clickable="false"
         android:enabled="true"
         android:freezesText="true"
-        android:gravity="bottom"
+        android:gravity="left"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:typeface="monospace" />

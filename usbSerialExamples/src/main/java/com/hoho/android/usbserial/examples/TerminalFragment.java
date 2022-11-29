@@ -22,10 +22,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+//import android.widget.Button;
+import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+//import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -39,8 +43,10 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
+import android.graphics.Color;
 
 public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener {
+
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
 
@@ -54,8 +60,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
     private TextView receiveText;
-    private ControlLines controlLines;
+    private TextView fieldFlush;
+    private TextView recirculate;
+    private TextView effluentcount;
+    private TextView mainEfficencyPump;
+    private TextView altEfficencyPump;
+    private TextView peristalicPump;
+    private TextView airpressure;
 
+    private ControlLines controlLines;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
@@ -79,6 +92,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     static String keyString = "";
     static String KEY = "";
     static String VALUE = "";
+
 
     /*
      * Lifecycle
@@ -122,6 +136,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         receiveText = view.findViewById(R.id.receive_text);                          // TextView performance decreases with number of spans
         receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText)); // set as default color to reduce number of spans
         receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
+        fieldFlush = view.findViewById(R.id._fieldFlush);
+        recirculate = view.findViewById(R.id._recirculate);
+        mainEfficencyPump = view.findViewById(R.id._effpump1);
+        altEfficencyPump = view.findViewById(R.id._effpump2);
+        peristalicPump = view.findViewById(R.id._peristalic);
+        effluentcount = view.findViewById(R.id._effluentcount);
+        airpressure = view.findViewById(R.id._airpressure);
+
         TextView sendText = view.findViewById(R.id.send_text);
         View sendBtn = view.findViewById(R.id.send_btn);
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
@@ -132,6 +154,18 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         } else {
             receiveBtn.setOnClickListener(v -> read());
         }
+        RadioGroup mode = (RadioGroup) view.findViewById(R.id._mode);
+        View boff = view.findViewById(R.id.bOFF);
+        boff.setOnClickListener(v -> send("{\"bOFF\":True}"));
+        View bANR = view.findViewById(R.id.bANR);
+        bANR.setOnClickListener(v -> send("{\"bANR\":True}"));
+        //boff.setClickable(false);
+        //boff.setEnabled(false);
+
+        //boff.setTextColor(getResources().getColor(R.color.colorRecieveText)); // set as default color to reduce number of spans
+
+        //View _effpump1 = view.findViewById(R.id._effpump1); // mlp
+
         return view;
     }
 
@@ -176,8 +210,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public void onNewData(byte[] data) {
         mainLooper.post(() -> {
-            receive(data);
-        });
+            receive(data); });
     }
 
     @Override
@@ -260,13 +293,59 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         usbSerialPort = null;
     }
 
+    public void upDateUi(String cmd,  String value) {
+        if (cmd.equalsIgnoreCase("bS2")) {
+            if (value.equalsIgnoreCase("true"))
+                fieldFlush.setBackgroundColor(Color.GREEN);
+            else
+                fieldFlush.setBackgroundColor(Color.BLACK);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bS1")) {
+            if (value.equalsIgnoreCase("true"))
+                recirculate.setBackgroundColor(Color.GREEN);
+            else
+                recirculate.setBackgroundColor(Color.BLACK);
+            return;
+            }
+        else if(cmd.equalsIgnoreCase("bRY3")) {
+            if (value.equalsIgnoreCase("true"))
+                mainEfficencyPump.setBackgroundColor(Color.GREEN);
+            else
+                mainEfficencyPump.setBackgroundColor(Color.BLACK);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bRY4")) {
+            if (value.equalsIgnoreCase("true"))
+                altEfficencyPump.setBackgroundColor(Color.GREEN);
+            else
+                altEfficencyPump.setBackgroundColor(Color.BLACK);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bDPump")) {
+            if (value.equalsIgnoreCase("true"))
+                peristalicPump.setBackgroundColor(Color.GREEN);
+            else
+                peristalicPump.setBackgroundColor(Color.BLACK);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("PTime")) {
+            effluentcount.setText(value);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("AirTime")) {
+            airpressure.setText(value);
+            return;
+        }
+    }
+
     private void send(String str) {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
-        byte[] data = (str + '\n').getBytes();
+            byte[] data = (str + '\n').getBytes();
             SpannableStringBuilder spn = new SpannableStringBuilder();
             spn.append("send " + data.length + " bytes\n");
             spn.append(HexDump.dumpHexString(data)).append("\n");
@@ -308,6 +387,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
     private void parse(byte[] data)
     {
+
         String rx = new String(data);
         //String valueString = null;
         boolean key = false;
@@ -328,6 +408,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         VALUE = keyString;
                         keyString = "";
                         receiveText.append(KEY + ":" + VALUE  + "\n");
+                        upDateUi(KEY, VALUE);
                         break;
                     case ':':
                         key = false;
