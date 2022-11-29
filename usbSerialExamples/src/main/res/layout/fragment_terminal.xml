@@ -115,14 +115,14 @@
             android:text="Spray" />
 
         <RadioButton
-            android:id="@+id/bDMD"
+            android:id="@+id/bdrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="48sp"
             android:text="Drip" />
 
         <RadioButton
-            android:id="@+id/_demand"
+            android:id="@+id/bdemand"
             android:layout_width="176dp"
             android:layout_height="wrap_content"
             android:minWidth="48sp"
@@ -226,7 +226,7 @@
         android:clickable="false"
         android:enabled="true"
         android:freezesText="true"
-        android:gravity="left"
+        android:gravity="bottom"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:typeface="monospace" />

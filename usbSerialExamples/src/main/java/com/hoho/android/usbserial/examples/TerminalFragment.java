@@ -1,5 +1,6 @@
 package com.hoho.android.usbserial.examples;
 
+
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,8 +23,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-//import android.widget.Button;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,7 +68,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private TextView altEfficencyPump;
     private TextView peristalicPump;
     private TextView airpressure;
-
+    private RadioButton boff;
+    private RadioButton bANR;
+    private RadioButton bSPY;
+    private RadioButton bdrip;
+    private RadioButton bdmd;
     private ControlLines controlLines;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
@@ -143,11 +148,17 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         peristalicPump = view.findViewById(R.id._peristalic);
         effluentcount = view.findViewById(R.id._effluentcount);
         airpressure = view.findViewById(R.id._airpressure);
+        boff = view.findViewById(R.id.bOFF);
+        bANR = view.findViewById(R.id.bANR);
+        bSPY = view.findViewById(R.id.bSPY);
+        bdmd = view.findViewById(R.id.bdemand);
+        bdrip = view.findViewById(R.id.bdrip);
+        View receiveBtn = view.findViewById(R.id.receive_btn);
+        //View bANR = view.findViewById(R.id.bANR);
 
         TextView sendText = view.findViewById(R.id.send_text);
         View sendBtn = view.findViewById(R.id.send_btn);
         sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
-        View receiveBtn = view.findViewById(R.id.receive_btn);
         controlLines = new ControlLines(view);
         if(withIoManager) {
             receiveBtn.setVisibility(View.GONE);
@@ -155,10 +166,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             receiveBtn.setOnClickListener(v -> read());
         }
         RadioGroup mode = (RadioGroup) view.findViewById(R.id._mode);
-        View boff = view.findViewById(R.id.bOFF);
         boff.setOnClickListener(v -> send("{\"bOFF\":True}"));
-        View bANR = view.findViewById(R.id.bANR);
         bANR.setOnClickListener(v -> send("{\"bANR\":True}"));
+        bSPY.setOnClickListener(v -> send("{\"bSPY\":True}"));
+        bdmd.setOnClickListener(v -> send("{\"bDMD\":True}"));
+        bdrip.setOnClickListener(v -> send("{\"bdrip_sel\":True}"));
         //boff.setClickable(false);
         //boff.setEnabled(false);
 
@@ -335,6 +347,31 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
         else if(cmd.equalsIgnoreCase("AirTime")) {
             airpressure.setText(value);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bOFF")) {
+            if (value.equalsIgnoreCase("true"))
+                boff.setChecked(true);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bdrip_sel")) {
+            if (value.equalsIgnoreCase("true"))
+                bdrip.setChecked(true);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bANR")) {
+            if (value.equalsIgnoreCase("true"))
+                bANR.setChecked(true);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bSPY")) {
+            if (value.equalsIgnoreCase("true"))
+                bSPY.setChecked(true);
+            return;
+        }
+        else if(cmd.equalsIgnoreCase("bDMD")) {
+            if (value.equalsIgnoreCase("true"))
+                bdmd.setChecked(true);
             return;
         }
     }
