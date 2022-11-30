@@ -3,4 +3,5 @@
     <string name="app_title">Hoot HID Android App Rev 1.0</string>
     <string name="app_name">Hoot User Interface [Version 1]</string>
     <string name="devices">USB Devices</string>
+    <string name="buttonTextSize">20sp</string>
 </resources>

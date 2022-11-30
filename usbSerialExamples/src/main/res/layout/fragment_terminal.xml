@@ -5,6 +5,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/remoteTimeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/secondary_text_dark"
+            android:paddingRight="10pt"
+            android:textSize="30sp"
+            android:text="5L Time" />
+
+        <TextView
+            android:id="@+id/remoteTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize= "30sp"
+            android:paddingRight="10pt"
+            android:text="00:00:00" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -12,68 +36,72 @@
         android:orientation="horizontal">
 
         <ToggleButton
-            android:id="@+id/controlLineRts"
+            android:id="@+id/controlLineTest"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
-            android:textOff="RTS"
-            android:textOn="RTS" />
+            android:minWidth="30sp"
+
+
+            android:textOff="Test"
+            android:textOn="Test" />
 
         <ToggleButton
-            android:id="@+id/controlLineCts"
+            android:id="@+id/controlLineHigh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:clickable="false"
             android:textColor="@android:color/secondary_text_dark"
-            android:textOff="CTS"
-            android:textOn="CTS" />
+            android:textOff="High"
+            android:textOn="High" />
+
+
 
         <View
             android:layout_height="match_parent"
             android:layout_width="6dp" />
 
         <ToggleButton
-            android:id="@+id/controlLineDtr"
+            android:id="@+id/controlLineLow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
-            android:textOff="DTR"
-            android:textOn="DTR" />
+            android:minWidth="30sp"
+            android:textOff="Low"
+            android:textOn="High" />
 
         <ToggleButton
-            android:id="@+id/controlLineDsr"
+            android:id="@+id/controlLineAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="false"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:textColor="@android:color/secondary_text_dark"
-            android:textOff="DSR"
-            android:textOn="DSR" />
+            android:textOff="Alarm"
+            android:textOn="Alarm" />
 
         <View
             android:layout_height="match_parent"
             android:layout_width="6dp" />
 
         <ToggleButton
-            android:id="@+id/controlLineCd"
+            android:id="@+id/controlLineCl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="false"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:textColor="@android:color/secondary_text_dark"
-            android:textOff="CD"
-            android:textOn="CD" />
+            android:textOff="CL"
+            android:textOn="CL" />
 
         <ToggleButton
-            android:id="@+id/controlLineRi"
+            android:id="@+id/controlLineWm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:clickable="false"
             android:textColor="@android:color/secondary_text_dark"
-            android:textOff="RI"
-            android:textOn="RI" />
+            android:textOff="WM"
+            android:textOn="WM" />
 
     </LinearLayout>
 
@@ -97,35 +125,35 @@
             android:id="@+id/bOFF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:text="Off" />
 
         <RadioButton
             android:id="@+id/bANR"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:text="ANR" />
 
         <RadioButton
             android:id="@+id/bSPY"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:text="Spray" />
 
         <RadioButton
             android:id="@+id/bdrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:text="Drip" />
 
         <RadioButton
             android:id="@+id/bdemand"
-            android:layout_width="176dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="48sp"
+            android:minWidth="30sp"
             android:text="Demand" />
 
 
@@ -140,7 +168,8 @@
             android:id="@+id/_fieldFlush"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:paddingRight="10pt"
             android:text="Field Flush" />
 
@@ -148,15 +177,17 @@
             android:id="@+id/_recirculate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="10pt"
-            android:textColor="@color/colorPrimaryDark"
+            android:paddingRight="20pt"
+            android:textSize="20sp"
+            android:textColor="@android:color/secondary_text_dark"
             android:text="Recirculate" />
 
         <TextView
             android:id="@+id/_peristalic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:paddingRight="10pt"
             android:text="Peristalic" />
 
@@ -165,7 +196,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="10pt"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:text="Eff Pump" />
 
         <TextView
@@ -173,10 +205,59 @@
             android:layout_width="wrap_content"
             android:paddingRight="10pt"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:text="Alt Pump" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/_bhigh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="20pt"
+            android:text="High"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/_balarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="20pt"
+            android:text="Extn Alarm"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/_blow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
+            android:paddingRight="10pt"
+            android:text="Low" />
+
+        <TextView
+            android:id="@+id/_bcl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10pt"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
+            android:text="Chlorine" />
+
+        <TextView
+            android:id="@+id/_bwm"
+            android:layout_width="wrap_content"
+            android:paddingRight="10pt"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
+            android:text="Water Meter " />
+     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -187,7 +268,8 @@
             android:id="@+id/_effluentlabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:paddingRight="10pt"
             android:text="Effluent Cycles" />
 
@@ -195,7 +277,25 @@
             android:id="@+id/_effluentcount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor ="@color/design_default_color_on_primary"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
+            android:paddingRight="10pt"
+            android:text="0" />
+        <TextView
+            android:id="@+id/_pumprunlabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
+            android:paddingRight="10pt"
+            android:text="Pump Runtime" />
+
+        <TextView
+            android:id="@+id/_pumprun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:paddingRight="10pt"
             android:text="0" />
 
@@ -203,7 +303,8 @@
             android:id="@+id/_airpressuelabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:paddingRight="10pt"
             android:text="Air Pressure" />
 
@@ -211,7 +312,8 @@
             android:id="@+id/_airpressure"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor ="@color/design_default_color_on_primary"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="20sp"
             android:paddingRight="10pt"
             android:text="0" />
 

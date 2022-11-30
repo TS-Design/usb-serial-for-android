@@ -23,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -63,16 +62,23 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private TextView receiveText;
     private TextView fieldFlush;
     private TextView recirculate;
-    private TextView effluentcount;
+    private TextView pumpRuntime;
     private TextView mainEfficencyPump;
     private TextView altEfficencyPump;
     private TextView peristalicPump;
     private TextView airpressure;
+    private TextView highProbe;
+    private TextView lowProbe;
+    private TextView alarmExt;
+    private TextView chlorineIn;
+    private TextView waterMeterIn;
+    private TextView effluentCount;
     private RadioButton boff;
     private RadioButton bANR;
     private RadioButton bSPY;
     private RadioButton bdrip;
     private RadioButton bdmd;
+    private TextView remoteTime;
     private ControlLines controlLines;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
@@ -97,8 +103,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     static String keyString = "";
     static String KEY = "";
     static String VALUE = "";
-
-
+    public String remoteMin = "00";
+    public String remoteSec = "00";
+    public String remoteHr = "00";
     /*
      * Lifecycle
      */
@@ -146,13 +153,20 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         mainEfficencyPump = view.findViewById(R.id._effpump1);
         altEfficencyPump = view.findViewById(R.id._effpump2);
         peristalicPump = view.findViewById(R.id._peristalic);
-        effluentcount = view.findViewById(R.id._effluentcount);
         airpressure = view.findViewById(R.id._airpressure);
         boff = view.findViewById(R.id.bOFF);
         bANR = view.findViewById(R.id.bANR);
         bSPY = view.findViewById(R.id.bSPY);
         bdmd = view.findViewById(R.id.bdemand);
         bdrip = view.findViewById(R.id.bdrip);
+        highProbe = view.findViewById(R.id._bhigh);
+        lowProbe = view.findViewById(R.id._blow);
+        alarmExt = view.findViewById(R.id._balarm);
+        chlorineIn = view.findViewById(R.id._bcl);
+        waterMeterIn = view.findViewById(R.id._bwm);
+        effluentCount = view.findViewById(R.id._effluentcount);
+        pumpRuntime = view.findViewById(R.id._pumprun);
+        remoteTime = view.findViewById(R.id.remoteTime);
         View receiveBtn = view.findViewById(R.id.receive_btn);
         //View bANR = view.findViewById(R.id.bANR);
 
@@ -305,77 +319,86 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         usbSerialPort = null;
     }
 
+    private void setTextViewFlavor(TextView textview, String value) {
+        if (value.equalsIgnoreCase("true")) {
+            textview.setBackgroundColor(Color.GREEN);
+            textview.setTextColor(Color.BLACK);
+        }
+        else {
+            textview.setBackgroundColor(Color.BLACK);
+            textview.setTextColor(Color.WHITE);
+        }
+    }
+
     public void upDateUi(String cmd,  String value) {
         if (cmd.equalsIgnoreCase("bS2")) {
-            if (value.equalsIgnoreCase("true"))
-                fieldFlush.setBackgroundColor(Color.GREEN);
-            else
-                fieldFlush.setBackgroundColor(Color.BLACK);
-            return;
+            setTextViewFlavor(fieldFlush, value);
         }
         else if(cmd.equalsIgnoreCase("bS1")) {
-            if (value.equalsIgnoreCase("true"))
-                recirculate.setBackgroundColor(Color.GREEN);
-            else
-                recirculate.setBackgroundColor(Color.BLACK);
-            return;
-            }
+            setTextViewFlavor(recirculate, value);
+        }
         else if(cmd.equalsIgnoreCase("bRY3")) {
-            if (value.equalsIgnoreCase("true"))
-                mainEfficencyPump.setBackgroundColor(Color.GREEN);
-            else
-                mainEfficencyPump.setBackgroundColor(Color.BLACK);
-            return;
+                setTextViewFlavor(mainEfficencyPump, value);
         }
         else if(cmd.equalsIgnoreCase("bRY4")) {
-            if (value.equalsIgnoreCase("true"))
-                altEfficencyPump.setBackgroundColor(Color.GREEN);
-            else
-                altEfficencyPump.setBackgroundColor(Color.BLACK);
-            return;
+                setTextViewFlavor(altEfficencyPump, value);
         }
         else if(cmd.equalsIgnoreCase("bDPump")) {
-            if (value.equalsIgnoreCase("true"))
-                peristalicPump.setBackgroundColor(Color.GREEN);
-            else
-                peristalicPump.setBackgroundColor(Color.BLACK);
-            return;
+            setTextViewFlavor(peristalicPump, value);
         }
         else if(cmd.equalsIgnoreCase("PTime")) {
-            effluentcount.setText(value);
-            return;
+            pumpRuntime.setText(value);
+        }
+        else if(cmd.equalsIgnoreCase("EFFcnt")) {
+            effluentCount.setText(value);
         }
         else if(cmd.equalsIgnoreCase("AirTime")) {
             airpressure.setText(value);
-            return;
         }
         else if(cmd.equalsIgnoreCase("bOFF")) {
             if (value.equalsIgnoreCase("true"))
                 boff.setChecked(true);
-            return;
         }
         else if(cmd.equalsIgnoreCase("bdrip_sel")) {
             if (value.equalsIgnoreCase("true"))
                 bdrip.setChecked(true);
-            return;
         }
         else if(cmd.equalsIgnoreCase("bANR")) {
             if (value.equalsIgnoreCase("true"))
                 bANR.setChecked(true);
-            return;
         }
         else if(cmd.equalsIgnoreCase("bSPY")) {
             if (value.equalsIgnoreCase("true"))
                 bSPY.setChecked(true);
-            return;
         }
         else if(cmd.equalsIgnoreCase("bDMD")) {
             if (value.equalsIgnoreCase("true"))
                 bdmd.setChecked(true);
-            return;
+        }
+        else if(cmd.equalsIgnoreCase("HRS")) {
+            remoteHr = value;
+            remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        }
+        else if(cmd.equalsIgnoreCase("MIN")) {
+            remoteMin = value;
+            remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        }
+        else if(cmd.equalsIgnoreCase("SEC")) {
+            remoteSec = value;
+            remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
         }
     }
 
+    private SpannableStringBuilder updateTime(String remoteHr, String remoteMin, String remoteSec){
+        SpannableStringBuilder remoteTime = new SpannableStringBuilder();
+        remoteTime.append(remoteHr);
+        remoteTime.append(":");
+        remoteTime.append(remoteMin);
+        remoteTime.append(":");
+        remoteTime.append(remoteSec);
+        remoteTime.append("\n");
+        return(remoteTime);
+    }
     private void send(String str) {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
@@ -479,20 +502,21 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         private static final int refreshInterval = 200; // msec
 
         private final Runnable runnable;
-        private final ToggleButton rtsBtn, ctsBtn, dtrBtn, dsrBtn, cdBtn, riBtn;
+        private final ToggleButton test, high, low, alarm, CL, WM;
 
         ControlLines(View view) {
             runnable = this::run; // w/o explicit Runnable, a new lambda would be created on each postDelayed, which would not be found again by removeCallbacks
 
-            rtsBtn = view.findViewById(R.id.controlLineRts);
-            ctsBtn = view.findViewById(R.id.controlLineCts);
-            dtrBtn = view.findViewById(R.id.controlLineDtr);
-            dsrBtn = view.findViewById(R.id.controlLineDsr);
-            cdBtn = view.findViewById(R.id.controlLineCd);
-            riBtn = view.findViewById(R.id.controlLineRi);
-            rtsBtn.setOnClickListener(this::toggle);
-            dtrBtn.setOnClickListener(this::toggle);
+            test = view.findViewById(R.id.controlLineTest);
+            high = view.findViewById(R.id.controlLineHigh);
+            low = view.findViewById(R.id.controlLineLow);
+            alarm = view.findViewById(R.id.controlLineAlarm);
+            CL = view.findViewById(R.id.controlLineCl);
+            WM = view.findViewById(R.id.controlLineWm);
+            test.setOnClickListener(this::toggle);
+            low.setOnClickListener(this::toggle);
         }
+
 
         private void toggle(View v) {
             ToggleButton btn = (ToggleButton) v;
@@ -503,8 +527,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             }
             String ctrl = "";
             try {
-                if (btn.equals(rtsBtn)) { ctrl = "RTS"; usbSerialPort.setRTS(btn.isChecked()); }
-                if (btn.equals(dtrBtn)) { ctrl = "DTR"; usbSerialPort.setDTR(btn.isChecked()); }
+                if (btn.equals(test)) { ctrl = "RTS"; usbSerialPort.setRTS(btn.isChecked()); }
+                if (btn.equals(low)) { ctrl = "DTR"; usbSerialPort.setDTR(btn.isChecked()); }
             } catch (IOException e) {
                 status("set" + ctrl + "() failed: " + e.getMessage());
             }
@@ -515,12 +539,12 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 return;
             try {
                 EnumSet<UsbSerialPort.ControlLine> controlLines = usbSerialPort.getControlLines();
-                rtsBtn.setChecked(controlLines.contains(UsbSerialPort.ControlLine.RTS));
-                ctsBtn.setChecked(controlLines.contains(UsbSerialPort.ControlLine.CTS));
-                dtrBtn.setChecked(controlLines.contains(UsbSerialPort.ControlLine.DTR));
-                dsrBtn.setChecked(controlLines.contains(UsbSerialPort.ControlLine.DSR));
-                cdBtn.setChecked(controlLines.contains(UsbSerialPort.ControlLine.CD));
-                riBtn.setChecked(controlLines.contains(UsbSerialPort.ControlLine.RI));
+                test.setChecked(controlLines.contains(UsbSerialPort.ControlLine.RTS));
+                high.setChecked(controlLines.contains(UsbSerialPort.ControlLine.CTS));
+                low.setChecked(controlLines.contains(UsbSerialPort.ControlLine.DTR));
+                alarm.setChecked(controlLines.contains(UsbSerialPort.ControlLine.DSR));
+                CL.setChecked(controlLines.contains(UsbSerialPort.ControlLine.CD));
+                WM.setChecked(controlLines.contains(UsbSerialPort.ControlLine.RI));
                 mainLooper.postDelayed(runnable, refreshInterval);
             } catch (IOException e) {
                 status("getControlLines() failed: " + e.getMessage() + " -> stopped control line refresh");
@@ -532,12 +556,12 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 return;
             try {
                 EnumSet<UsbSerialPort.ControlLine> controlLines = usbSerialPort.getSupportedControlLines();
-                if (!controlLines.contains(UsbSerialPort.ControlLine.RTS)) rtsBtn.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.CTS)) ctsBtn.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.DTR)) dtrBtn.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.DSR)) dsrBtn.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.CD))   cdBtn.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.RI))   riBtn.setVisibility(View.INVISIBLE);
+                if (!controlLines.contains(UsbSerialPort.ControlLine.RTS)) test.setVisibility(View.INVISIBLE);
+                if (!controlLines.contains(UsbSerialPort.ControlLine.CTS)) high.setVisibility(View.INVISIBLE);
+                if (!controlLines.contains(UsbSerialPort.ControlLine.DTR)) low.setVisibility(View.INVISIBLE);
+                if (!controlLines.contains(UsbSerialPort.ControlLine.DSR)) alarm.setVisibility(View.INVISIBLE);
+                if (!controlLines.contains(UsbSerialPort.ControlLine.CD))   CL.setVisibility(View.INVISIBLE);
+                if (!controlLines.contains(UsbSerialPort.ControlLine.RI))   WM.setVisibility(View.INVISIBLE);
                 run();
             } catch (IOException e) {
                 Toast.makeText(getActivity(), "getSupportedControlLines() failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -546,12 +570,12 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
         void stop() {
             mainLooper.removeCallbacks(runnable);
-            rtsBtn.setChecked(false);
-            ctsBtn.setChecked(false);
-            dtrBtn.setChecked(false);
-            dsrBtn.setChecked(false);
-            cdBtn.setChecked(false);
-            riBtn.setChecked(false);
+            test.setChecked(false);
+            high.setChecked(false);
+            low.setChecked(false);
+            alarm.setChecked(false);
+            CL.setChecked(false);
+            WM.setChecked(false);
         }
     }
 }
