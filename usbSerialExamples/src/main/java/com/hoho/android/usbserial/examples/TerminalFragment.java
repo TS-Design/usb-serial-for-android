@@ -23,6 +23,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -43,6 +45,8 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
+
 import android.graphics.Color;
 
 public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener {
@@ -72,7 +76,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private TextView alarmExt;
     private TextView chlorineIn;
     private TextView waterMeterIn;
+    private TextView test;
+    private TextView testHigh;
+    private TextView testLow;
+    private TextView testAlarmExt;
+    private TextView testWaterMeterIn;
+    private TextView testChlorineIn;
     private TextView effluentCount;
+    private TextView gallonsCount;
     private RadioButton boff;
     private RadioButton bANR;
     private RadioButton bSPY;
@@ -164,6 +175,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         alarmExt = view.findViewById(R.id._balarm);
         chlorineIn = view.findViewById(R.id._bcl);
         waterMeterIn = view.findViewById(R.id._bwm);
+        gallonsCount = view.findViewById(R.id._gallonsCount);
+
+        test = view.findViewById(R.id.controlLineTest);
+        testHigh = view.findViewById(R.id.controlLineHigh);
+        testLow = view.findViewById(R.id.controlLineLow);
+        testAlarmExt = view.findViewById(R.id.controlLineAlarm);
+        testChlorineIn = view.findViewById(R.id.controlLineCl);
+        testWaterMeterIn = view.findViewById(R.id.controlLineWm);
         effluentCount = view.findViewById(R.id._effluentcount);
         pumpRuntime = view.findViewById(R.id._pumprun);
         remoteTime = view.findViewById(R.id.remoteTime);
@@ -185,6 +204,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bSPY.setOnClickListener(v -> send("{\"bSPY\":True}"));
         bdmd.setOnClickListener(v -> send("{\"bDMD\":True}"));
         bdrip.setOnClickListener(v -> send("{\"bdrip_sel\":True}"));
+
+
         //boff.setClickable(false);
         //boff.setEnabled(false);
 
@@ -334,6 +355,21 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         if (cmd.equalsIgnoreCase("bS2")) {
             setTextViewFlavor(fieldFlush, value);
         }
+        else if(cmd.equalsIgnoreCase("blow")) {
+            setTextViewFlavor(lowProbe, value);
+        }
+        else if(cmd.equalsIgnoreCase("bhigh")) {
+            setTextViewFlavor(highProbe, value);
+        }
+        else if(cmd.equalsIgnoreCase("balarm")) {
+            setTextViewFlavor(alarmExt, value);
+        }
+        else if(cmd.equalsIgnoreCase("bcl")) {
+            setTextViewFlavor(chlorineIn, value);
+        }
+        else if(cmd.equalsIgnoreCase("bwm")) {
+            setTextViewFlavor(waterMeterIn, value);
+        }
         else if(cmd.equalsIgnoreCase("bS1")) {
             setTextViewFlavor(recirculate, value);
         }
@@ -343,17 +379,23 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         else if(cmd.equalsIgnoreCase("bRY4")) {
                 setTextViewFlavor(altEfficencyPump, value);
         }
+        else if(cmd.equalsIgnoreCase("bENA")) {
+            setTextViewFlavor(test, value);
+        }
         else if(cmd.equalsIgnoreCase("bDPump")) {
             setTextViewFlavor(peristalicPump, value);
         }
         else if(cmd.equalsIgnoreCase("PTime")) {
             pumpRuntime.setText(value);
         }
-        else if(cmd.equalsIgnoreCase("EFFcnt")) {
+        else if(cmd.equalsIgnoreCase("FFper")) {
             effluentCount.setText(value);
         }
         else if(cmd.equalsIgnoreCase("AirTime")) {
             airpressure.setText(value);
+        }
+        else if(cmd.equalsIgnoreCase("GAL")) {
+            gallonsCount.setText(value);
         }
         else if(cmd.equalsIgnoreCase("bOFF")) {
             if (value.equalsIgnoreCase("true"))
@@ -396,9 +438,20 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         remoteTime.append(remoteMin);
         remoteTime.append(":");
         remoteTime.append(remoteSec);
-        remoteTime.append("\n");
         return(remoteTime);
     }
+
+    private void sendJson(String cmd, String value) {
+        SpannableStringBuilder json = new SpannableStringBuilder();
+        json.append("{\"");
+        json.append(cmd);
+        json.append("\":");
+        json.append(value);
+        json.append("}");
+        json.append("\n");
+        send(String.valueOf(json));
+    }
+
     private void send(String str) {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
@@ -467,7 +520,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         value = false;
                         VALUE = keyString;
                         keyString = "";
-                        receiveText.append(KEY + ":" + VALUE  + "\n");
+                        if(!KEY.equalsIgnoreCase("AirTime") && !KEY.equalsIgnoreCase("PTime"))
+                            receiveText.append(KEY + ":" + VALUE  + "\n");
                         upDateUi(KEY, VALUE);
                         break;
                     case ':':
@@ -513,10 +567,17 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             alarm = view.findViewById(R.id.controlLineAlarm);
             CL = view.findViewById(R.id.controlLineCl);
             WM = view.findViewById(R.id.controlLineWm);
-            test.setOnClickListener(this::toggle);
+            test.setOnClickListener(this::test);
+            high.setOnClickListener(this::toggle);
             low.setOnClickListener(this::toggle);
+            alarm.setOnClickListener(this::toggle);
+            CL.setOnClickListener(this::toggle);
+            WM.setOnClickListener(this::toggle);
         }
 
+        private  void test(View v) {
+            sendJson("bENA", "True");
+        }
 
         private void toggle(View v) {
             ToggleButton btn = (ToggleButton) v;
@@ -527,8 +588,17 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             }
             String ctrl = "";
             try {
-                if (btn.equals(test)) { ctrl = "RTS"; usbSerialPort.setRTS(btn.isChecked()); }
-                if (btn.equals(low)) { ctrl = "DTR"; usbSerialPort.setDTR(btn.isChecked()); }
+                if (btn.equals(test)) {
+                    ctrl = "Test";
+                    if(btn.isChecked()) {
+                        sendJson("bENA", "false");
+                    }
+                    else {
+                        sendJson("bENA","true");
+                    }
+                    //usbSerialPort.setRTS(btn.isChecked());
+                }
+                if (btn.equals(low)) { ctrl = "Low"; usbSerialPort.setDTR(btn.isChecked()); }
             } catch (IOException e) {
                 status("set" + ctrl + "() failed: " + e.getMessage());
             }
