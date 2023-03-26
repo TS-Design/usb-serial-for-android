@@ -67,21 +67,23 @@
             android:id="@+id/controlLineLow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/square_button"
             android:minWidth="@dimen/minWidth"
+            android:textSize="@dimen/ModeText"
+            android:clickable="true"
             android:textOff="Low"
-            android:textOn="Low"
-            android:textSize="@dimen/ModeText" />
+            android:textOn="Low" />
 
         <ToggleButton
             android:id="@+id/controlLineAlarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
+            android:background="@drawable/square_button"
             android:minWidth="@dimen/minWidth"
-            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="@dimen/ModeText"
+            android:clickable="true"
             android:textOff="Alarm"
-            android:textOn="Alarm"
-            android:textSize="@dimen/ModeText" />
+            android:textOn="Alarm" />
 
         <View
             android:layout_width="6dp"
@@ -91,23 +93,23 @@
             android:id="@+id/controlLineCl"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="false"
+            android:background="@drawable/square_button"
             android:minWidth="@dimen/minWidth"
-            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="@dimen/ModeText"
+            android:clickable="true"
             android:textOff="CL"
-            android:textOn="CL"
-            android:textSize="@dimen/ModeText" />
+            android:textOn="CL" />
 
         <ToggleButton
             android:id="@+id/controlLineWm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="false"
+            android:background="@drawable/square_button"
             android:minWidth="@dimen/minWidth"
-            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="@dimen/ModeText"
+            android:clickable="true"
             android:textOff="WM"
-            android:textOn="WM"
-            android:textSize="@dimen/ModeText" />
+            android:textOn="WM"  />
 
     </LinearLayout>
     <!--List Divider-->
@@ -136,28 +138,28 @@
             android:text="Off" />
 
         <RadioButton
-            android:id="@+id/bANR"
+            android:id="@+id/AnrBnr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="@dimen/minWidth"
             android:text="ANR" />
 
         <RadioButton
-            android:id="@+id/bSPY"
+            android:id="@+id/NightSpray"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="@dimen/minWidth"
             android:text="Spray" />
 
         <RadioButton
-            android:id="@+id/bdrip"
+            android:id="@+id/DripDisposal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="@dimen/minWidth"
             android:text="Drip" />
 
         <RadioButton
-            android:id="@+id/bdemand"
+            android:id="@+id/OnDemmand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="@dimen/minWidth"
@@ -355,7 +357,7 @@
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/_gallonsCount"
+            android:id="@+id/GallonsValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="10pt"

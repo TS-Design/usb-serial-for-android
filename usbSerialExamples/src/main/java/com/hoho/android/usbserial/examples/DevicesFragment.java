@@ -145,7 +145,7 @@ public class DevicesFragment extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
+     public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
         ListItem item = listItems.get(position-1);
         if(item.driver == null) {
             Toast.makeText(getActivity(), "no driver", Toast.LENGTH_SHORT).show();
@@ -157,7 +157,7 @@ public class DevicesFragment extends ListFragment {
             args.putBoolean("withIoManager", withIoManager);
             Fragment fragment = new TerminalFragment();
             fragment.setArguments(args);
-            getFragmentManager().beginTransaction().replace(R.id.fragment, fragment, "terminal").addToBackStack(null).commit();
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment, fragment, "terminal").addToBackStack(null).commit();
         }
     }
 

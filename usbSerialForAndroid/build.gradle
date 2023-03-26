@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 32
+        minSdkVersion 26
+        targetSdkVersion 33
         consumerProguardFiles 'proguard-rules.pro'
         
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -24,11 +24,11 @@ android {
 }
 
 dependencies {
-    implementation "androidx.annotation:annotation:1.5.0"
-    implementation 'androidx.test:core:1.4.0'
+    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'androidx.test:core:1.5.0'
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:4.8.1'
-    androidTestImplementation 'androidx.test:runner:1.4.0'
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'commons-net:commons-net:20030805.205232'
     androidTestImplementation 'org.apache.commons:commons-lang3:3.12.0'
 }

@@ -2,4 +2,5 @@
 <resources>
     <dimen name="ModeText">20sp</dimen>
     <dimen name="minWidth">50sp</dimen>
+    <dimen name="RadioHight">60dp</dimen>
 </resources>

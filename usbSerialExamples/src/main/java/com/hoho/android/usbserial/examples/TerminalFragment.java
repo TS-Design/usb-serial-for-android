@@ -23,13 +23,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 //import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -44,8 +41,6 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Objects;
 
 import android.graphics.Color;
 
@@ -90,7 +85,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton bdrip;
     private RadioButton bdmd;
     private TextView remoteTime;
-    private ControlLines controlLines;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
@@ -156,53 +150,20 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-        receiveText = view.findViewById(R.id.receive_text);                          // TextView performance decreases with number of spans
-        receiveText.setTextColor(getResources().getColor(R.color.colorRecieveText)); // set as default color to reduce number of spans
-        receiveText.setMovementMethod(ScrollingMovementMethod.getInstance());
-        fieldFlush = view.findViewById(R.id._fieldFlush);
-        recirculate = view.findViewById(R.id._recirculate);
-        mainEfficencyPump = view.findViewById(R.id._effpump1);
-        altEfficencyPump = view.findViewById(R.id._effpump2);
-        peristalicPump = view.findViewById(R.id._peristalic);
-        airpressure = view.findViewById(R.id._airpressure);
-        boff = view.findViewById(R.id.bOFF);
-        bANR = view.findViewById(R.id.bANR);
-        bSPY = view.findViewById(R.id.bSPY);
-        bdmd = view.findViewById(R.id.bdemand);
-        bdrip = view.findViewById(R.id.bdrip);
-        highProbe = view.findViewById(R.id._bhigh);
-        lowProbe = view.findViewById(R.id._blow);
-        alarmExt = view.findViewById(R.id._balarm);
-        chlorineIn = view.findViewById(R.id._bcl);
-        waterMeterIn = view.findViewById(R.id._bwm);
-        gallonsCount = view.findViewById(R.id._gallonsCount);
 
-        test = view.findViewById(R.id.controlLineTest);
-        testHigh = view.findViewById(R.id.controlLineHigh);
-        testLow = view.findViewById(R.id.controlLineLow);
-        testAlarmExt = view.findViewById(R.id.controlLineAlarm);
-        testChlorineIn = view.findViewById(R.id.controlLineCl);
-        testWaterMeterIn = view.findViewById(R.id.controlLineWm);
-        effluentCount = view.findViewById(R.id._effluentcount);
-        pumpRuntime = view.findViewById(R.id._pumprun);
-        remoteTime = view.findViewById(R.id.remoteTime);
-        View receiveBtn = view.findViewById(R.id.receive_btn);
-        //View bANR = view.findViewById(R.id.bANR);
+        bANR = view.findViewById(R.id.AnrBnr);
+        bSPY = view.findViewById(R.id.NightSpray);
+        bdmd = view.findViewById(R.id.OnDemmand);
+        bdrip = view.findViewById(R.id.DripDisposal);
 
-        TextView sendText = view.findViewById(R.id.send_text);
-        View sendBtn = view.findViewById(R.id.send_btn);
-        sendBtn.setOnClickListener(v -> send(sendText.getText().toString()));
-        controlLines = new ControlLines(view);
-        if(withIoManager) {
-            receiveBtn.setVisibility(View.GONE);
-        } else {
-            receiveBtn.setOnClickListener(v -> read());
-        }
+        gallonsCount = view.findViewById(R.id.GallonsValue);
+
+
         RadioGroup mode = (RadioGroup) view.findViewById(R.id._mode);
-        boff.setOnClickListener(v -> send("{\"bOFF\":True}"));
-        bANR.setOnClickListener(v -> send("{\"bANR\":True}"));
-        bSPY.setOnClickListener(v -> send("{\"bSPY\":True}"));
-        bdmd.setOnClickListener(v -> send("{\"bDMD\":True}"));
+        boff.setOnClickListener(v -> send("{\"bOFF\":true}"));  // something is always true
+        bANR.setOnClickListener(v -> send("{\"bANR\":true}"));
+        bSPY.setOnClickListener(v -> send("{\"bSPY\":true}"));
+        bdmd.setOnClickListener(v -> send("{\"bDMD\":true}"));
         bdrip.setOnClickListener(v -> send("{\"bdrip_sel\":True}"));
 
 
@@ -319,7 +280,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             }
             status("connected");
             connected = true;
-            controlLines.start();
         } catch (Exception e) {
             status("connection failed: " + e.getMessage());
             disconnect();
@@ -328,7 +288,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
     private void disconnect() {
         connected = false;
-        controlLines.stop();
         if(usbIoManager != null) {
             usbIoManager.setListener(null);
             usbIoManager.stop();
@@ -350,25 +309,31 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             textview.setTextColor(Color.WHITE);
         }
     }
-
+/*
     public void upDateUi(String cmd,  String value) {
         if (cmd.equalsIgnoreCase("bS2")) {
             setTextViewFlavor(fieldFlush, value);
         }
+        else if(cmd.equalsIgnoreCase("bENA")) setTextViewFlavor(test, value);
         else if(cmd.equalsIgnoreCase("blow")) {
             setTextViewFlavor(lowProbe, value);
+
         }
         else if(cmd.equalsIgnoreCase("bhigh")) {
             setTextViewFlavor(highProbe, value);
+
         }
         else if(cmd.equalsIgnoreCase("balarm")) {
             setTextViewFlavor(alarmExt, value);
+
         }
         else if(cmd.equalsIgnoreCase("bcl")) {
             setTextViewFlavor(chlorineIn, value);
+
         }
         else if(cmd.equalsIgnoreCase("bwm")) {
             setTextViewFlavor(waterMeterIn, value);
+
         }
         else if(cmd.equalsIgnoreCase("bS1")) {
             setTextViewFlavor(recirculate, value);
@@ -430,7 +395,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
         }
     }
-
+*/
     private SpannableStringBuilder updateTime(String remoteHr, String remoteMin, String remoteSec){
         SpannableStringBuilder remoteTime = new SpannableStringBuilder();
         remoteTime.append(remoteHr);
@@ -522,7 +487,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         keyString = "";
                         if(!KEY.equalsIgnoreCase("AirTime") && !KEY.equalsIgnoreCase("PTime"))
                             receiveText.append(KEY + ":" + VALUE  + "\n");
-                        upDateUi(KEY, VALUE);
+                        //upDateUi(KEY, VALUE);
                         break;
                     case ':':
                         key = false;
@@ -552,100 +517,4 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         receiveText.append(spn);
     }
 
-    class ControlLines {
-        private static final int refreshInterval = 200; // msec
-
-        private final Runnable runnable;
-        private final ToggleButton test, high, low, alarm, CL, WM;
-
-        ControlLines(View view) {
-            runnable = this::run; // w/o explicit Runnable, a new lambda would be created on each postDelayed, which would not be found again by removeCallbacks
-
-            test = view.findViewById(R.id.controlLineTest);
-            high = view.findViewById(R.id.controlLineHigh);
-            low = view.findViewById(R.id.controlLineLow);
-            alarm = view.findViewById(R.id.controlLineAlarm);
-            CL = view.findViewById(R.id.controlLineCl);
-            WM = view.findViewById(R.id.controlLineWm);
-            test.setOnClickListener(this::test);
-            high.setOnClickListener(this::toggle);
-            low.setOnClickListener(this::toggle);
-            alarm.setOnClickListener(this::toggle);
-            CL.setOnClickListener(this::toggle);
-            WM.setOnClickListener(this::toggle);
-        }
-
-        private  void test(View v) {
-            sendJson("bENA", "True");
-        }
-
-        private void toggle(View v) {
-            ToggleButton btn = (ToggleButton) v;
-            if (!connected) {
-                btn.setChecked(!btn.isChecked());
-                Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String ctrl = "";
-            try {
-                if (btn.equals(test)) {
-                    ctrl = "Test";
-                    if(btn.isChecked()) {
-                        sendJson("bENA", "false");
-                    }
-                    else {
-                        sendJson("bENA","true");
-                    }
-                    //usbSerialPort.setRTS(btn.isChecked());
-                }
-                if (btn.equals(low)) { ctrl = "Low"; usbSerialPort.setDTR(btn.isChecked()); }
-            } catch (IOException e) {
-                status("set" + ctrl + "() failed: " + e.getMessage());
-            }
-        }
-
-        private void run() {
-            if (!connected)
-                return;
-            try {
-                EnumSet<UsbSerialPort.ControlLine> controlLines = usbSerialPort.getControlLines();
-                test.setChecked(controlLines.contains(UsbSerialPort.ControlLine.RTS));
-                high.setChecked(controlLines.contains(UsbSerialPort.ControlLine.CTS));
-                low.setChecked(controlLines.contains(UsbSerialPort.ControlLine.DTR));
-                alarm.setChecked(controlLines.contains(UsbSerialPort.ControlLine.DSR));
-                CL.setChecked(controlLines.contains(UsbSerialPort.ControlLine.CD));
-                WM.setChecked(controlLines.contains(UsbSerialPort.ControlLine.RI));
-                mainLooper.postDelayed(runnable, refreshInterval);
-            } catch (IOException e) {
-                status("getControlLines() failed: " + e.getMessage() + " -> stopped control line refresh");
-            }
-        }
-
-        void start() {
-            if (!connected)
-                return;
-            try {
-                EnumSet<UsbSerialPort.ControlLine> controlLines = usbSerialPort.getSupportedControlLines();
-                if (!controlLines.contains(UsbSerialPort.ControlLine.RTS)) test.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.CTS)) high.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.DTR)) low.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.DSR)) alarm.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.CD))   CL.setVisibility(View.INVISIBLE);
-                if (!controlLines.contains(UsbSerialPort.ControlLine.RI))   WM.setVisibility(View.INVISIBLE);
-                run();
-            } catch (IOException e) {
-                Toast.makeText(getActivity(), "getSupportedControlLines() failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        void stop() {
-            mainLooper.removeCallbacks(runnable);
-            test.setChecked(false);
-            high.setChecked(false);
-            low.setChecked(false);
-            alarm.setChecked(false);
-            CL.setChecked(false);
-            WM.setChecked(false);
-        }
-    }
 }
