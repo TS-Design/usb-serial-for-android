@@ -1,6 +1,4 @@
 package com.hoho.android.usbserial.examples;
-
-
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,7 +13,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,12 +24,10 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 //import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -41,54 +36,52 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import android.graphics.Color;
 
 public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener {
 
-
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
-
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
-
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
+    private final boolean UiMessageSent = false;
+    Handler timerHandler;
+
+    //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
+
     private TextView receiveText;
-    private TextView fieldFlush;
+/*    private TextView fieldFlush;
     private TextView recirculate;
     private TextView pumpRuntime;
     private TextView mainEfficencyPump;
     private TextView altEfficencyPump;
-    private TextView peristalicPump;
+    private TextView _peristalicPump;
     private TextView airpressure;
     private TextView highProbe;
     private TextView lowProbe;
     private TextView alarmExt;
     private TextView chlorineIn;
-    private TextView waterMeterIn;
-    private TextView test;
-    private TextView testHigh;
-    private TextView testLow;
-    private TextView testAlarmExt;
-    private TextView testWaterMeterIn;
-    private TextView testChlorineIn;
-    private TextView effluentCount;
+    private TextView waterMeterIn;*/
     private TextView gallonsCount;
-    private RadioButton boff;
-    private RadioButton bANR;
-    private RadioButton bSPY;
+
+    private RadioButton bgrav;
+    private RadioButton banr;
+    private RadioButton bspy;
     private RadioButton bdrip;
     private RadioButton bdmd;
-    private TextView remoteTime;
+    private RadioButton bbnr;
+    //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
     private boolean connected = false;
+    private boolean msgAck = false;
 
     public TerminalFragment() {
         broadcastReceiver = new BroadcastReceiver() {
@@ -114,6 +107,22 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     /*
      * Lifecycle
      */
+    final Runnable update = new Runnable() {
+        public void run() {
+            updateUI();
+        }
+    };
+ /*   final Runnable hidTimeout = new Runnable() {
+        public void run() {
+            Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+        }
+    }
+    mainLooper.postDelayed(hidTimeout, 1500);*/
+    public void updateUI() {
+        mainLooper.postDelayed(update, 3000);
+        if(connected)
+            sendJson("bANR","true");
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,30 +159,28 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-
-        bANR = view.findViewById(R.id.AnrBnr);
-        bSPY = view.findViewById(R.id.NightSpray);
-        bdmd = view.findViewById(R.id.OnDemmand);
-        bdrip = view.findViewById(R.id.DripDisposal);
-
+        bgrav = view.findViewById(R.id.grav);
+        banr = view.findViewById(R.id.banr);
+        bbnr = view.findViewById(R.id.bbnr);
+        bspy = view.findViewById(R.id.bspy);
+        bdmd = view.findViewById(R.id.bdmd);
+        bdrip = view.findViewById(R.id.bdrip);
+        receiveText = view.findViewById(R.id.receiveText);
         gallonsCount = view.findViewById(R.id.GallonsValue);
-
-
-        RadioGroup mode = (RadioGroup) view.findViewById(R.id._mode);
-        boff.setOnClickListener(v -> send("{\"bOFF\":true}"));  // something is always true
-        bANR.setOnClickListener(v -> send("{\"bANR\":true}"));
-        bSPY.setOnClickListener(v -> send("{\"bSPY\":true}"));
-        bdmd.setOnClickListener(v -> send("{\"bDMD\":true}"));
-        bdrip.setOnClickListener(v -> send("{\"bdrip_sel\":True}"));
-
-
-        //boff.setClickable(false);
-        //boff.setEnabled(false);
-
-        //boff.setTextColor(getResources().getColor(R.color.colorRecieveText)); // set as default color to reduce number of spans
-
-        //View _effpump1 = view.findViewById(R.id._effpump1); // mlp
-
+        RadioGroup mode = (RadioGroup) view.findViewById(R.id.main_mode);
+        bgrav.setOnClickListener(v -> gravCallback());  // something is always true
+        banr.setOnClickListener(v -> banrCallback());
+        bbnr.setOnClickListener(v -> bbnrCallback());
+        bspy.setOnClickListener(v -> bspyCallback());
+        bdmd.setOnClickListener(v -> bdmdCallback());
+        bdrip.setOnClickListener(v -> bdripCallback());
+        if(check5lTime()) {
+            Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
+        }
+        /*
+        * Start Update timer to sync UI
+         */
+        updateUI();
         return view;
     }
 
@@ -286,6 +293,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
     }
 
+
     private void disconnect() {
         connected = false;
         if(usbIoManager != null) {
@@ -309,93 +317,35 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             textview.setTextColor(Color.WHITE);
         }
     }
-/*
-    public void upDateUi(String cmd,  String value) {
-        if (cmd.equalsIgnoreCase("bS2")) {
-            setTextViewFlavor(fieldFlush, value);
-        }
-        else if(cmd.equalsIgnoreCase("bENA")) setTextViewFlavor(test, value);
-        else if(cmd.equalsIgnoreCase("blow")) {
-            setTextViewFlavor(lowProbe, value);
 
-        }
-        else if(cmd.equalsIgnoreCase("bhigh")) {
-            setTextViewFlavor(highProbe, value);
+    private boolean check5lTime() {
+        Calendar rightNow = Calendar.getInstance();
+        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
 
-        }
-        else if(cmd.equalsIgnoreCase("balarm")) {
-            setTextViewFlavor(alarmExt, value);
+//        sendJson("hour", String.valueOf(hour));
 
-        }
-        else if(cmd.equalsIgnoreCase("bcl")) {
-            setTextViewFlavor(chlorineIn, value);
-
-        }
-        else if(cmd.equalsIgnoreCase("bwm")) {
-            setTextViewFlavor(waterMeterIn, value);
-
-        }
-        else if(cmd.equalsIgnoreCase("bS1")) {
-            setTextViewFlavor(recirculate, value);
-        }
-        else if(cmd.equalsIgnoreCase("bRY3")) {
-                setTextViewFlavor(mainEfficencyPump, value);
-        }
-        else if(cmd.equalsIgnoreCase("bRY4")) {
-                setTextViewFlavor(altEfficencyPump, value);
-        }
-        else if(cmd.equalsIgnoreCase("bENA")) {
-            setTextViewFlavor(test, value);
-        }
-        else if(cmd.equalsIgnoreCase("bDPump")) {
-            setTextViewFlavor(peristalicPump, value);
-        }
-        else if(cmd.equalsIgnoreCase("PTime")) {
-            pumpRuntime.setText(value);
-        }
-        else if(cmd.equalsIgnoreCase("FFper")) {
-            effluentCount.setText(value);
-        }
-        else if(cmd.equalsIgnoreCase("AirTime")) {
-            airpressure.setText(value);
-        }
-        else if(cmd.equalsIgnoreCase("GAL")) {
-            gallonsCount.setText(value);
-        }
-        else if(cmd.equalsIgnoreCase("bOFF")) {
-            if (value.equalsIgnoreCase("true"))
-                boff.setChecked(true);
-        }
-        else if(cmd.equalsIgnoreCase("bdrip_sel")) {
-            if (value.equalsIgnoreCase("true"))
-                bdrip.setChecked(true);
-        }
-        else if(cmd.equalsIgnoreCase("bANR")) {
-            if (value.equalsIgnoreCase("true"))
-                bANR.setChecked(true);
-        }
-        else if(cmd.equalsIgnoreCase("bSPY")) {
-            if (value.equalsIgnoreCase("true"))
-                bSPY.setChecked(true);
-        }
-        else if(cmd.equalsIgnoreCase("bDMD")) {
-            if (value.equalsIgnoreCase("true"))
-                bdmd.setChecked(true);
-        }
-        else if(cmd.equalsIgnoreCase("HRS")) {
-            remoteHr = value;
-            remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }
-        else if(cmd.equalsIgnoreCase("MIN")) {
-            remoteMin = value;
-            remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }
-        else if(cmd.equalsIgnoreCase("SEC")) {
-            remoteSec = value;
-            remoteTime.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }
+        int minute = rightNow.get(Calendar.MINUTE);
+//        sendJson("min", String.valueOf(minute));
+        int second = rightNow.get(Calendar.SECOND);
+//        sendJson("sec", String.valueOf(second));
+        int month = rightNow.get(Calendar.DAY_OF_MONTH);
+//        sendJson("month", String.valueOf(month));
+        int day = rightNow.get(Calendar.DAY_OF_MONTH);
+//        sendJson("day", String.valueOf(day));
+        int year = rightNow.get(Calendar.YEAR);
+//        sendJson("year", String.valueOf(year));
+        return true;
     }
-*/
+    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
+        SpannableStringBuilder remoteTime = new SpannableStringBuilder();
+        remoteTime.append(String.valueOf(remoteHr));
+        remoteTime.append(":");
+        remoteTime.append(String.valueOf(remoteMin));
+        remoteTime.append(":");
+        remoteTime.append(String.valueOf(remoteSec));
+        return(remoteTime);
+    }
+
     private SpannableStringBuilder updateTime(String remoteHr, String remoteMin, String remoteSec){
         SpannableStringBuilder remoteTime = new SpannableStringBuilder();
         remoteTime.append(remoteHr);
@@ -405,8 +355,69 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         remoteTime.append(remoteSec);
         return(remoteTime);
     }
+    private void ackModeCmd(RadioButton activeButton){
+        bgrav.setTextColor(Color.WHITE);
+        banr.setTextColor(Color.WHITE);
+        bbnr.setTextColor(Color.WHITE);
+        bspy.setTextColor(Color.WHITE);
+        bdrip.setTextColor(Color.WHITE);
+        bdmd.setTextColor(Color.WHITE);
+       if(activeButton == bgrav)
+           bgrav.setTextColor(Color.GREEN);
+       else if (activeButton == banr)
+           banr.setTextColor(Color.GREEN);
+       else if (activeButton == bbnr)
+           bbnr.setTextColor(Color.GREEN);
+       else if (activeButton == bspy)
+           bspy.setTextColor(Color.GREEN);
+       else if (activeButton == bdrip)
+           bdrip.setTextColor(Color.GREEN);
+       else if (activeButton == bdmd)
+           bdmd.setTextColor(Color.GREEN);
+    }
+    private void gravCallback() {
+        send("{\"bGRAV\":true}");
+//        status("Gravity");
+//        setTextViewFlavor(bgrav, "true");
+        ackModeCmd(bgrav);
+    }
+    private void banrCallback() {
+        send("{\"bANR\":true}");
+//        status("ANR");
+        msgAck = false;
+        while(msgAck);
+        ackModeCmd(banr);
+    }
+    private void bbnrCallback() {
+        send("{\"bBNR\":true}");
+//        status("BNR");
+        msgAck = false;
+        while(msgAck);
+        ackModeCmd(bbnr);
+    }
+    private void bspyCallback() {
+        send("{\"bSPY\":true}");
+//        status("SPRAY");
+        msgAck = false;
+        while(msgAck);
+        ackModeCmd(bspy);
+    }
+    private void bdmdCallback() {
+        send("{\"bDMD\":true}");
+//        status("Demand");
+        msgAck = false;
+        while(msgAck);
+        ackModeCmd(bdmd);
+    }
+    private void bdripCallback() {
+        send("{\"bDRIP\":true}");
+//        status("Drip");
+        msgAck = false;
+        while(msgAck);
+        ackModeCmd(bdrip);
+    }
 
-    private void sendJson(String cmd, String value) {
+    private boolean sendJson(String cmd, String value) {
         SpannableStringBuilder json = new SpannableStringBuilder();
         json.append("{\"");
         json.append(cmd);
@@ -414,7 +425,21 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         json.append(value);
         json.append("}");
         json.append("\n");
-        send(String.valueOf(json));
+        try {
+            send(String.valueOf(json));
+            msgAck = false;
+            for(int j=0; j<1000;j++) {
+
+                    if(msgAck)
+                        break;
+                    else {
+                        Toast.makeText(getActivity(), "No ACK", Toast.LENGTH_SHORT).show();
+                    }
+            }
+        } catch (Exception e) {
+            onRunError(e);
+        }
+        return true;
     }
 
     private void send(String str) {
@@ -443,6 +468,10 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         try {
             byte[] buffer = new byte[8192];
             int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);
+/*            if(len == -1)
+                msgAck = false;
+            else
+                msgAck = true;*/
             receive(Arrays.copyOf(buffer, len));
         } catch (IOException e) {
             // when using read with timeout, USB bulkTransfer returns -1 on timeout _and_ errors
@@ -476,26 +505,25 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
             for(int k = 0; k < rx.length(); k++){
                 switch(rx.charAt(k)) {
-                    case '{':
+                    case '{':                           // start case start key phase
                         key = true;
                         keyString = "";
                         break;
-                    case '}':
+                    case '}':                           // save value and exit
                         key = false;
                         value = false;
                         VALUE = keyString;
                         keyString = "";
-                        if(!KEY.equalsIgnoreCase("AirTime") && !KEY.equalsIgnoreCase("PTime"))
-                            receiveText.append(KEY + ":" + VALUE  + "\n");
-                        //upDateUi(KEY, VALUE);
+                        receiveText.append(KEY + ":" + VALUE  + "\n");
+                        msgAck = true;
                         break;
-                    case ':':
+                    case ':':                           // save key move to value phase
                         key = false;
                         KEY = keyString;
                         value = true;
                         keyString = "";
                         break;
-                    case '"':
+                    case '"':                           // ignore these
                     case '\n':
                     case '\r':
                     case ' ':
@@ -504,7 +532,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         //if(key)
                         //    keyString = keyString.concat(String.valueOf(rx.charAt(k)));
                         //else if (value)
-                            keyString = keyString.concat(String.valueOf(rx.charAt(k)));
+                            keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
                         break;
                 }
             }

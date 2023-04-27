@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_title">Hoot HID Android App Rev 1.0</string>
-    <string name="app_name">Hoot User Interface [Version 1]</string>
+    <string name="app_name">Hoot Systems Profile Selection</string>
     <string name="devices">USB Devices</string>
     <string name="buttonTextSize">20sp</string>
     <string name="action_settings">Settings</string>

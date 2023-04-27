@@ -1,10 +1,14 @@
 package com.hoho.android.usbserial.examples;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.os.Handler;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 
@@ -19,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             getSupportFragmentManager().beginTransaction().add(R.id.fragment, new DevicesFragment(), "devices").commit();
         else
             onBackStackChanged();
+
     }
 
     @Override
@@ -41,5 +46,4 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         }
         super.onNewIntent(intent);
     }
-
 }

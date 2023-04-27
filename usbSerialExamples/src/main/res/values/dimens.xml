@@ -2,5 +2,7 @@
 <resources>
     <dimen name="ModeText">20sp</dimen>
     <dimen name="minWidth">50sp</dimen>
-    <dimen name="RadioHight">60dp</dimen>
+    <dimen name="RadioHight">100dp</dimen>
+    <dimen name="GallonTextSize">15pt</dimen>
+    <dimen name="RadioButtonTextSize">20sp</dimen>
 </resources>
