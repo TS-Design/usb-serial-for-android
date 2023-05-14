@@ -1,4 +1,7 @@
 package com.hoho.android.usbserial.examples;
+import static java.util.List.of;
+import java.util.List;
+
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,10 +27,14 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-//import androidx.annotation.ColorInt;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.viewmodel.CreationExtras;
+
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -40,18 +47,24 @@ import java.util.Calendar;
 
 import android.graphics.Color;
 
-public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener {
+public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+
+    public void setMain_mode(RadioGroup main_mode) {
+        this.main_mode = main_mode;
+    }
+
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
+    private static final int UPDATE_INTERVAL_MILLIS = 1000;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
     private final boolean UiMessageSent = false;
-    Handler timerHandler;
+    //Handler timerHandler;
 
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
 
@@ -68,20 +81,48 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private TextView alarmExt;
     private TextView chlorineIn;
     private TextView waterMeterIn;*/
-    private TextView gallonsCount;
-
+    private TextView timeRemote;
+    private RadioGroup main_mode;
     private RadioButton bgrav;
     private RadioButton banr;
+    private RadioButton bbnr;
     private RadioButton bspy;
     private RadioButton bdrip;
     private RadioButton bdmd;
-    private RadioButton bbnr;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
-    private boolean connected = false;
-    private boolean msgAck = false;
+    public boolean connected = false;
+    DataLayer dataLayer = new DataLayer();
+    /* Hoot adds */
+    //static boolean cmd_busy = false;
+    public String keyString = "";
+    //public String KEY = "";
+    //public String VALUE = "";
+    public String remoteMin = "00";
+    public String remoteSec = "00";
+    public String remoteHr = "00";
+/*  List of data layer commands to process
+*   command index keeps trck of next command to send
+*   command lenght is length of commandList
+*/
+    public List<String> updateCommandList = of(
+        "bCL",
+        "bAlarm",
+        "bHigh",
+        "bLow",
+        "bWM",
+        "mode",
+        "hour",
+        "min",
+        "sec",
+        "tank"
+    );
+    //ArrayAdapter<CharSequence> adapter;
+    //Spinner tankdropdown;
+    public int commandListIndex = 0;
+    public int commandLength = updateCommandList.size();
 
     public TerminalFragment() {
         broadcastReceiver = new BroadcastReceiver() {
@@ -96,33 +137,115 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         };
         mainLooper = new Handler(Looper.getMainLooper());
     }
-    /* Hoot adds */
-    //static boolean cmd_busy = false;
-    static String keyString = "";
-    static String KEY = "";
-    static String VALUE = "";
-    public String remoteMin = "00";
-    public String remoteSec = "00";
-    public String remoteHr = "00";
+
     /*
      * Lifecycle
      */
-    final Runnable update = new Runnable() {
+    final Runnable updateTank = new Runnable() {
         public void run() {
-            updateUI();
+            Toast.makeText(getActivity(), "Spinner Item " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
+            sendJson("tank", dataLayer.getTank());
         }
     };
- /*   final Runnable hidTimeout = new Runnable() {
+    final Runnable update = new Runnable() {
         public void run() {
-            Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
+            updateDataLayer();
+        }
+    };
+   /*final Runnable clearAck = new Runnable() {
+        public void run() {
+            if(!dataLayer.isMsgAck()){
+                Toast.makeText(getActivity(), "ACK FAILED " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
+                dataLayer.setMsgAck(true);
+            }
+        }
+    };*/
+    final Runnable postMsg = new Runnable() {
+        public void run() {
+            postDataLayer();
+            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    public void postDataLayer() {
+        if ((dataLayer.getKEY()).equals("bCL"))
+            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bAlarm"))
+            dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bLow"))
+            dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bHigh"))
+            dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bWM"))
+            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("mode")) {
+            dataLayer.setMode(dataLayer.getVALUE());
+            if(dataLayer.getMode().equals("bANR"))
+                main_mode.check(R.id.banr);
+            else if (dataLayer.getMode() == "bBNR")
+                main_mode.check(R.id.bbnr);
+            else if (dataLayer.getMode() == "bDMD")
+                main_mode.check(R.id.bdmd);
+            else if (dataLayer.getMode() == "bSPY")
+                main_mode.check(R.id.bspy);
+            else if (dataLayer.getMode() == "bDRIP")
+                main_mode.check(R.id.bdrip);
+            else if (dataLayer.getMode() == "bGRAV")
+                main_mode.check(R.id.grav);
+        }
+        else if ((dataLayer.getKEY()).equals("hrs"))
+            remoteHr = dataLayer.getVALUE();
+        else if ((dataLayer.getKEY()).equals("min"))
+            remoteMin = dataLayer.getVALUE();
+        else if ((dataLayer.getKEY()).equals("sec")) {
+            remoteSec = dataLayer.getVALUE();
+            timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        }
+        else if ((dataLayer.getKEY()).equals("Tank")) {
+            //gallonsValue.setText(dataLayer.getVALUE());
+        }
+        else if ((dataLayer.getKEY()).equals("bANR")) {
+            // kill cmd not found msg until   is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bNNR")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bDMD")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bSPY")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bCL")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bALARM")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("tank")) {
+            // kill cmd not found msg until view is enabled
+        }
+
+        else
+            Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
+
+    }
+
+    public void updateDataLayer() {
+//        if(check5lTime()) {
+//            Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
+//        }
+
+        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        //mainLooper.postDelayed(clearAck, 200);
+        if (connected) {
+            sendJson(updateCommandList.get(commandListIndex++), "Query");
+            if (commandListIndex == commandLength)
+                commandListIndex = 0;
         }
     }
-    mainLooper.postDelayed(hidTimeout, 1500);*/
-    public void updateUI() {
-        mainLooper.postDelayed(update, 3000);
-        if(connected)
-            sendJson("bANR","true");
-    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,6 +282,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
+        main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
         bgrav = view.findViewById(R.id.grav);
         banr = view.findViewById(R.id.banr);
         bbnr = view.findViewById(R.id.bbnr);
@@ -166,22 +290,44 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bdmd = view.findViewById(R.id.bdmd);
         bdrip = view.findViewById(R.id.bdrip);
         receiveText = view.findViewById(R.id.receiveText);
-        gallonsCount = view.findViewById(R.id.GallonsValue);
-        RadioGroup mode = (RadioGroup) view.findViewById(R.id.main_mode);
+        timeRemote = view.findViewById(R.id.timeRemote);
         bgrav.setOnClickListener(v -> gravCallback());  // something is always true
         banr.setOnClickListener(v -> banrCallback());
         bbnr.setOnClickListener(v -> bbnrCallback());
         bspy.setOnClickListener(v -> bspyCallback());
         bdmd.setOnClickListener(v -> bdmdCallback());
         bdrip.setOnClickListener(v -> bdripCallback());
-        if(check5lTime()) {
-            Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
-        }
-        /*
-        * Start Update timer to sync UI
-         */
-        updateUI();
+        /* Spinner Tank Size */
+        Spinner tankDropDown = (Spinner) view.findViewById(R.id.tankDropDown);
+        ArrayAdapter<CharSequence>adapter= ArrayAdapter.createFromResource(getActivity(), R.array.tankArray, R.layout.mode_spinner);
+        adapter.setDropDownViewResource(R.layout.mode_spinner);
+        tankDropDown.setAdapter(adapter);
+        tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                long tankIndex = parent.getItemIdAtPosition(position);
+                dataLayer.setTank(tankDropDown.getSelectedItem().toString());
+                mainLooper.post(updateTank);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(getActivity(), "Spinner Nothing", Toast.LENGTH_SHORT).show();
+            }
+        });
+        /* Start Update timer to sync UI   */
+        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
     }
 
     @Override
@@ -293,7 +439,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
     }
 
-
     private void disconnect() {
         connected = false;
         if(usbIoManager != null) {
@@ -317,23 +462,45 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             textview.setTextColor(Color.WHITE);
         }
     }
-
+    public void serviceUi() {
+        if(dataLayer.getKEY() == "mode") {
+            //final RadioGroup main_mode = (RadioButton)findGroupById(R.id.grav);
+            if(dataLayer.getVALUE() == "grav") {
+                main_mode.check(R.id.grav);
+            }
+            else if(dataLayer.getVALUE() == "bANR") {
+                main_mode.check(R.id.banr);
+            }
+            else if(dataLayer.getVALUE() == "bBNR") {
+                main_mode.check(R.id.bbnr);
+            }
+            else if(dataLayer.getVALUE() == "bSPY") {
+                main_mode.check(R.id.bspy);
+            }
+            else if(dataLayer.getVALUE() == "bDRIP") {
+                main_mode.check(R.id.bdrip);
+            }
+            else if(dataLayer.getVALUE() == "bDMD") {
+                main_mode.check(R.id.bdmd);
+            }
+        }
+    }
     private boolean check5lTime() {
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
 
-//        sendJson("hour", String.valueOf(hour));
+        sendJson("hour", String.valueOf(hour));
 
         int minute = rightNow.get(Calendar.MINUTE);
-//        sendJson("min", String.valueOf(minute));
+        sendJson("min", String.valueOf(minute));
         int second = rightNow.get(Calendar.SECOND);
-//        sendJson("sec", String.valueOf(second));
+        sendJson("sec", String.valueOf(second));
         int month = rightNow.get(Calendar.DAY_OF_MONTH);
-//        sendJson("month", String.valueOf(month));
+        sendJson("month", String.valueOf(month));
         int day = rightNow.get(Calendar.DAY_OF_MONTH);
-//        sendJson("day", String.valueOf(day));
+        sendJson("day", String.valueOf(day));
         int year = rightNow.get(Calendar.YEAR);
-//        sendJson("year", String.valueOf(year));
+        sendJson("year", String.valueOf(year));
         return true;
     }
     private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
@@ -345,15 +512,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         remoteTime.append(String.valueOf(remoteSec));
         return(remoteTime);
     }
-
     private SpannableStringBuilder updateTime(String remoteHr, String remoteMin, String remoteSec){
-        SpannableStringBuilder remoteTime = new SpannableStringBuilder();
-        remoteTime.append(remoteHr);
-        remoteTime.append(":");
-        remoteTime.append(remoteMin);
-        remoteTime.append(":");
-        remoteTime.append(remoteSec);
-        return(remoteTime);
+        SpannableStringBuilder updateTime = new SpannableStringBuilder();
+        updateTime.append(remoteHr);
+        updateTime.append(":");
+        updateTime.append(remoteMin);
+        updateTime.append(":");
+        updateTime.append(remoteSec);
+        return(updateTime);
     }
     private void ackModeCmd(RadioButton activeButton){
         bgrav.setTextColor(Color.WHITE);
@@ -375,49 +541,28 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
        else if (activeButton == bdmd)
            bdmd.setTextColor(Color.GREEN);
     }
+
     private void gravCallback() {
-        send("{\"bGRAV\":true}");
-//        status("Gravity");
-//        setTextViewFlavor(bgrav, "true");
-        ackModeCmd(bgrav);
+        sendJson("bGRAV","true");
     }
     private void banrCallback() {
-        send("{\"bANR\":true}");
-//        status("ANR");
-        msgAck = false;
-        while(msgAck);
-        ackModeCmd(banr);
+        sendJson("bANR","true");
     }
     private void bbnrCallback() {
-        send("{\"bBNR\":true}");
-//        status("BNR");
-        msgAck = false;
-        while(msgAck);
-        ackModeCmd(bbnr);
+        sendJson("bBNR","true");
     }
     private void bspyCallback() {
-        send("{\"bSPY\":true}");
-//        status("SPRAY");
-        msgAck = false;
-        while(msgAck);
-        ackModeCmd(bspy);
+        sendJson("bSPY","true");
     }
     private void bdmdCallback() {
-        send("{\"bDMD\":true}");
-//        status("Demand");
-        msgAck = false;
-        while(msgAck);
-        ackModeCmd(bdmd);
+        sendJson("bDMD", "true");
     }
     private void bdripCallback() {
-        send("{\"bDRIP\":true}");
-//        status("Drip");
-        msgAck = false;
-        while(msgAck);
-        ackModeCmd(bdrip);
+        sendJson("bDRIP", "true");
     }
 
     private boolean sendJson(String cmd, String value) {
+        int j = 0;
         SpannableStringBuilder json = new SpannableStringBuilder();
         json.append("{\"");
         json.append(cmd);
@@ -427,15 +572,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         json.append("\n");
         try {
             send(String.valueOf(json));
-            msgAck = false;
-            for(int j=0; j<1000;j++) {
-
-                    if(msgAck)
-                        break;
-                    else {
-                        Toast.makeText(getActivity(), "No ACK", Toast.LENGTH_SHORT).show();
-                    }
-            }
         } catch (Exception e) {
             onRunError(e);
         }
@@ -448,16 +584,23 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             return;
         }
         try {
+            //dataLayer.setMsgAck(false);
             byte[] data = (str + '\n').getBytes();
             SpannableStringBuilder spn = new SpannableStringBuilder();
-            spn.append("send " + data.length + " bytes\n");
+            /* spn.append("send " + data.length + " bytes\n");
             spn.append(HexDump.dumpHexString(data)).append("\n");
+            spn.append(data + "\n");*/
+            spn.append(str);
             spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             onRunError(e);
         }
+/*        for (int k = 0; k < 30000; k++) {
+            if (dataLayer.isMsgAck())
+                break;
+        }*/
     }
 
     private void read() {
@@ -481,7 +624,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
     }
 
-    private void receive(byte[] data) {
+    public void receive(byte[] data) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
         if(data.length > 0)
         {
@@ -489,20 +632,16 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             spn.append(HexDump.dumpHexString(data)).append("\n");
             parse(data);
         }
-        //receiveText.append(spn);
     }
 
-    private void parse(byte[] data)
+    public void parse(byte[] data)
     {
-
         String rx = new String(data);
         //String valueString = null;
         boolean key = false;
         boolean value = false;
 
         if(rx.length() > 0){
-            //receiveText.append(rx + "\n");
-
             for(int k = 0; k < rx.length(); k++){
                 switch(rx.charAt(k)) {
                     case '{':                           // start case start key phase
@@ -512,14 +651,17 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     case '}':                           // save value and exit
                         key = false;
                         value = false;
-                        VALUE = keyString;
+                        dataLayer.setVALUE(keyString);
                         keyString = "";
-                        receiveText.append(KEY + ":" + VALUE  + "\n");
-                        msgAck = true;
+                        receiveText.append(dataLayer.getKEY() + ":" + dataLayer.getVALUE()  + "\n");
+                        //Toast.makeText(getActivity(), "ACK", Toast.LENGTH_SHORT).show();
+                        //dataLayer.setMsgAck(true);
+                        mainLooper.post(postMsg);
+                        //mainLooper.post(() -> { postMsg; });
                         break;
                     case ':':                           // save key move to value phase
                         key = false;
-                        KEY = keyString;
+                        dataLayer.setKEY(keyString);
                         value = true;
                         keyString = "";
                         break;
@@ -529,10 +671,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     case ' ':
                         break;
                     default:
-                        //if(key)
-                        //    keyString = keyString.concat(String.valueOf(rx.charAt(k)));
-                        //else if (value)
-                            keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
+                        keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
                         break;
                 }
             }
@@ -544,5 +683,4 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         receiveText.append(spn);
     }
-
 }

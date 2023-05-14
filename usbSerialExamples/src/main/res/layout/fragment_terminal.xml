@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/AppTheme"
@@ -18,7 +19,8 @@
             android:id="@+id/grav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="30sp"
+            android:checked="false"
+            android:minWidth="@dimen/ModeButtonMinWidth"
             android:textColor="@color/design_default_color_on_primary"
             android:textSize="@dimen/RadioButtonTextSize"
             android:text="Gravity Flow" />
@@ -27,9 +29,10 @@
             android:id="@+id/banr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:layout_marginTop="20sp"
-            android:layout_marginBottom="20sp"
+            android:layout_marginTop="@dimen/RadioButtonMarginTop"
+            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
             android:textSize="@dimen/RadioButtonTextSize"
             android:text="ANR" />
 
@@ -37,17 +40,19 @@
             android:id="@+id/bbnr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="false"
             android:textSize="@dimen/RadioButtonTextSize"
-            android:layout_marginBottom="20sp"
+            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
             android:minWidth="@dimen/minWidth"
             android:text="BNR" />
 
         <RadioButton
             android:id="@+id/bspy"
             android:layout_width="wrap_content"
+            android:checked="false"
             android:layout_height="wrap_content"
             android:textSize="@dimen/RadioButtonTextSize"
-            android:layout_marginBottom="20sp"
+            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
             android:minWidth="@dimen/minWidth"
             android:text="Spray" />
 
@@ -55,8 +60,9 @@
             android:id="@+id/bdrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="false"
             android:textSize="@dimen/RadioButtonTextSize"
-            android:layout_marginBottom="20sp"
+            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
             android:minWidth="@dimen/minWidth"
             android:text="Drip" />
 
@@ -64,11 +70,12 @@
             android:id="@+id/bdmd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="false"
             android:textSize="@dimen/RadioButtonTextSize"
             android:minWidth="@dimen/minWidth"
             android:text="Demand" />
     </RadioGroup>
-    <!--Time,Gallons -->
+    <!--Time,Gallons Labels Here -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -77,42 +84,64 @@
         android:orientation="horizontal">
         <!--Time-->
         <TextView
-            android:id="@+id/remoteTime"
+            android:id="@+id/timeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="10pt"
             android:paddingEnd="10pt"
-            android:text="@string/time"
+            android:text="5L Time"
             android:textColor="@android:color/secondary_text_dark"
             android:textSize="@dimen/GallonTextSize" />
         <TextView
             android:id="@+id/_gallonslabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="100pt"
+            android:paddingLeft="40pt"
             android:paddingRight="10pt
-"
-            android:text="Tank Size Gallons"
+"           android:text="Tank Size Gallons"
             android:textColor="@android:color/secondary_text_dark"
             android:textSize="@dimen/GallonTextSize" />
+     </LinearLayout>
+    <!--Time,Gallons Values Here -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="133dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingTop="2sp">
 
         <TextView
-            android:id="@+id/GallonsValue"
+            android:id="@+id/timeRemote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="10pt"
-            android:paddingRight="10pt"
-            android:text="- - - - - "
+            android:paddingStart="10pt"
+            android:paddingTop="1dp"
+            android:paddingEnd="10pt"
+            android:paddingBottom="10pt"
+            android:text="00:00:00"
             android:textColor="@android:color/secondary_text_dark"
-            android:textSize="@dimen/GallonTextSize" />
+            android:textSize="@dimen/GallonTextSize"
+            android:visibility="visible" />
+
+        <Spinner
+            android:id="@+id/tankDropDown"
+            android:layout_width="500dp"
+            android:layout_height="66dp"
+            android:paddingLeft="100pt"
+            android:paddingRight="10pt"
+            android:paddingBottom="10pt"
+            android:spinnerMode="dropdown"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="16sp"
+            android:visibility="visible" />
 
     </LinearLayout>
     <!-- Receive Stuff -->
     <TextView
         android:id="@+id/receiveText"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:paddingTop="100pt"
         android:clickable="false"
         android:enabled="true"
         android:freezesText="true"

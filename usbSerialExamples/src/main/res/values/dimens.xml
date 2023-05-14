@@ -3,6 +3,9 @@
     <dimen name="ModeText">20sp</dimen>
     <dimen name="minWidth">50sp</dimen>
     <dimen name="RadioHight">100dp</dimen>
-    <dimen name="GallonTextSize">15pt</dimen>
+    <dimen name="GallonTextSize">25sp</dimen>
     <dimen name="RadioButtonTextSize">20sp</dimen>
+    <dimen name="ModeButtonMinWidth">50sp</dimen>
+    <dimen name="RadioButtonMarginTop">20sp</dimen>
+    <dimen name="RadioButtonBottomMargin">20sp</dimen>
 </resources>
