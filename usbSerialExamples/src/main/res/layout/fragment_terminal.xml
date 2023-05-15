@@ -150,5 +150,11 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:typeface="monospace" />
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="108dp"
+        android:layout_height="93dp"
+        app:srcCompat="@drawable/ic_action_name" />
+
 </LinearLayout>
 

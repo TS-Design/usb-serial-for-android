@@ -33,8 +33,6 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.viewmodel.CreationExtras;
-
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -58,16 +56,13 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 1000;
+    private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
-    private final boolean UiMessageSent = false;
     //Handler timerHandler;
-
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
-
     private TextView receiveText;
 /*    private TextView fieldFlush;
     private TextView recirculate;
@@ -142,6 +137,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
      * Lifecycle
      */
     final Runnable updateTank = new Runnable() {
+        @Override
         public void run() {
             Toast.makeText(getActivity(), "Spinner Item " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
             sendJson("tank", dataLayer.getTank());
@@ -183,15 +179,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             dataLayer.setMode(dataLayer.getVALUE());
             if(dataLayer.getMode().equals("bANR"))
                 main_mode.check(R.id.banr);
-            else if (dataLayer.getMode() == "bBNR")
+            else if (dataLayer.getMode().equals("bBNR"))
                 main_mode.check(R.id.bbnr);
-            else if (dataLayer.getMode() == "bDMD")
+            else if (dataLayer.getMode().equals("bDMD"))
                 main_mode.check(R.id.bdmd);
-            else if (dataLayer.getMode() == "bSPY")
+            else if (dataLayer.getMode().equals("bSPY"))
                 main_mode.check(R.id.bspy);
-            else if (dataLayer.getMode() == "bDRIP")
+            else if (dataLayer.getMode().equals("bDRIP"))
                 main_mode.check(R.id.bdrip);
-            else if (dataLayer.getMode() == "bGRAV")
+            else if (dataLayer.getMode().equals("bGRAV"))
                 main_mode.check(R.id.grav);
         }
         else if ((dataLayer.getKEY()).equals("hrs"))
@@ -224,7 +220,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             // kill cmd not found msg until view is enabled
         }
         else if ((dataLayer.getKEY()).equals("tank")) {
-            // kill cmd not found msg until view is enabled
+            dataLayer.setTank(dataLayer.getVALUE());
+            if (dataLayer.getVALUE() != null) {
+ //               int spinnerPosition = adapter.getPosition(dataLayer.getVALUE());
+ //               tankDropDown.setSelectedItem(spinnerPosition);
+            }
         }
 
         else
@@ -251,6 +251,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
+        assert getArguments() != null;
         deviceId = getArguments().getInt("device");
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
@@ -282,7 +283,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-        main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
+        //main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
         bgrav = view.findViewById(R.id.grav);
         banr = view.findViewById(R.id.banr);
         bbnr = view.findViewById(R.id.bbnr);
@@ -463,24 +464,24 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
     }
     public void serviceUi() {
-        if(dataLayer.getKEY() == "mode") {
+        if(dataLayer.getKEY().equals("mode")) {
             //final RadioGroup main_mode = (RadioButton)findGroupById(R.id.grav);
-            if(dataLayer.getVALUE() == "grav") {
+            if(dataLayer.getVALUE().equals("grav")) {
                 main_mode.check(R.id.grav);
             }
-            else if(dataLayer.getVALUE() == "bANR") {
+            else if(dataLayer.getVALUE().equals("bANR")) {
                 main_mode.check(R.id.banr);
             }
-            else if(dataLayer.getVALUE() == "bBNR") {
+            else if(dataLayer.getVALUE().equals("bBNR") {
                 main_mode.check(R.id.bbnr);
             }
-            else if(dataLayer.getVALUE() == "bSPY") {
+            else if(dataLayer.getVALUE().equals("bSPY")) {
                 main_mode.check(R.id.bspy);
             }
-            else if(dataLayer.getVALUE() == "bDRIP") {
+            else if(dataLayer.getVALUE().equals("bDRIP")) {
                 main_mode.check(R.id.bdrip);
             }
-            else if(dataLayer.getVALUE() == "bDMD") {
+            else if(dataLayer.getVALUE().equals("bDMD")) {
                 main_mode.check(R.id.bdmd);
             }
         }
