@@ -33,6 +33,8 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.viewmodel.CreationExtras;
+
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -61,8 +63,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
+    private final boolean UiMessageSent = false;
     //Handler timerHandler;
+
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
+
     private TextView receiveText;
 /*    private TextView fieldFlush;
     private TextView recirculate;
@@ -283,7 +288,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
-        //main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
+        main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
         bgrav = view.findViewById(R.id.grav);
         banr = view.findViewById(R.id.banr);
         bbnr = view.findViewById(R.id.bbnr);
@@ -472,7 +477,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             else if(dataLayer.getVALUE().equals("bANR")) {
                 main_mode.check(R.id.banr);
             }
-            else if(dataLayer.getVALUE().equals("bBNR") {
+            else if(dataLayer.getVALUE().equals("bBNR")) {
                 main_mode.check(R.id.bbnr);
             }
             else if(dataLayer.getVALUE().equals("bSPY")) {
