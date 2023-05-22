@@ -44,21 +44,24 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Objects;
 
 import android.graphics.Color;
-
+import com.google.android.material
+        .snackbar
+        .Snackbar;
 public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
-    public void setMain_mode(RadioGroup main_mode) {
-        this.main_mode = main_mode;
-    }
+//    public void setMain_mode(RadioGroup main_mode) {
+//        this.main_mode = main_mode;
+ //   }
 
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 100;
+    private static final int UPDATE_INTERVAL_MILLIS = 350;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -89,12 +92,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton bspy;
     private RadioButton bdrip;
     private RadioButton bdmd;
+    private Spinner tankDropDown;
+
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
-    DataLayer dataLayer = new DataLayer();
+    public DataLayer dataLayer = new DataLayer();
     /* Hoot adds */
     //static boolean cmd_busy = false;
     public String keyString = "";
@@ -103,6 +108,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     public String remoteMin = "00";
     public String remoteSec = "00";
     public String remoteHr = "00";
+
 /*  List of data layer commands to process
 *   command index keeps trck of next command to send
 *   command lenght is length of commandList
@@ -119,10 +125,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         "sec",
         "tank"
     );
-    //ArrayAdapter<CharSequence> adapter;
-    //Spinner tankdropdown;
-    public int commandListIndex = 0;
     public int commandLength = updateCommandList.size();
+    public int commandListIndex = 0;
 
     public TerminalFragment() {
         broadcastReceiver = new BroadcastReceiver() {
@@ -141,10 +145,20 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     /*
      * Lifecycle
      */
+    final Runnable modeSpinner = new Runnable() {
+        @Override
+        public void run() {
+
+            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
+           // tankDropDown.setSelection(item);
+            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
+        }
+    };
+
     final Runnable updateTank = new Runnable() {
         @Override
         public void run() {
-            Toast.makeText(getActivity(), "Spinner Item " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Send Tank " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
             sendJson("tank", dataLayer.getTank());
         }
     };
@@ -168,88 +182,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
-
-    public void postDataLayer() {
-        if ((dataLayer.getKEY()).equals("bCL"))
-            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bAlarm"))
-            dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bLow"))
-            dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bHigh"))
-            dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bWM"))
-            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("mode")) {
-            dataLayer.setMode(dataLayer.getVALUE());
-            if(dataLayer.getMode().equals("bANR"))
-                main_mode.check(R.id.banr);
-            else if (dataLayer.getMode().equals("bBNR"))
-                main_mode.check(R.id.bbnr);
-            else if (dataLayer.getMode().equals("bDMD"))
-                main_mode.check(R.id.bdmd);
-            else if (dataLayer.getMode().equals("bSPY"))
-                main_mode.check(R.id.bspy);
-            else if (dataLayer.getMode().equals("bDRIP"))
-                main_mode.check(R.id.bdrip);
-            else if (dataLayer.getMode().equals("bGRAV"))
-                main_mode.check(R.id.grav);
-        }
-        else if ((dataLayer.getKEY()).equals("hrs"))
-            remoteHr = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("min"))
-            remoteMin = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("sec")) {
-            remoteSec = dataLayer.getVALUE();
-            timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }
-        else if ((dataLayer.getKEY()).equals("Tank")) {
-            //gallonsValue.setText(dataLayer.getVALUE());
-        }
-        else if ((dataLayer.getKEY()).equals("bANR")) {
-            // kill cmd not found msg until   is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bNNR")) {
-            // kill cmd not found msg until view is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bDMD")) {
-            // kill cmd not found msg until view is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bSPY")) {
-            // kill cmd not found msg until view is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bCL")) {
-            // kill cmd not found msg until view is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bALARM")) {
-            // kill cmd not found msg until view is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("tank")) {
-            dataLayer.setTank(dataLayer.getVALUE());
-            if (dataLayer.getVALUE() != null) {
- //               int spinnerPosition = adapter.getPosition(dataLayer.getVALUE());
- //               tankDropDown.setSelectedItem(spinnerPosition);
-            }
-        }
-
-        else
-            Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
-
-    }
-
-    public void updateDataLayer() {
-//        if(check5lTime()) {
-//            Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
-//        }
-
-        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
-        //mainLooper.postDelayed(clearAck, 200);
-        if (connected) {
-            sendJson(updateCommandList.get(commandListIndex++), "Query");
-            if (commandListIndex == commandLength)
-                commandListIndex = 0;
-        }
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -304,16 +236,19 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bdmd.setOnClickListener(v -> bdmdCallback());
         bdrip.setOnClickListener(v -> bdripCallback());
         /* Spinner Tank Size */
-        Spinner tankDropDown = (Spinner) view.findViewById(R.id.tankDropDown);
-        ArrayAdapter<CharSequence>adapter= ArrayAdapter.createFromResource(getActivity(), R.array.tankArray, R.layout.mode_spinner);
-        adapter.setDropDownViewResource(R.layout.mode_spinner);
-        tankDropDown.setAdapter(adapter);
+        tankDropDown = view.findViewById(R.id.tankDropDown);
+        final ArrayAdapter<CharSequence> tankAdapter = ArrayAdapter.createFromResource(Objects.requireNonNull(getActivity()), R.array.tankArray, R.layout.mode_spinner);
+        tankAdapter.setDropDownViewResource(R.layout.mode_spinner);
+        tankDropDown.setAdapter(tankAdapter);
         tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 long tankIndex = parent.getItemIdAtPosition(position);
                 dataLayer.setTank(tankDropDown.getSelectedItem().toString());
-                mainLooper.post(updateTank);
+                if(tankIndex != 0)                                              // prevent from reseting Panel if default
+                    mainLooper.post(updateTank);
+  //              else
+               //     mainLooper.post(tankNotInitialized);
             }
 
             @Override
@@ -456,6 +391,104 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             usbSerialPort.close();
         } catch (IOException ignored) {}
         usbSerialPort = null;
+    }
+    public void postDataLayer() {
+        if ((dataLayer.getKEY()).equals("bCL"))
+            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bAlarm"))
+            dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bLow"))
+            dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bHigh"))
+            dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("bWM"))
+            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));
+        else if ((dataLayer.getKEY()).equals("mode")) {
+            dataLayer.setMode(dataLayer.getVALUE());
+            if(dataLayer.getMode().equals("bANR"))
+                main_mode.check(R.id.banr);
+            else if (dataLayer.getMode().equals("bBNR"))
+                main_mode.check(R.id.bbnr);
+            else if (dataLayer.getMode().equals("bDMD"))
+                main_mode.check(R.id.bdmd);
+            else if (dataLayer.getMode().equals("bSPY"))
+                main_mode.check(R.id.bspy);
+            else if (dataLayer.getMode().equals("bDRIP"))
+                main_mode.check(R.id.bdrip);
+            else if (dataLayer.getMode().equals("bGRAV"))
+                main_mode.check(R.id.grav);
+        }
+        else if ((dataLayer.getKEY()).equals("hrs"))
+            remoteHr = dataLayer.getVALUE();
+        else if ((dataLayer.getKEY()).equals("min"))
+            remoteMin = dataLayer.getVALUE();
+        else if ((dataLayer.getKEY()).equals("sec")) {
+            remoteSec = dataLayer.getVALUE();
+            timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        }
+        else if ((dataLayer.getKEY()).equals("Tank")) {
+            //gallonsValue.setText(dataLayer.getVALUE());
+        }
+        else if ((dataLayer.getKEY()).equals("bANR")) {
+            // kill cmd not found msg until   is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bNNR")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bDMD")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bSPY")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("bALARM")) {
+            // kill cmd not found msg until view is enabled
+        }
+        else if ((dataLayer.getKEY()).equals("tank")) {
+            if (dataLayer.getVALUE() != null) {
+                dataLayer.setTank(dataLayer.getVALUE());
+                mainLooper.post(modeSpinner);
+            }
+            Snackbar snackbar
+                    = Snackbar
+                    .make(
+                            layout,
+                            "Message is deleted",
+                            Snackbar.LENGTH_LONG)
+                    .setAction(
+                            "UNDO",
+
+                            // If the Undo button
+                            // is pressed, show
+                            // the message using Toast
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view)
+                                {
+                                    Toast
+                                            .makeText(
+                                                    MainActivity.this,
+                                                    "Undo Clicked",
+                                                    Toast.LENGTH_SHORT)
+                                            .show();
+                                }
+        }
+        else
+            Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
+    }
+
+    public void updateDataLayer() {
+//        if(check5lTime()) {
+//            Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
+//        }
+
+        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        //mainLooper.postDelayed(clearAck, 200);
+        if (connected) {
+            sendJson(updateCommandList.get(commandListIndex++), "Query");
+            if (commandListIndex == commandLength)
+                commandListIndex = 0;
+        }
     }
 
     private void setTextViewFlavor(TextView textview, String value) {
