@@ -1,160 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/AppTheme"
     android:layout_marginStart="50sp"
-    android:orientation="vertical">
+    android:theme="@style/AppTheme">
     <!--Mode Radio Group-->
+
+    <!--Time-->
+
     <RadioGroup
         android:id="@+id/main_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="181dp"
+        android:layout_height="363dp"
+        android:layout_marginTop="52dp"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.154"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/binit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="false"
+            android:minWidth="@dimen/minWidth"
+            android:text="Factory"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <RadioButton
             android:id="@+id/grav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:checked="false"
             android:minWidth="@dimen/ModeButtonMinWidth"
+            android:text="Gravity Flow"
             android:textColor="@color/design_default_color_on_primary"
-            android:textSize="@dimen/RadioButtonTextSize"
-            android:text="Gravity Flow" />
+            android:textSize="@dimen/RadioButtonTextSize" />
 
         <RadioButton
             android:id="@+id/banr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:layout_marginTop="@dimen/RadioButtonMarginTop"
-            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
+            android:text="ANR"
             android:textSize="@dimen/RadioButtonTextSize"
-            android:text="ANR" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <RadioButton
             android:id="@+id/bbnr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:checked="false"
-            android:textSize="@dimen/RadioButtonTextSize"
-            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
             android:minWidth="@dimen/minWidth"
-            android:text="BNR" />
+            android:text="BNR"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/banr" />
 
         <RadioButton
             android:id="@+id/bspy"
             android:layout_width="wrap_content"
-            android:checked="false"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/RadioButtonTextSize"
-            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
+            android:layout_marginTop="20dp"
+            android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="Spray" />
+            android:text="Spray"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bbnr" />
 
         <RadioButton
             android:id="@+id/bdrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:checked="false"
-            android:textSize="@dimen/RadioButtonTextSize"
-            android:layout_marginBottom="@dimen/RadioButtonBottomMargin"
             android:minWidth="@dimen/minWidth"
-            android:text="Drip" />
+            android:text="Drip"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bspy" />
 
         <RadioButton
             android:id="@+id/bdmd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:checked="false"
-            android:textSize="@dimen/RadioButtonTextSize"
             android:minWidth="@dimen/minWidth"
-            android:text="Demand" />
+            android:text="Demand"
+            android:textSize="@dimen/RadioButtonTextSize" />
     </RadioGroup>
-    <!--Time,Gallons Labels Here -->
-    <LinearLayout
+
+    <TextView
+        android:id="@+id/timeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:paddingTop="50sp"
-        android:orientation="horizontal">
-        <!--Time-->
-        <TextView
-            android:id="@+id/timeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="10pt"
-            android:paddingEnd="10pt"
-            android:text="5L Time"
-            android:textColor="@android:color/secondary_text_dark"
-            android:textSize="@dimen/GallonTextSize" />
-        <TextView
-            android:id="@+id/_gallonslabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="40pt"
-            android:paddingRight="10pt
-"           android:text="Tank Size Gallons"
-            android:textColor="@android:color/secondary_text_dark"
-            android:textSize="@dimen/GallonTextSize" />
-     </LinearLayout>
-    <!--Time,Gallons Values Here -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="133dp"
-        android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        android:paddingTop="2sp">
+        android:layout_marginTop="132dp"
+        android:paddingStart="10pt"
+        android:paddingEnd="10pt"
+        android:text="5L Time"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode"
+        tools:layout_editor_absoluteX="88dp" />
 
-        <TextView
-            android:id="@+id/timeRemote"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="10pt"
-            android:paddingTop="1dp"
-            android:paddingEnd="10pt"
-            android:paddingBottom="10pt"
-            android:text="00:00:00"
-            android:textColor="@android:color/secondary_text_dark"
-            android:textSize="@dimen/GallonTextSize"
-            android:visibility="visible" />
+    <!--Time,Gallons Labels Here -->
 
-        <Spinner
-            android:id="@+id/tankDropDown"
-            android:layout_width="500dp"
-            android:layout_height="66dp"
-            android:paddingLeft="100pt"
-            android:paddingRight="10pt"
-            android:paddingBottom="10pt"
-            android:spinnerMode="dropdown"
-            android:textColor="@color/cardview_light_background"
-            android:textSize="16sp"
-            android:visibility="visible" />
+    <TextView
+        android:id="@+id/_gallonslabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="544dp"
+        android:paddingLeft="10pt"
+        android:text=" Tank Size Gallons"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintStart_toEndOf="@+id/timeLabel"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/timeRemote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingStart="10pt"
+        android:paddingTop="1dp"
+        android:paddingEnd="10pt"
+        android:paddingBottom="10pt"
+        android:text="00:00:00"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/GallonTextSize"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/timeLabel"
+        tools:layout_editor_absoluteX="88dp" />
+
     <!-- Receive Stuff -->
+
+    <Spinner
+        android:id="@+id/tankDropDown"
+        android:layout_width="304dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="20dp"
+        android:paddingLeft="10pt"
+        android:paddingRight="10pt"
+        android:paddingBottom="10pt"
+        android:spinnerMode="dropdown"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="16sp"
+        android:visibility="visible"
+        app:layout_constraintStart_toEndOf="@+id/timeRemote"
+        app:layout_constraintTop_toBottomOf="@+id/_gallonslabel" />
+
     <TextView
         android:id="@+id/receiveText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="100pt"
+        android:layout_width="1220dp"
+        android:layout_height="412dp"
         android:clickable="false"
         android:enabled="true"
         android:freezesText="true"
         android:gravity="bottom"
+        android:paddingTop="100pt"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:typeface="monospace" />
+        android:typeface="monospace"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="108dp"
-        android:layout_height="93dp"
-        app:srcCompat="@drawable/ic_action_name" />
+        android:id="@+id/hootBug"
+        android:layout_width="80dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="148dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/hoot_big" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,7 +1,6 @@
 package com.hoho.android.usbserial.examples;
 import static java.util.List.of;
 import java.util.List;
-
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,31 +31,23 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.viewmodel.CreationExtras;
-
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
-import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Objects;
-
 import android.graphics.Color;
-import com.google.android.material
-        .snackbar
-        .Snackbar;
+
 public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
-//    public void setMain_mode(RadioGroup main_mode) {
-//        this.main_mode = main_mode;
- //   }
-
-
+    public void setMain_mode(RadioGroup main_mode) {
+        this.main_mode = main_mode;
+   }
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
@@ -68,9 +59,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private final Handler mainLooper;
     private final boolean UiMessageSent = false;
     //Handler timerHandler;
-
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
-
     private TextView receiveText;
 /*    private TextView fieldFlush;
     private TextView recirculate;
@@ -92,8 +81,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton bspy;
     private RadioButton bdrip;
     private RadioButton bdmd;
+    private RadioButton binit;
     private Spinner tankDropDown;
-
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
@@ -108,17 +97,18 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     public String remoteMin = "00";
     public String remoteSec = "00";
     public String remoteHr = "00";
-
-/*  List of data layer commands to process
+    public boolean popUpDialogPosted = false;
+    //Button showPopupBtn, closePopupBtn;
+    /*  List of data layer commands to process
 *   command index keeps trck of next command to send
 *   command lenght is length of commandList
 */
     public List<String> updateCommandList = of(
-        "bCL",
-        "bAlarm",
-        "bHigh",
-        "bLow",
-        "bWM",
+//        "bCL",
+//        "bAlarm",
+//        "bHigh",
+//        "bLow",
+//        "bWM",
         "mode",
         "hour",
         "min",
@@ -141,10 +131,10 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         };
         mainLooper = new Handler(Looper.getMainLooper());
     }
-
     /*
      * Lifecycle
      */
+
     final Runnable modeSpinner = new Runnable() {
         @Override
         public void run() {
@@ -154,7 +144,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
         }
     };
-
     final Runnable updateTank = new Runnable() {
         @Override
         public void run() {
@@ -182,7 +171,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,7 +182,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
     }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -203,7 +190,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
     }
-
     @Override
     public void onPause() {
         if(connected) {
@@ -213,15 +199,16 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         getActivity().unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
-
     /*
      * UI
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
+        PopUpFragment popUpFragment;
         main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
         bgrav = view.findViewById(R.id.grav);
+        binit = view.findViewById(R.id.binit);
         banr = view.findViewById(R.id.banr);
         bbnr = view.findViewById(R.id.bbnr);
         bspy = view.findViewById(R.id.bspy);
@@ -235,9 +222,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bspy.setOnClickListener(v -> bspyCallback());
         bdmd.setOnClickListener(v -> bdmdCallback());
         bdrip.setOnClickListener(v -> bdripCallback());
+        binit.setOnClickListener(v -> binitCallback());
+
         /* Spinner Tank Size */
         tankDropDown = view.findViewById(R.id.tankDropDown);
-        final ArrayAdapter<CharSequence> tankAdapter = ArrayAdapter.createFromResource(Objects.requireNonNull(getActivity()), R.array.tankArray, R.layout.mode_spinner);
+        final ArrayAdapter<CharSequence> tankAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.tankArray, R.layout.mode_spinner);
         tankAdapter.setDropDownViewResource(R.layout.mode_spinner);
         tankDropDown.setAdapter(tankAdapter);
         tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -245,10 +234,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 long tankIndex = parent.getItemIdAtPosition(position);
                 dataLayer.setTank(tankDropDown.getSelectedItem().toString());
-                if(tankIndex != 0)                                              // prevent from reseting Panel if default
+                if(tankIndex != 0)                                              // prevent from reseting Panel tank size on default
                     mainLooper.post(updateTank);
-  //              else
-               //     mainLooper.post(tankNotInitialized);
             }
 
             @Override
@@ -417,6 +404,13 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 main_mode.check(R.id.bdrip);
             else if (dataLayer.getMode().equals("bGRAV"))
                 main_mode.check(R.id.grav);
+            else if (dataLayer.getMode().equals("binit")) {
+                if(!popUpDialogPosted) {
+                    showTankPopUp();
+                    popUpDialogPosted = true;
+                }
+//main_mode.check(R.id.binit);
+            }
         }
         else if ((dataLayer.getKEY()).equals("hrs"))
             remoteHr = dataLayer.getVALUE();
@@ -446,32 +440,12 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
         else if ((dataLayer.getKEY()).equals("tank")) {
             if (dataLayer.getVALUE() != null) {
+//                if(dataLayer.getVALUE().equals( "0")) {
+                  //  showTankPopUp();
+ //           }
                 dataLayer.setTank(dataLayer.getVALUE());
                 mainLooper.post(modeSpinner);
             }
-            Snackbar snackbar
-                    = Snackbar
-                    .make(
-                            layout,
-                            "Message is deleted",
-                            Snackbar.LENGTH_LONG)
-                    .setAction(
-                            "UNDO",
-
-                            // If the Undo button
-                            // is pressed, show
-                            // the message using Toast
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view)
-                                {
-                                    Toast
-                                            .makeText(
-                                                    MainActivity.this,
-                                                    "Undo Clicked",
-                                                    Toast.LENGTH_SHORT)
-                                            .show();
-                                }
         }
         else
             Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
@@ -490,7 +464,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 commandListIndex = 0;
         }
     }
-
+    public void showTankPopUp() {
+        DialogFragment newFragment = new PopUpFragment();
+        assert getFragmentManager() != null;
+        newFragment.show(getFragmentManager(), "tank");
+    }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
             textview.setBackgroundColor(Color.GREEN);
@@ -599,6 +577,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private void bdripCallback() {
         sendJson("bDRIP", "true");
     }
+    private void binitCallback() {
+        //sendJson("bDRIP", "true");
+    }
 
     private boolean sendJson(String cmd, String value) {
         int j = 0;
@@ -667,8 +648,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         SpannableStringBuilder spn = new SpannableStringBuilder();
         if(data.length > 0)
         {
-            spn.append("receive " + data.length + " bytes\n");
-            spn.append(HexDump.dumpHexString(data)).append("\n");
+//            spn.append("receive " + data.length + " bytes\n");
+//            spn.append(HexDump.dumpHexString(data)).append("\n");
             parse(data);
         }
     }

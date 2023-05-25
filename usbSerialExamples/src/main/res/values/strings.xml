@@ -20,5 +20,7 @@
         <item>1000</item>
         <item>1500</item>
     </string-array>
-
+    <string name="alert_name">AlertDialog</string>
+    <string name="dialog_message">Not Tanks Set</string>
+    <string name="dialog_title">Javatpoint Alert Dialog</string>
 </resources>
