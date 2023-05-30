@@ -13,8 +13,8 @@
 
     <RadioGroup
         android:id="@+id/main_mode"
-        android:layout_width="181dp"
-        android:layout_height="363dp"
+        android:layout_width="418dp"
+        android:layout_height="425dp"
         android:layout_marginTop="52dp"
         android:orientation="vertical"
         android:visibility="visible"
@@ -47,28 +47,14 @@
             android:textSize="@dimen/RadioButtonTextSize" />
 
         <RadioButton
-            android:id="@+id/banr"
+            android:id="@+id/bdmd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="ANR"
-            android:textSize="@dimen/RadioButtonTextSize"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <RadioButton
-            android:id="@+id/bbnr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:checked="false"
-            android:minWidth="@dimen/minWidth"
-            android:text="BNR"
-            android:textSize="@dimen/RadioButtonTextSize"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/banr" />
+            android:text="On Demmand Effluent Pumping"
+            android:textSize="@dimen/RadioButtonTextSize" />
 
         <RadioButton
             android:id="@+id/bspy"
@@ -77,7 +63,19 @@
             android:layout_marginTop="20dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="Spray"
+            android:text="Night Spray"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bbnr" />
+
+        <RadioButton
+            android:id="@+id/bmicro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:checked="false"
+            android:minWidth="@dimen/minWidth"
+            android:text="Micro Time Dose Pump Control"
             android:textSize="@dimen/RadioButtonTextSize"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/bbnr" />
@@ -95,49 +93,68 @@
             app:layout_constraintTop_toBottomOf="@+id/bspy" />
 
         <RadioButton
-            android:id="@+id/bdmd"
+            android:id="@+id/bbnr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="Demand"
-            android:textSize="@dimen/RadioButtonTextSize" />
+            android:text="BNR"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/banr" />
+
+        <RadioButton
+            android:id="@+id/banr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:checked="false"
+            android:minWidth="@dimen/minWidth"
+            android:text="ANR"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </RadioGroup>
+
+    <!--Time,Gallons Labels Here -->
+
+    <!-- Receive Stuff -->
 
     <TextView
         android:id="@+id/timeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="132dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="44dp"
         android:paddingStart="10pt"
         android:paddingEnd="10pt"
         android:text="5L Time"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="@dimen/GallonTextSize"
-        app:layout_constraintTop_toBottomOf="@+id/main_mode"
-        tools:layout_editor_absoluteX="88dp" />
-
-    <!--Time,Gallons Labels Here -->
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
 
     <TextView
         android:id="@+id/_gallonslabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="72dp"
-        android:layout_marginTop="544dp"
+        android:layout_marginStart="244dp"
+        android:layout_marginTop="44dp"
         android:paddingLeft="10pt"
         android:text=" Tank Size Gallons"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="@dimen/GallonTextSize"
-        app:layout_constraintStart_toEndOf="@+id/timeLabel"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
 
     <TextView
         android:id="@+id/timeRemote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="4dp"
         android:paddingStart="10pt"
         android:paddingTop="1dp"
         android:paddingEnd="10pt"
@@ -146,17 +163,15 @@
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="@dimen/GallonTextSize"
         android:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@+id/timeLabel"
-        tools:layout_editor_absoluteX="88dp" />
-
-    <!-- Receive Stuff -->
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timeLabel" />
 
     <Spinner
         android:id="@+id/tankDropDown"
         android:layout_width="304dp"
         android:layout_height="58dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="244dp"
+        android:layout_marginTop="4dp"
         android:paddingLeft="10pt"
         android:paddingRight="10pt"
         android:paddingBottom="10pt"
@@ -164,7 +179,7 @@
         android:textColor="@color/cardview_light_background"
         android:textSize="16sp"
         android:visibility="visible"
-        app:layout_constraintStart_toEndOf="@+id/timeRemote"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/_gallonslabel" />
 
     <TextView
@@ -188,11 +203,12 @@
         android:id="@+id/hootBug"
         android:layout_width="80dp"
         android:layout_height="63dp"
-        android:layout_marginTop="120dp"
-        android:layout_marginEnd="148dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="88dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/hoot_big" />
+        app:srcCompat="@drawable/hoot_big"
+        android:contentDescription="TODO" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

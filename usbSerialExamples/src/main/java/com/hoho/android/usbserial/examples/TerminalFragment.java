@@ -134,7 +134,22 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     /*
      * Lifecycle
      */
-
+    final Runnable waitOnTank = new Runnable() {
+        @Override
+        public void run() {
+            if(dataLayer.getTank().equals("0")) {
+                if(!popUpDialogPosted) {
+                    showTankPopUp();
+                    popUpDialogPosted = true;
+                }
+                mainLooper.postDelayed(waitOnTank, UPDATE_INTERVAL_MILLIS);
+            }
+            else {
+               // mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+                popUpDialogPosted = false;
+            }
+        }
+    };
     final Runnable modeSpinner = new Runnable() {
         @Override
         public void run() {
@@ -245,6 +260,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         });
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        //modeEnable(main_mode);
         return view;
     }
 
@@ -405,11 +421,13 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             else if (dataLayer.getMode().equals("bGRAV"))
                 main_mode.check(R.id.grav);
             else if (dataLayer.getMode().equals("binit")) {
+                main_mode.check(R.id.binit);
                 if(!popUpDialogPosted) {
-                    showTankPopUp();
-                    popUpDialogPosted = true;
+                    if(dataLayer.getTank().equals(0)) {
+                        showTankPopUp();
+                        popUpDialogPosted = true;
+                    }
                 }
-//main_mode.check(R.id.binit);
             }
         }
         else if ((dataLayer.getKEY()).equals("hrs"))
@@ -421,7 +439,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
         }
         else if ((dataLayer.getKEY()).equals("Tank")) {
-            //gallonsValue.setText(dataLayer.getVALUE());
+            Toast.makeText(getActivity(), "Tank Size " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
         }
         else if ((dataLayer.getKEY()).equals("bANR")) {
             // kill cmd not found msg until   is enabled
@@ -440,17 +458,26 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
         else if ((dataLayer.getKEY()).equals("tank")) {
             if (dataLayer.getVALUE() != null) {
-//                if(dataLayer.getVALUE().equals( "0")) {
-                  //  showTankPopUp();
- //           }
-                dataLayer.setTank(dataLayer.getVALUE());
-                mainLooper.post(modeSpinner);
+                if (dataLayer.getVALUE().equals("0")) {
+                    mainLooper.post(waitOnTank);
+                }
+                else {
+                    dataLayer.setTank(dataLayer.getVALUE());
+                    mainLooper.post(modeSpinner);
+                }
             }
         }
         else
             Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
     }
+    public void modeEnable(RadioGroup main_mode) {
+        if (main_mode.isEnabled()) {
+            main_mode.setEnabled(false);
+        } else {
+            main_mode.setEnabled(true);
 
+        }
+    }
     public void updateDataLayer() {
 //        if(check5lTime()) {
 //            Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
@@ -477,29 +504,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         else {
             textview.setBackgroundColor(Color.BLACK);
             textview.setTextColor(Color.WHITE);
-        }
-    }
-    public void serviceUi() {
-        if(dataLayer.getKEY().equals("mode")) {
-            //final RadioGroup main_mode = (RadioButton)findGroupById(R.id.grav);
-            if(dataLayer.getVALUE().equals("grav")) {
-                main_mode.check(R.id.grav);
-            }
-            else if(dataLayer.getVALUE().equals("bANR")) {
-                main_mode.check(R.id.banr);
-            }
-            else if(dataLayer.getVALUE().equals("bBNR")) {
-                main_mode.check(R.id.bbnr);
-            }
-            else if(dataLayer.getVALUE().equals("bSPY")) {
-                main_mode.check(R.id.bspy);
-            }
-            else if(dataLayer.getVALUE().equals("bDRIP")) {
-                main_mode.check(R.id.bdrip);
-            }
-            else if(dataLayer.getVALUE().equals("bDMD")) {
-                main_mode.check(R.id.bdmd);
-            }
         }
     }
     private boolean check5lTime() {
