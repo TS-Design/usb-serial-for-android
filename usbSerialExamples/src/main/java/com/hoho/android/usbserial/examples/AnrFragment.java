@@ -1,11 +1,13 @@
 package com.hoho.android.usbserial.examples;
+
 import static java.util.List.of;
-import java.util.List;
+
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -22,18 +24,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.ListFragment;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -43,18 +44,16 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
-import android.graphics.Color;
+import java.util.List;
+import java.util.Objects;
 
-public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
-    public void setMain_mode(RadioGroup main_mode) {
-        this.main_mode = main_mode;
-   }
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 350;
+    private static final int UPDATE_INTERVAL_MILLIS = 10;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -76,23 +75,35 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private TextView chlorineIn;
     private TextView waterMeterIn;*/
     private TextView timeRemote;
-    private RadioGroup main_mode;
-    private RadioButton binit;
-    private RadioButton bgrav;
-    private RadioButton banr;
-    private RadioButton bbnr;
-    private RadioButton bspy;
-    private RadioButton bdrip;
-    private RadioButton bdmd;
-    private Spinner tankDropDown;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
     public DataLayer dataLayer = new DataLayer();
-    /* Hoot adds */
+    /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
+    private TextView dosesDay;
+    private TextView effStatus;
+    private TextView FdRunTime;
+    private TextView recirRepeatTime;
+    private TextView recirRunTime;
+    private TextView airPressure;
+    private TextView effPumpAlarmTime;
+    private TextView numberZones;
+
+    public Button systemOk;
+    public Button effPumpTest;
+    public Button alarmLatch;
+    public Button alarmHistory;
+    public Button ffTest;
+    public Button recirTest;
+    public Button alarmReset;
+    public Button manualTest;
+    public Button alarm;
+    public Button lowProbe;
+    public Button airAlarm;
+    public Button peristalticTest;
     public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
@@ -110,19 +121,19 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 *   command lenght is length of commandList
 */
     public List<String> updateCommandList = of(
-//        "bCL",
-//        "bAlarm",
-//        "bHigh",
-//        "bLow",
-//        "bWM",
-        "mode", "year", "month", "day",
-        "hour", "min", "sec",
-        "tank"
-    );
+        "mode", "year", "month","day",
+            "hour", "min", "sec",
+            "tank", "bok", "bptest","balmrset",
+            "brtest", "bfftest", "bpertest",
+            "dosesday", "fdrun", "rrepeat",
+            "rrun", "effstat", "airpres",
+            "palmtime", "zone", "balrmltch",
+            "bmantest", "balarm", "bLow", "bairalrm"
+    );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
 
-    public TerminalFragment() {
+    public AnrFragment() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -159,15 +170,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 // mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
                 popUpDialogPosted = false;
             }
-        }
-    };
-    final Runnable modeSpinner = new Runnable() {
-        @Override
-        public void run() {
-
-            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-           // tankDropDown.setSelection(item);
-            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
         }
     };
     final Runnable updateTank = new Runnable() {
@@ -225,45 +227,38 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_terminal, container, false);
+        View view = inflater.inflate(R.layout.anr_fragment, container, false);
         PopUpFragment popUpFragment;
-        main_mode = (RadioGroup) view.findViewById(R.id.main_mode);
-        bgrav = view.findViewById(R.id.grav);
-        binit = view.findViewById(R.id.binit);
-        banr = view.findViewById(R.id.banr);
-        bbnr = view.findViewById(R.id.bbnr);
-        bspy = view.findViewById(R.id.bspy);
-        bdmd = view.findViewById(R.id.bdmd);
-        bdrip = view.findViewById(R.id.bdrip);
+        systemOk = view.findViewById(R.id.systemOk);
+        numberZones = view.findViewById(R.id.numberZones);
+        alarmLatch = view.findViewById(R.id.alarmLatch);
+        FdRunTime = view.findViewById(R.id.FdRunTime);
+        recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
+        dosesDay = view.findViewById(R.id.dosesDay);
+        recirRunTime = view.findViewById(R.id.recirRunTime);
         receiveText = view.findViewById(R.id.receiveText);
+        alarmHistory = view.findViewById(R.id.alarmHistory);
+        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        recirTest = view.findViewById(R.id.recirTest);
+        recirTest.setOnClickListener(v -> recirTestCallback());
+        ffTest = view.findViewById(R.id.ffTest);
+        ffTest.setOnClickListener(v -> ffTestCallback());
+        peristalticTest = view.findViewById(R.id.peristalticTest);
+        peristalticTest.setOnClickListener(v -> peristalticTestCallback());
+        effPumpTest = view.findViewById(R.id.effPumpTest);
+        effPumpTest.setOnClickListener(v -> effPumpTestCallback());
+        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
+        effStatus = view.findViewById(R.id.effStatus);
+        manualTest = view.findViewById(R.id.manualTest);
+        manualTest.setOnClickListener(v -> manualTestCallback());
         timeRemote = view.findViewById(R.id.timeRemote);
-        bgrav.setOnClickListener(v -> gravCallback());  // something is always true
-        banr.setOnClickListener(v -> banrCallback());
-        bbnr.setOnClickListener(v -> bbnrCallback());
-        bspy.setOnClickListener(v -> bspyCallback());
-        bdmd.setOnClickListener(v -> bdmdCallback());
-        bdrip.setOnClickListener(v -> bdripCallback());
-        binit.setOnClickListener(v -> binitCallback());
+        airAlarm = view.findViewById(R.id.airAlarm );
+        alarm = view.findViewById(R.id.alarm);
+        alarmReset = view.findViewById(R.id.alarmReset);
+        alarmReset.setOnClickListener(v -> alarmResetCallback());
+        airPressure = view.findViewById(R.id.airPressure);
+        lowProbe = view.findViewById(R.id.lowProbe);
 
-        /* Spinner Tank Size */
-        tankDropDown = view.findViewById(R.id.tankDropDown);
-        final ArrayAdapter<CharSequence> tankAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.tankArray, R.layout.mode_spinner);
-        tankAdapter.setDropDownViewResource(R.layout.mode_spinner);
-        tankDropDown.setAdapter(tankAdapter);
-        tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long tankIndex = parent.getItemIdAtPosition(position);
-                dataLayer.setTank(tankDropDown.getSelectedItem().toString());
-                if(tankIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    mainLooper.post(updateTank);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Spinner Nothing", Toast.LENGTH_SHORT).show();
-            }
-        });
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
@@ -300,7 +295,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
                     spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    receiveText.append(spn);
+                    //receiveText.append(spn);
                 } catch(UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
                 } catch(Exception e) {
@@ -401,16 +396,160 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     public void postDataLayer() {
         boolean enableMode;
 
-/*        if ((dataLayer.getKEY()).equals("bCL"))
-            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bAlarm"))
+       if ((dataLayer.getKEY()).equals("bok")) {
+           dataLayer.bok = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.isBok()) {
+               systemOk.setTextColor(Color.BLACK);
+               systemOk.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               systemOk.setTextColor(Color.WHITE);
+               systemOk.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("bptest")) {
+           dataLayer.bptest = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.bptest) {
+               effPumpTest.setTextColor(Color.BLACK);
+               effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               effPumpTest.setTextColor(Color.BLACK);
+               effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("balmrset")) {
+           dataLayer.balmrset = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.balmrset) {
+               alarmReset.setTextColor(Color.BLACK);
+               alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               alarmReset.setTextColor(Color.BLACK);
+               alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("brtest")) {
+           dataLayer.brtest = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.brtest) {
+               recirTest.setTextColor(Color.BLACK);
+               recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               recirTest.setTextColor(Color.BLACK);
+               recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("bfftest")) {
+           dataLayer.bfftest = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.bfftest) {
+               ffTest.setTextColor(Color.BLACK);
+               ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               ffTest.setTextColor(Color.BLACK);
+               ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("bpertest")) {
+           dataLayer.bpertest = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.bpertest) {
+               peristalticTest.setTextColor(Color.WHITE);
+               peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               peristalticTest.setTextColor(Color.BLACK);
+               peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("balrmltch")) {
+           dataLayer.balrmltch = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.balrmltch) {
+               alarmLatch.setTextColor(Color.BLACK);
+               alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               alarmLatch.setTextColor(Color.BLACK);
+               alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("bmantest")) {
+           dataLayer.bmantest = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.bmantest) {
+               manualTest.setTextColor(Color.BLACK);
+               manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               manualTest.setTextColor(Color.BLACK);
+               manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("balarm")) {
+           dataLayer.balarm = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (!dataLayer.balarm) {
+               alarm.setTextColor(Color.BLACK);
+               alarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               alarm.setTextColor(Color.BLACK);
+               alarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("bLow")) {
+           dataLayer.bLow = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (dataLayer.bLow) {
+               lowProbe.setTextColor(Color.BLACK);
+               lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               lowProbe.setTextColor(Color.BLACK);
+               lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("bairalrm")) {
+           dataLayer.bairalrm = Boolean.parseBoolean(dataLayer.getVALUE());
+           if (!dataLayer.bairalrm) {
+               airAlarm.setTextColor(Color.BLACK);
+               airAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+           } else {
+               airAlarm.setTextColor(Color.BLACK);
+               airAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+           }
+       }
+       else if((dataLayer.getKEY()).equals("dosesday")) {
+           dataLayer.dosesday = dataLayer.getVALUE();
+           dosesDay.setText("Dose Setting per Day (Field Dose):" + dataLayer.dosesday);
+       }
+       else if((dataLayer.getKEY()).equals("fdrun")) {
+           dataLayer.fdrun = dataLayer.getVALUE();
+           FdRunTime.setText("Pump Run Time (Field Dose):" + dataLayer.fdrun);
+       }
+       else if((dataLayer.getKEY()).equals("rrepeat")) {
+           dataLayer.rrepeat = dataLayer.getVALUE();
+           recirRepeatTime.setText("Water Pump Recir Repeat Cycle Timer: " + dataLayer.rrepeat);
+       }
+       else if((dataLayer.getKEY()).equals("rrun")) {
+           dataLayer.rrun = dataLayer.getVALUE();
+           recirRunTime.setText("Water Pump Recirc Run Timer: " + dataLayer.rrun);
+       }
+       else if((dataLayer.getKEY()).equals("dosesday")) {
+           dataLayer.dosesday = dataLayer.getVALUE();
+           dosesDay.setText("Dose Setting per Day (Field Dose): " + dataLayer.dosesday);
+       }
+       else if((dataLayer.getKEY()).equals("effstat")) {
+           dataLayer.effstat = dataLayer.getVALUE();
+           effStatus.setText("Effuent Pump Status " + dataLayer.effstat);
+       }
+       else if((dataLayer.getKEY()).equals("airpres")) {
+           dataLayer.airpres = dataLayer.getVALUE();
+           airPressure.setText("Air Compressor Pressure WCI: " + dataLayer.airpres);
+       }
+       else if((dataLayer.getKEY()).equals("palmtime")) {
+           dataLayer.palmtime = dataLayer.getVALUE();
+           effPumpAlarmTime.setText("Effluent Pump Runtime Alarm Timer " + dataLayer.palmtime);
+       }
+       else if((dataLayer.getKEY()).equals("zone")) {
+           dataLayer.zone = dataLayer.getVALUE();
+           numberZones.setText("Number of Zones " + dataLayer.zone);
+       }
+/*        else if ((dataLayer.getKEY()).equals("bAlarm"))
             dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));
         else if ((dataLayer.getKEY()).equals("bLow"))
             dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));
         else if ((dataLayer.getKEY()).equals("bHigh"))
             dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));
         else if ((dataLayer.getKEY()).equals("bWM"))
-            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));*/
+            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));
         if ((dataLayer.getKEY()).equals("mode")) {
             //dataLayer.setMode(dataLayer.getVALUE());
             if(dataLayer.getMode().equals("bANR"))
@@ -441,8 +580,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     }
                 }
             }
-        }
-/*        else if ((dataLayer.getKEY()).equals("dow"))
+        }*/
+        else if ((dataLayer.getKEY()).equals("dow"))
             remoteDow = dataLayer.getVALUE();
         else if ((dataLayer.getKEY()).equals("day"))
             remoteDay = dataLayer.getVALUE();
@@ -456,9 +595,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             remoteMin = dataLayer.getVALUE();
         else if ((dataLayer.getKEY()).equals("sec")) {
             remoteSec = dataLayer.getVALUE();
-            timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }*/
-        else if ((dataLayer.getKEY()).equals("Tank")) {
+            //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        }
+/*        else if ((dataLayer.getKEY()).equals("Tank")) {
             Toast.makeText(getActivity(), "Tank Size " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
         }
         else if ((dataLayer.getKEY()).equals("bANR")) {
@@ -473,10 +612,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         else if ((dataLayer.getKEY()).equals("bSPY")) {
             // kill cmd not found msg until view is enabled
         }
-        else if ((dataLayer.getKEY()).equals("bALARM")) {
+       if ((dataLayer.getKEY()).equals("bALARM")) {
             // kill cmd not found msg until view is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("tank")) {
+        }/*       else if ((dataLayer.getKEY()).equals("tank")) {
             if (dataLayer.getVALUE() != null) {
                 tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
                    // mainLooper.post(waitOnTank);
@@ -485,7 +623,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 dataLayer.setTank(dataLayer.getVALUE());
                 mainLooper.post(modeSpinner);
             }
-        }
+        }*/
  //       else
             //Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
     }
@@ -511,7 +649,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(Color.GREEN);
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -563,7 +701,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         updateTime.append(remoteSec);
         return(updateTime);
     }
-    private void ackModeCmd(RadioButton activeButton){
+ /*   private void ackModeCmd(RadioButton activeButton){
         bgrav.setTextColor(Color.WHITE);
         banr.setTextColor(Color.WHITE);
         bbnr.setTextColor(Color.WHITE);
@@ -571,49 +709,88 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bdrip.setTextColor(Color.WHITE);
         bdmd.setTextColor(Color.WHITE);
        if(activeButton == bgrav)
-           bgrav.setTextColor(Color.GREEN);
+           bgrav.setTextColor(ContextCompat.getColor(getContext(), R.color.textOn));
        else if (activeButton == banr)
-           banr.setTextColor(Color.GREEN);
+           banr.setTextColor(ContextCompat.getColor(getContext(), R.color.textOn));
        else if (activeButton == bbnr)
-           bbnr.setTextColor(Color.GREEN);
+           bbnr.setTextColor(ContextCompat.getColor(getContext(), R.color.textOn));
        else if (activeButton == bspy)
-           bspy.setTextColor(Color.GREEN);
+           bspy.setTextColor(ContextCompat.getColor(getContext(), R.color.textOn));
        else if (activeButton == bdrip)
-           bdrip.setTextColor(Color.GREEN);
+           bdrip.setTextColor(ContextCompat.getColor(getContext(), R.color.textOn));
        else if (activeButton == bdmd)
-           bdmd.setTextColor(Color.GREEN);
+           bdmd.setTextColor(ContextCompat.getColor(getContext(), R.color.textOn));
+    }*/
+    private void effPumpTestCallback() {
+        if(dataLayer.bptest) {
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("bptest", "false");
+        }
+        else {
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("bptest", "true");
+        }
     }
-    private void gravCallback() {
-        sendJson("bGRAV","true");
+
+    private void alarmResetCallback() {
+            if(dataLayer.balmrset) {
+                alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                sendJson("balmrset", "false");
+            }
+            else {
+                alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+                sendJson("balmrset", "true");
+            }
     }
-    private void banrCallback() {
-        sendJson("bANR","true");
-        Bundle args = new Bundle();
-        args.putInt("device", deviceId);
-        args.putInt("port", portNum);
-        args.putInt("baud", baudRate);
-        args.putBoolean("withIoManager", withIoManager);
-        Fragment TerminalFragment = new AnrFragment();
-        TerminalFragment.setArguments(args);
-        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "anr").addToBackStack(null).commit();
+    private void alarmHistoryCallback() {
+        if(dataLayer.alarmHistory) {
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("ahist", "false");
+        }
+        else {
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("ahist", "true");
+        }
     }
-    private void bbnrCallback() {
-        sendJson("bBNR","true");
+    private void ffTestCallback() {
+        if(dataLayer.bfftest) {
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("bfftest", "false");
+        }
+        else {
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("bfftest", "true");
+        }
     }
-    private void bspyCallback() {
-        sendJson("bSPY","true");
+    private void manualTestCallback() {
+        if(dataLayer.bmantest) {
+            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("bmantest", "false");
+        }
+        else {
+            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("bmantest", "true");
+        }
     }
-    private void bdmdCallback() {
-        sendJson("bDMD", "true");
+    private void peristalticTestCallback() {
+        if(dataLayer.bpertest) {
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("bpertest", "false");
+        }
+        else {
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("bpertest", "true");
+        }
     }
-    private void bdripCallback() {
-        sendJson("bDRIP", "true");
-    }
-    private void binitCallback() {
-//        if(dataLayer.getTank().equals("0") && main_mode.isEnabled())
-//            main_mode.setEnabled(false);
-//        else
-//            main_mode.setEnabled(true);
+    private void recirTestCallback() {
+        if(dataLayer.brtest) {
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("brtest", "false");
+        }
+        else {
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("brtest", "true");
+        }
     }
     private boolean sendJson(String cmd, String value) {
         int j = 0;
@@ -645,7 +822,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             spn.append(data + "\n");*/
             spn.append(str);
             spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            receiveText.append(spn);
+            //receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             onRunError(e);
@@ -703,7 +880,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         dataLayer.setVALUE(keyString);
                         dataLayer.setValuebyKey();
                         keyString = "";
-                        receiveText.append(dataLayer.getKEY() + ":" + dataLayer.getVALUE()  + "\n");
+                        //receiveText.append(dataLayer.getKEY() + ":" + dataLayer.getVALUE()  + "\n");
                         //Toast.makeText(getActivity(), "ACK", Toast.LENGTH_SHORT).show();
                         //dataLayer.setMsgAck(true);
                         mainLooper.post(postMsg);
@@ -730,6 +907,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
         spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        receiveText.append(spn);
+        //receiveText.append(spn);
     }
 }

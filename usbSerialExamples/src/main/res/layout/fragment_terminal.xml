@@ -13,8 +13,8 @@
 
     <RadioGroup
         android:id="@+id/main_mode"
-        android:layout_width="418dp"
-        android:layout_height="425dp"
+        android:layout_width="433dp"
+        android:layout_height="341dp"
         android:layout_marginTop="52dp"
         android:orientation="vertical"
         android:visibility="visible"
@@ -39,7 +39,7 @@
             android:id="@+id/grav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/ModeButtonMinWidth"
             android:text="Gravity Flow"
@@ -50,7 +50,7 @@
             android:id="@+id/bdmd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="On Demmand Effluent Pumping"
@@ -60,7 +60,7 @@
             android:id="@+id/bspy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="Night Spray"
@@ -72,7 +72,7 @@
             android:id="@+id/bmicro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="Micro Time Dose Pump Control"
@@ -84,7 +84,7 @@
             android:id="@+id/bdrip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="Drip"
@@ -96,7 +96,7 @@
             android:id="@+id/bbnr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="BNR"
@@ -108,7 +108,7 @@
             android:id="@+id/banr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="ANR"
@@ -122,56 +122,12 @@
 
     <!-- Receive Stuff -->
 
-    <TextView
-        android:id="@+id/timeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="44dp"
-        android:paddingStart="10pt"
-        android:paddingEnd="10pt"
-        android:text="5L Time"
-        android:textColor="@android:color/secondary_text_dark"
-        android:textSize="@dimen/GallonTextSize"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
-
-    <TextView
-        android:id="@+id/_gallonslabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="244dp"
-        android:layout_marginTop="44dp"
-        android:paddingLeft="10pt"
-        android:text=" Tank Size Gallons"
-        android:textColor="@android:color/secondary_text_dark"
-        android:textSize="@dimen/GallonTextSize"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
-
-    <TextView
-        android:id="@+id/timeRemote"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="4dp"
-        android:paddingStart="10pt"
-        android:paddingTop="1dp"
-        android:paddingEnd="10pt"
-        android:paddingBottom="10pt"
-        android:text="00:00:00"
-        android:textColor="@android:color/secondary_text_dark"
-        android:textSize="@dimen/GallonTextSize"
-        android:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timeLabel" />
-
     <Spinner
         android:id="@+id/tankDropDown"
         android:layout_width="304dp"
         android:layout_height="58dp"
-        android:layout_marginStart="244dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginStart="220dp"
+        android:layout_marginTop="8dp"
         android:paddingLeft="10pt"
         android:paddingRight="10pt"
         android:paddingBottom="10pt"
@@ -183,6 +139,52 @@
         app:layout_constraintTop_toBottomOf="@+id/_gallonslabel" />
 
     <TextView
+        android:id="@+id/_gallonslabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="212dp"
+        android:layout_marginTop="72dp"
+        android:paddingLeft="10pt"
+        android:text=" Tank Size Gallons"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
+
+    <TextView
+        android:id="@+id/timeRemote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="8dp"
+        android:maxLines="2"
+        android:minLines="1"
+        android:paddingStart="10pt"
+        android:paddingTop="1dp"
+        android:paddingEnd="10pt"
+        android:paddingBottom="10pt"
+        android:text="00:00:00"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/GallonTextSize"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timeLabel" />
+
+    <TextView
+        android:id="@+id/timeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="72dp"
+        android:paddingStart="10pt"
+        android:paddingEnd="10pt"
+        android:text="Time"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
+
+    <TextView
         android:id="@+id/receiveText"
         android:layout_width="1220dp"
         android:layout_height="412dp"
@@ -190,6 +192,8 @@
         android:enabled="true"
         android:freezesText="true"
         android:gravity="bottom"
+        android:maxLines="10"
+        android:minLines="1"
         android:paddingTop="100pt"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -205,10 +209,33 @@
         android:layout_height="63dp"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="88dp"
+        android:contentDescription="TODO"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/hoot_big"
-        android:contentDescription="TODO" />
+        app:srcCompat="@drawable/hoot_big" />
+
+    <TextView
+        android:id="@+id/SerialNumber"
+        android:layout_width="222dp"
+        android:layout_height="51dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="140dp"
+        android:text="SN 1234567890"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
+
+    <TextView
+        android:id="@+id/RevNumber"
+        android:layout_width="159dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="12dp"
+        android:text="Rev 0.0"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.115"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
