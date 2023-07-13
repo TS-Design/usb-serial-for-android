@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="50sp"
+    android:theme="@style/AppTheme">
+ <!--Mode Radio Group-->
+
+ <!--Time-->
+
+ <!--Time,Gallons Labels Here -->
+
+ <!-- Receive Stuff -->
+
+ <Button
+     android:id="@+id/alarmHistory"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="76dp"
+     android:background="@color/colorSendText"
+     android:text="Alarm History"
+     android:textColor="@color/design_default_color_on_secondary"
+     app:layout_constraintStart_toEndOf="@+id/manualTest"
+     app:layout_constraintTop_toTopOf="@+id/manualTest" />
+
+ <TextView
+     android:id="@+id/timeRemote"
+     android:layout_width="328dp"
+     android:layout_height="59dp"
+     android:layout_marginStart="24dp"
+     android:layout_marginTop="20dp"
+     android:maxLines="2"
+     android:minLines="1"
+     android:paddingStart="10pt"
+     android:paddingTop="1dp"
+     android:paddingEnd="10pt"
+     android:paddingBottom="10pt"
+     android:text="00:00:00"
+     android:textColor="@android:color/secondary_text_dark"
+     android:textSize="16sp"
+     android:visibility="visible"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <TextView
+     android:id="@+id/receiveText"
+     android:layout_width="1183dp"
+     android:layout_height="40dp"
+     android:layout_marginBottom="4dp"
+     android:background="@color/RectangleNotSelected"
+     android:clickable="false"
+     android:enabled="true"
+     android:freezesText="true"
+     android:gravity="bottom"
+     android:maxLines="10"
+     android:minLines="1"
+     android:paddingTop="100pt"
+     android:scrollbars="vertical"
+     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+     android:typeface="monospace"
+     app:layout_constraintBottom_toBottomOf="parent"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintStart_toStartOf="parent" />
+
+ <ImageView
+     android:id="@+id/hootBug"
+     android:layout_width="80dp"
+     android:layout_height="63dp"
+     android:layout_marginTop="20dp"
+     android:layout_marginEnd="108dp"
+     android:contentDescription="TODO"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toTopOf="parent"
+     app:srcCompat="@drawable/hoot_big" />
+
+ <TextView
+     android:id="@+id/textAnr"
+     android:layout_width="104dp"
+     android:layout_height="54dp"
+     android:layout_marginTop="20dp"
+     android:text="ANR"
+     android:textAppearance="@style/TextAppearance.AppCompat.Large"
+     android:textColor="?android:attr/colorFocusedHighlight"
+     android:textSize="48sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <Button
+     android:id="@+id/systemOk"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginStart="8dp"
+     android:layout_marginTop="100dp"
+     android:clickable="false"
+     android:text="System OK"
+     android:textSize="12sp"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <Button
+     android:id="@+id/effPumpTest"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginTop="100dp"
+     android:layout_marginEnd="16dp"
+     android:text=" Effluent Pump Manual Run"
+     android:textSize="12sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <Button
+     android:id="@+id/alarmReset"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginEnd="16dp"
+     android:text="System Alarm Latching Reset"
+     android:textSize="12sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/effPumpTest" />
+
+ <Button
+     android:id="@+id/recirTest"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginEnd="16dp"
+     android:text="Recir Valve Test"
+     android:textSize="12sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
+
+ <Button
+     android:id="@+id/ffTest"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginEnd="16dp"
+     android:text="Field Flush Test"
+     android:textSize="12sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/recirTest" />
+
+ <Button
+     android:id="@+id/peristalticTest"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginEnd="16dp"
+     android:text="Peristaltic Pump Test"
+     android:textSize="12sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/ffTest" />
+
+ <TextView
+     android:id="@+id/dosesDay"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Dose Setting per Day (Field Dose): 0"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/numberZones" />
+
+ <TextView
+     android:id="@+id/FdRunTime"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Pump Run Time (Field Dose): 0 min 0 sec"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/dosesDay" />
+
+ <TextView
+     android:id="@+id/recirRepeatTime"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Water Pump Recir Repeat Cycle Timer every: 2 Hrs"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/FdRunTime" />
+
+ <TextView
+     android:id="@+id/recirRunTime"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Water Pump Recirc Run Timer: 2 min"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/recirRepeatTime" />
+
+ <TextView
+     android:id="@+id/effStatus"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Effuent Pump Status"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/recirRunTime" />
+
+ <TextView
+     android:id="@+id/airPressure"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Air Compressor Pressure WCI: 0"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/effStatus" />
+
+ <TextView
+     android:id="@+id/effPumpAlarmTime"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="7dp"
+     android:text="Effluent Pump Runtime Alarm Timer; 0"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+
+ <TextView
+     android:id="@+id/numberZones"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:text="Number of Zones 1"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+
+ <Button
+     android:id="@+id/alarmLatch"
+     android:layout_width="160dp"
+     android:layout_height="60dp"
+     android:layout_marginStart="4dp"
+     android:layout_marginTop="100dp"
+     android:clickable="false"
+     android:text="Alarm Latching"
+     android:textSize="12sp"
+     app:layout_constraintStart_toEndOf="@+id/airAlarm"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <Button
+     android:id="@+id/manualTest"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="8dp"
+     android:background="@color/colorSendText"
+     android:text="Manually Test (Parameter Setting)"
+     android:textColor="@color/design_default_color_on_secondary"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
+
+ <Button
+     android:id="@+id/alarm"
+     android:layout_width="140dp"
+     android:layout_height="60dp"
+     android:layout_marginStart="4dp"
+     android:layout_marginTop="100dp"
+     android:clickable="false"
+     android:text="System Alarm"
+     android:textSize="12sp"
+     app:layout_constraintStart_toEndOf="@+id/systemOk"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <Button
+     android:id="@+id/lowProbe"
+     android:layout_width="140dp"
+     android:layout_height="60dp"
+     android:layout_marginStart="4dp"
+     android:layout_marginTop="100dp"
+     android:clickable="false"
+     android:text="Water Level Probe"
+     android:textSize="12sp"
+     app:layout_constraintStart_toEndOf="@+id/alarm"
+     app:layout_constraintTop_toTopOf="parent" />
+
+ <Button
+     android:id="@+id/airAlarm"
+     android:layout_width="140dp"
+     android:layout_height="60dp"
+     android:layout_marginStart="4dp"
+     android:layout_marginTop="100dp"
+     android:text="Aeration Problem"
+     android:textSize="12sp"
+     app:layout_constraintStart_toEndOf="@+id/lowProbe"
+     app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

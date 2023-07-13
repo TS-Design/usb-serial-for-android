@@ -1,0 +1,577 @@
+Index: usbSerialExamples/src/main/res/layout/fragment_terminal.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<LinearLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:orientation=\"vertical\">\r\n\r\n    <LinearLayout\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <TextView\r\n            android:id=\"@+id/remoteTimeLabel\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingStart=\"10pt\"\r\n            android:paddingEnd=\"10pt\"\r\n            android:text=\"@string/_5l_time\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"30sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/remoteTime\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingStart=\"10pt\"\r\n            android:paddingEnd=\"10pt\"\r\n            android:text=\"@string/time\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"30sp\" />\r\n\r\n    </LinearLayout>\r\n    <!--Control Lines (test mode)-->\r\n    <LinearLayout\r\n        android:layout_width=\"638dp\"\r\n        android:layout_height=\"62dp\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <ToggleButton\r\n            android:id=\"@+id/controlLineTest\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:clickable=\"true\"\r\n            android:paddingEnd=\"20pt\"\r\n            android:textOff=\"@string/test\"\r\n            android:textOn=\"@string/test\" />\r\n\r\n        <ToggleButton\r\n            android:id=\"@+id/controlLineHigh\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:clickable=\"true\"\r\n            android:paddingEnd=\"20pt\"\r\n            android:textOff=\"@string/high\"\r\n            android:textOn=\"@string/high\"/>\r\n\r\n        <ToggleButton\r\n            android:id=\"@+id/controlLineLow\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:clickable=\"true\"\r\n            android:paddingEnd=\"20pt\"\r\n            android:textOff=\"Low\"\r\n            android:textOn=\"Low\" />\r\n\r\n        <ToggleButton\r\n            android:id=\"@+id/controlLineAlarm\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:clickable=\"true\"\r\n            android:paddingEnd=\"20pt\"\r\n            android:textOff=\"Alarm\"\r\n            android:textOn=\"Alarm\" />\r\n\r\n        <ToggleButton\r\n            android:id=\"@+id/controlLineCl\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:clickable=\"true\"\r\n            android:paddingEnd=\"20pt\"\r\n            android:textOff=\"CL\"\r\n            android:textOn=\"CL\" />\r\n\r\n        <ToggleButton\r\n            android:id=\"@+id/controlLineWm\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:clickable=\"true\"\r\n            android:paddingEnd=\"20pt\"\r\n            android:textOff=\"WM\"\r\n            android:textOn=\"WM\"  />\r\n\r\n    </LinearLayout>\r\n    <!--List Divider-->\r\n    <View\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"2dp\"\r\n        android:background=\"?android:attr/listDivider\" />\r\n    <!--Mode Radio Group-->\r\n    <View\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"2dp\"\r\n        android:background=\"?android:attr/listDivider\" />\r\n\r\n    <RadioGroup\r\n        android:id=\"@+id/_mode\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"@dimen/RadioHight\"\r\n        android:orientation=\"horizontal\"\r\n        android:visibility=\"visible\">\r\n\r\n        <RadioButton\r\n            android:id=\"@+id/bOFF\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"Off\" />\r\n\r\n        <RadioButton\r\n            android:id=\"@+id/bANR\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"ANR\" />\r\n\r\n        <RadioButton\r\n            android:id=\"@+id/bSPY\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"Spray\" />\r\n\r\n        <RadioButton\r\n            android:id=\"@+id/bdrip\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"Drip\" />\r\n\r\n        <RadioButton\r\n            android:id=\"@+id/bdemand\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:background=\"@drawable/square_button\"\r\n            android:minWidth=\"@dimen/minWidth\"\r\n            android:textSize=\"@dimen/ModeText\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"Demand\" />\r\n    </RadioGroup>\r\n    <!--Solenoids -->\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <TextView\r\n            android:id=\"@+id/_fieldFlush\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:justificationMode=\"none\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Field Flush\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_recirculate\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"Recirculate\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_peristalic\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Peristalic\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_effpump1\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Eff Pump\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_effpump2\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Alt Pump\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n    </LinearLayout>\r\n    <!--Input Signals-->\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <TextView\r\n            android:id=\"@+id/_bhigh\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"High\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <View\r\n            android:layout_width=\"6dp\"\r\n            android:layout_height=\"match_parent\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_balarm\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"20pt\"\r\n            android:text=\"Extn Alarm\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_blow\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Low\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <View\r\n            android:layout_width=\"6dp\"\r\n            android:layout_height=\"match_parent\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_bcl\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Chlorine\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <View\r\n            android:layout_width=\"6dp\"\r\n            android:layout_height=\"match_parent\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_bwm\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Water Meter \"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n    </LinearLayout>\r\n    <!--pumps and counts-->\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <TextView\r\n            android:id=\"@+id/_effluentlabel\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Effluent Cycles\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_effluentcount\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"0\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_pumprunlabel\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Pump Runtime\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_pumprun\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"0\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_airpressuelabel\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Air Pressure\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_airpressure\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"0\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n    </LinearLayout>\r\n    <!-- Gallons -->\r\n    <LinearLayout\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <TextView\r\n            android:id=\"@+id/_gallonslabel\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10dp\"\r\n            android:text=\"Gallons\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_gallonsCount\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"0\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_chlorineLabel\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"Chlorine (mg/l)\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/_chlorineRate\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:paddingRight=\"10pt\"\r\n            android:text=\"0\"\r\n            android:textColor=\"@android:color/secondary_text_dark\"\r\n            android:textSize=\"20sp\" />\r\n\r\n    </LinearLayout>\r\n    <!-- Receive Stuff -->\r\n    <TextView\r\n        android:id=\"@+id/receive_text\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"0dp\"\r\n        android:layout_weight=\"1\"\r\n        android:clickable=\"false\"\r\n        android:enabled=\"true\"\r\n        android:freezesText=\"true\"\r\n        android:gravity=\"bottom\"\r\n        android:scrollbars=\"vertical\"\r\n        android:textAppearance=\"@style/TextAppearance.AppCompat.Medium\"\r\n        android:typeface=\"monospace\" />\r\n\r\n    <Button\r\n        android:id=\"@+id/receive_btn\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:text=\"Read\" />\r\n\r\n    <View\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"2dp\"\r\n        android:background=\"?android:attr/listDivider\" />\r\n\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:orientation=\"horizontal\">\r\n\r\n        <EditText\r\n            android:id=\"@+id/send_text\"\r\n            android:layout_width=\"0dp\"\r\n            android:layout_height=\"match_parent\"\r\n            android:layout_weight=\"1\"\r\n            android:inputType=\"text|textNoSuggestions\"\r\n            android:singleLine=\"true\" />\r\n\r\n        <ImageButton\r\n            android:id=\"@+id/send_btn\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            app:srcCompat=\"@drawable/ic_send_white_24dp\" />\r\n    </LinearLayout>\r\n\r\n</LinearLayout>\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/usbSerialExamples/src/main/res/layout/fragment_terminal.xml b/usbSerialExamples/src/main/res/layout/fragment_terminal.xml
+--- a/usbSerialExamples/src/main/res/layout/fragment_terminal.xml	
++++ b/usbSerialExamples/src/main/res/layout/fragment_terminal.xml	
+@@ -1,445 +1,170 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:id="@+id/linearLayout"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    android:orientation="vertical">
+-
+-    <LinearLayout
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
+-
+-        <TextView
+-            android:id="@+id/remoteTimeLabel"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingStart="10pt"
+-            android:paddingEnd="10pt"
+-            android:text="@string/_5l_time"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="30sp" />
++    app:layout_anchorGravity="bottom|center">
+ 
+-        <TextView
+-            android:id="@+id/remoteTime"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingStart="10pt"
+-            android:paddingEnd="10pt"
+-            android:text="@string/time"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="30sp" />
+-
+-    </LinearLayout>
+-    <!--Control Lines (test mode)-->
+-    <LinearLayout
+-        android:layout_width="638dp"
+-        android:layout_height="62dp"
+-        android:orientation="horizontal">
++    <TextView
++        android:id="@+id/MainHeader"
++        android:layout_width="744dp"
++        android:layout_height="67dp"
++        android:layout_marginTop="16dp"
++        android:paddingStart="10pt"
++        android:paddingEnd="10pt"
++        android:text="Hoot Systems Profile Selection:"
++        android:textColor="@android:color/secondary_text_dark"
++        android:textSize="50sp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent" />
+ 
+-        <ToggleButton
+-            android:id="@+id/controlLineTest"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+-            android:clickable="true"
+-            android:paddingEnd="20pt"
+-            android:textOff="@string/test"
+-            android:textOn="@string/test" />
+-
+-        <ToggleButton
+-            android:id="@+id/controlLineHigh"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:background="@drawable/square_button"
+-            android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+-            android:clickable="true"
+-            android:paddingEnd="20pt"
+-            android:textOff="@string/high"
+-            android:textOn="@string/high"/>
+-
+-        <ToggleButton
+-            android:id="@+id/controlLineLow"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:background="@drawable/square_button"
+-            android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+-            android:clickable="true"
+-            android:paddingEnd="20pt"
+-            android:textOff="Low"
+-            android:textOn="Low" />
++    <RadioGroup
++        android:id="@+id/_mode"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="32dp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent">
+ 
+-        <ToggleButton
+-            android:id="@+id/controlLineAlarm"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:background="@drawable/square_button"
+-            android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+-            android:clickable="true"
+-            android:paddingEnd="20pt"
+-            android:textOff="Alarm"
+-            android:textOn="Alarm" />
+-
+-        <ToggleButton
+-            android:id="@+id/controlLineCl"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:background="@drawable/square_button"
+-            android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+-            android:clickable="true"
+-            android:paddingEnd="20pt"
+-            android:textOff="CL"
+-            android:textOn="CL" />
+-
+-        <ToggleButton
+-            android:id="@+id/controlLineWm"
+-            android:layout_width="wrap_content"
++        <RadioButton
++            android:id="@+id/GravityFlow"
++            android:layout_width="250dp"
+             android:layout_height="wrap_content"
+             android:background="@drawable/square_button"
+             android:minWidth="@dimen/minWidth"
++            android:paddingRight="20pt"
++            android:text="GravityFlow"
+             android:textSize="@dimen/ModeText"
+-            android:clickable="true"
+-            android:paddingEnd="20pt"
+-            android:textOff="WM"
+-            android:textOn="WM"  />
+-
+-    </LinearLayout>
+-    <!--List Divider-->
+-    <View
+-        android:layout_width="match_parent"
+-        android:layout_height="2dp"
+-        android:background="?android:attr/listDivider" />
+-    <!--Mode Radio Group-->
+-    <View
+-        android:layout_width="match_parent"
+-        android:layout_height="2dp"
+-        android:background="?android:attr/listDivider" />
+-
+-    <RadioGroup
+-        android:id="@+id/_mode"
+-        android:layout_width="match_parent"
+-        android:layout_height="@dimen/RadioHight"
+-        android:orientation="horizontal"
+-        android:visibility="visible">
++            tools:layout_editor_absoluteX="16dp"
++            tools:layout_editor_absoluteY="51dp" />
+ 
+         <RadioButton
+-            android:id="@+id/bOFF"
+-            android:layout_width="wrap_content"
++            android:id="@+id/OnDemmand"
++            android:layout_width="250dp"
+             android:layout_height="wrap_content"
++            android:layout_marginTop="@dimen/ModeLayoutMarginTop"
+             android:background="@drawable/square_button"
+             android:minWidth="@dimen/minWidth"
++            android:paddingRight="20pt"
++            android:text="OnDemmand"
+             android:textSize="@dimen/ModeText"
+-            android:paddingRight="20pt"
+-            android:text="Off" />
++            tools:layout_editor_absoluteX="16dp"
++            tools:layout_editor_absoluteY="121dp" />
+ 
+         <RadioButton
+-            android:id="@+id/bANR"
+-            android:layout_width="wrap_content"
++            android:id="@+id/NightSpray"
++            android:layout_width="250dp"
+             android:layout_height="wrap_content"
++            android:layout_marginTop="@dimen/ModeLayoutMarginTop"
+             android:background="@drawable/square_button"
+             android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+             android:paddingRight="20pt"
+-            android:text="ANR" />
++            android:text="Night Spray"
++            android:textSize="@dimen/ModeText"
++            tools:layout_editor_absoluteX="16dp"
++            tools:layout_editor_absoluteY="200dp" />
+ 
+         <RadioButton
+-            android:id="@+id/bSPY"
+-            android:layout_width="wrap_content"
++            android:id="@+id/MicroDosePumpControl"
++            android:layout_width="250dp"
+             android:layout_height="wrap_content"
++            android:layout_marginTop="@dimen/ModeLayoutMarginTop"
+             android:background="@drawable/square_button"
+             android:minWidth="@dimen/minWidth"
+-            android:textSize="@dimen/ModeText"
+             android:paddingRight="20pt"
+-            android:text="Spray" />
++            android:text="Micro Dose Pump Control"
++            android:textSize="@dimen/ModeText"
++            tools:layout_editor_absoluteX="20dp"
++            tools:layout_editor_absoluteY="306dp" />
++
+ 
+         <RadioButton
+-            android:id="@+id/bdrip"
+-            android:layout_width="wrap_content"
++            android:id="@+id/DripDisposal"
++            android:layout_width="250dp"
+             android:layout_height="wrap_content"
++            android:layout_marginTop="@dimen/ModeLayoutMarginTop"
+             android:background="@drawable/square_button"
+             android:minWidth="@dimen/minWidth"
++            android:paddingRight="20pt"
++            android:text="Drip Disposal"
+             android:textSize="@dimen/ModeText"
+-            android:paddingRight="20pt"
+-            android:text="Drip" />
++            tools:layout_editor_absoluteX="20dp"
++            tools:layout_editor_absoluteY="384dp" />
+ 
+         <RadioButton
+-            android:id="@+id/bdemand"
+-            android:layout_width="wrap_content"
++            android:id="@+id/AnrBnr"
++            android:layout_width="250dp"
+             android:layout_height="wrap_content"
++            android:layout_marginTop="@dimen/ModeLayoutMarginTop"
+             android:background="@drawable/square_button"
+             android:minWidth="@dimen/minWidth"
++            android:paddingRight="20pt"
++            android:text="ANR/BNR"
+             android:textSize="@dimen/ModeText"
+-            android:paddingRight="20pt"
+-            android:text="Demand" />
++            tools:layout_editor_absoluteX="16dp"
++            tools:layout_editor_absoluteY="439dp" />
+     </RadioGroup>
+-    <!--Solenoids -->
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
+-
+-        <TextView
+-            android:id="@+id/_fieldFlush"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:justificationMode="none"
+-            android:paddingRight="10pt"
+-            android:text="Field Flush"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_recirculate"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="20pt"
+-            android:text="Recirculate"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_peristalic"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Peristalic"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_effpump1"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Eff Pump"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_effpump2"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Alt Pump"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-    </LinearLayout>
+-    <!--Input Signals-->
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
+-
+-        <TextView
+-            android:id="@+id/_bhigh"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="20pt"
+-            android:text="High"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <View
+-            android:layout_width="6dp"
+-            android:layout_height="match_parent" />
+-
+-        <TextView
+-            android:id="@+id/_balarm"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="20pt"
+-            android:text="Extn Alarm"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_blow"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Low"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <View
+-            android:layout_width="6dp"
+-            android:layout_height="match_parent" />
+-
+-        <TextView
+-            android:id="@+id/_bcl"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Chlorine"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <View
+-            android:layout_width="6dp"
+-            android:layout_height="match_parent" />
+-
+-        <TextView
+-            android:id="@+id/_bwm"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Water Meter "
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-    </LinearLayout>
+-    <!--pumps and counts-->
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
+-
+-        <TextView
+-            android:id="@+id/_effluentlabel"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Effluent Cycles"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_effluentcount"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="0"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+ 
+-        <TextView
+-            android:id="@+id/_pumprunlabel"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Pump Runtime"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_pumprun"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="0"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
++    <TextView
++        android:id="@+id/remoteTimeLabel"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginBottom="40dp"
++        android:paddingStart="10pt"
++        android:paddingEnd="10pt"
++        android:text="01/01/2023:"
++        android:textColor="@android:color/secondary_text_dark"
++        android:textSize="30sp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toStartOf="@+id/remoteTime"
++        app:layout_constraintHorizontal_bias="0.251"
++        app:layout_constraintStart_toStartOf="parent" />
+ 
+-        <TextView
+-            android:id="@+id/_airpressuelabel"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Air Pressure"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
++    <TextView
++        android:id="@+id/remoteTime"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginEnd="120dp"
++        android:layout_marginBottom="40dp"
++        android:paddingStart="10pt"
++        android:paddingEnd="10pt"
++        android:text="@string/time"
++        android:textColor="@android:color/secondary_text_dark"
++        android:textSize="30sp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toStartOf="@+id/GallonsText" />
+ 
+-        <TextView
+-            android:id="@+id/_airpressure"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="0"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-    </LinearLayout>
+-    <!-- Gallons -->
+-    <LinearLayout
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
++    <TextView
++        android:id="@+id/GallonsText"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginBottom="40dp"
++        android:paddingStart="10pt"
++        android:paddingEnd="10pt"
++        android:text="Tank Size Gallons"
++        android:textColor="@android:color/secondary_text_dark"
++        android:textSize="30sp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toStartOf="@+id/GallonsValue" />
+ 
+-        <TextView
+-            android:id="@+id/_gallonslabel"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10dp"
+-            android:text="Gallons"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_gallonsCount"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="0"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_chlorineLabel"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="Chlorine (mg/l)"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-        <TextView
+-            android:id="@+id/_chlorineRate"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:paddingRight="10pt"
+-            android:text="0"
+-            android:textColor="@android:color/secondary_text_dark"
+-            android:textSize="20sp" />
+-
+-    </LinearLayout>
+-    <!-- Receive Stuff -->
+-    <TextView
+-        android:id="@+id/receive_text"
+-        android:layout_width="match_parent"
+-        android:layout_height="0dp"
+-        android:layout_weight="1"
+-        android:clickable="false"
+-        android:enabled="true"
+-        android:freezesText="true"
+-        android:gravity="bottom"
+-        android:scrollbars="vertical"
+-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+-        android:typeface="monospace" />
+-
+-    <Button
+-        android:id="@+id/receive_btn"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:text="Read" />
+-
+-    <View
+-        android:layout_width="match_parent"
+-        android:layout_height="2dp"
+-        android:background="?android:attr/listDivider" />
+-
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
++    <TextView
++        android:id="@+id/GallonsValue"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginEnd="60dp"
++        android:layout_marginBottom="40dp"
++        android:paddingStart="10pt"
++        android:paddingEnd="10pt"
++        android:text="150"
++        android:textColor="@android:color/secondary_text_dark"
++        android:textSize="30sp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toEndOf="parent" />
+ 
+-        <EditText
+-            android:id="@+id/send_text"
+-            android:layout_width="0dp"
+-            android:layout_height="match_parent"
+-            android:layout_weight="1"
+-            android:inputType="text|textNoSuggestions"
+-            android:singleLine="true" />
++</androidx.constraintlayout.widget.ConstraintLayout>
+ 
+-        <ImageButton
+-            android:id="@+id/send_btn"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            app:srcCompat="@drawable/ic_send_white_24dp" />
+-    </LinearLayout>
+-
+-</LinearLayout>
+ 

@@ -1,0 +1,366 @@
+Index: usbSerialExamples/src/main/java/com/hoho/android/usbserial/examples/TerminalFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.hoho.android.usbserial.examples;\r\nimport static java.util.List.of;\r\nimport java.util.List;\r\n\r\nimport android.app.PendingIntent;\r\nimport android.content.BroadcastReceiver;\r\nimport android.content.Context;\r\nimport android.content.Intent;\r\nimport android.content.IntentFilter;\r\nimport android.hardware.usb.UsbDevice;\r\nimport android.hardware.usb.UsbDeviceConnection;\r\nimport android.hardware.usb.UsbManager;\r\nimport android.os.Build;\r\nimport android.os.Bundle;\r\nimport android.os.Handler;\r\nimport android.os.Looper;\r\nimport android.text.Spannable;\r\nimport android.text.SpannableStringBuilder;\r\nimport android.text.style.ForegroundColorSpan;\r\nimport android.view.LayoutInflater;\r\nimport android.view.Menu;\r\nimport android.view.MenuInflater;\r\nimport android.view.MenuItem;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.RadioButton;\r\nimport android.widget.RadioGroup;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\nimport android.widget.AdapterView;\r\nimport android.widget.ArrayAdapter;\r\nimport android.widget.Spinner;\r\nimport androidx.annotation.NonNull;\r\nimport androidx.annotation.Nullable;\r\nimport androidx.fragment.app.Fragment;\r\nimport com.hoho.android.usbserial.driver.UsbSerialDriver;\r\nimport com.hoho.android.usbserial.driver.UsbSerialPort;\r\nimport com.hoho.android.usbserial.driver.UsbSerialProber;\r\nimport com.hoho.android.usbserial.util.HexDump;\r\nimport com.hoho.android.usbserial.util.SerialInputOutputManager;\r\n\r\nimport java.io.IOException;\r\nimport java.util.Arrays;\r\nimport java.util.Calendar;\r\n\r\nimport android.graphics.Color;\r\n\r\npublic class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {\r\n\r\n    public void setMain_mode(RadioGroup main_mode) {\r\n        this.main_mode = main_mode;\r\n    }\r\n\r\n\r\n    private enum UsbPermission { Unknown, Requested, Granted, Denied }\r\n    private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + \".GRANT_USB\";\r\n    private static final int WRITE_WAIT_MILLIS = 2000;\r\n    private static final int READ_WAIT_MILLIS = 2000;\r\n    private static final int UPDATE_INTERVAL_MILLIS = 100;\r\n    private int deviceId, portNum, baudRate;\r\n    private boolean withIoManager;\r\n    private final BroadcastReceiver broadcastReceiver;\r\n    private final Handler mainLooper;\r\n    //Handler timerHandler;\r\n    //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());\r\n    private TextView receiveText;\r\n/*    private TextView fieldFlush;\r\n    private TextView recirculate;\r\n    private TextView pumpRuntime;\r\n    private TextView mainEfficencyPump;\r\n    private TextView altEfficencyPump;\r\n    private TextView _peristalicPump;\r\n    private TextView airpressure;\r\n    private TextView highProbe;\r\n    private TextView lowProbe;\r\n    private TextView alarmExt;\r\n    private TextView chlorineIn;\r\n    private TextView waterMeterIn;*/\r\n    private TextView timeRemote;\r\n    private RadioGroup main_mode;\r\n    private RadioButton bgrav;\r\n    private RadioButton banr;\r\n    private RadioButton bbnr;\r\n    private RadioButton bspy;\r\n    private RadioButton bdrip;\r\n    private RadioButton bdmd;\r\n    //private TextView remoteTime;\r\n    private SerialInputOutputManager usbIoManager;\r\n    private UsbSerialPort usbSerialPort;\r\n    private UsbPermission usbPermission = UsbPermission.Unknown;\r\n    public boolean connected = false;\r\n    DataLayer dataLayer = new DataLayer();\r\n    /* Hoot adds */\r\n    //static boolean cmd_busy = false;\r\n    public String keyString = \"\";\r\n    //public String KEY = \"\";\r\n    //public String VALUE = \"\";\r\n    public String remoteMin = \"00\";\r\n    public String remoteSec = \"00\";\r\n    public String remoteHr = \"00\";\r\n/*  List of data layer commands to process\r\n*   command index keeps trck of next command to send\r\n*   command lenght is length of commandList\r\n*/\r\n    public List<String> updateCommandList = of(\r\n        \"bCL\",\r\n        \"bAlarm\",\r\n        \"bHigh\",\r\n        \"bLow\",\r\n        \"bWM\",\r\n        \"mode\",\r\n        \"hour\",\r\n        \"min\",\r\n        \"sec\",\r\n        \"tank\"\r\n    );\r\n    //ArrayAdapter<CharSequence> adapter;\r\n    //Spinner tankdropdown;\r\n    public int commandListIndex = 0;\r\n    public int commandLength = updateCommandList.size();\r\n\r\n    public TerminalFragment() {\r\n        broadcastReceiver = new BroadcastReceiver() {\r\n            @Override\r\n            public void onReceive(Context context, Intent intent) {\r\n                if(INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {\r\n                    usbPermission = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)\r\n                            ? UsbPermission.Granted : UsbPermission.Denied;\r\n                    connect();\r\n                }\r\n            }\r\n        };\r\n        mainLooper = new Handler(Looper.getMainLooper());\r\n    }\r\n\r\n    /*\r\n     * Lifecycle\r\n     */\r\n    final Runnable updateTank = new Runnable() {\r\n        @Override\r\n        public void run() {\r\n            Toast.makeText(getActivity(), \"Spinner Item \" + dataLayer.getTank(), Toast.LENGTH_SHORT).show();\r\n            sendJson(\"tank\", dataLayer.getTank());\r\n        }\r\n    };\r\n    final Runnable update = new Runnable() {\r\n        public void run() {\r\n            //Toast.makeText(getActivity(), \"Update \", Toast.LENGTH_SHORT).show();\r\n            updateDataLayer();\r\n        }\r\n    };\r\n   /*final Runnable clearAck = new Runnable() {\r\n        public void run() {\r\n            if(!dataLayer.isMsgAck()){\r\n                Toast.makeText(getActivity(), \"ACK FAILED \" + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();\r\n                dataLayer.setMsgAck(true);\r\n            }\r\n        }\r\n    };*/\r\n    final Runnable postMsg = new Runnable() {\r\n        public void run() {\r\n            postDataLayer();\r\n            //Toast.makeText(getActivity(), \"HID Timeout\", Toast.LENGTH_SHORT).show();\r\n        }\r\n    };\r\n\r\n    public void postDataLayer() {\r\n        if ((dataLayer.getKEY()).equals(\"bCL\"))\r\n            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));\r\n        else if ((dataLayer.getKEY()).equals(\"bAlarm\"))\r\n            dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));\r\n        else if ((dataLayer.getKEY()).equals(\"bLow\"))\r\n            dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));\r\n        else if ((dataLayer.getKEY()).equals(\"bHigh\"))\r\n            dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));\r\n        else if ((dataLayer.getKEY()).equals(\"bWM\"))\r\n            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));\r\n        else if ((dataLayer.getKEY()).equals(\"mode\")) {\r\n            dataLayer.setMode(dataLayer.getVALUE());\r\n            if(dataLayer.getMode().equals(\"bANR\"))\r\n                main_mode.check(R.id.banr);\r\n            else if (dataLayer.getMode().equals(\"bBNR\"))\r\n                main_mode.check(R.id.bbnr);\r\n            else if (dataLayer.getMode().equals(\"bDMD\"))\r\n                main_mode.check(R.id.bdmd);\r\n            else if (dataLayer.getMode().equals(\"bSPY\"))\r\n                main_mode.check(R.id.bspy);\r\n            else if (dataLayer.getMode().equals(\"bDRIP\"))\r\n                main_mode.check(R.id.bdrip);\r\n            else if (dataLayer.getMode().equals(\"bGRAV\"))\r\n                main_mode.check(R.id.grav);\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"hrs\"))\r\n            remoteHr = dataLayer.getVALUE();\r\n        else if ((dataLayer.getKEY()).equals(\"min\"))\r\n            remoteMin = dataLayer.getVALUE();\r\n        else if ((dataLayer.getKEY()).equals(\"sec\")) {\r\n            remoteSec = dataLayer.getVALUE();\r\n            timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"Tank\")) {\r\n            //gallonsValue.setText(dataLayer.getVALUE());\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"bANR\")) {\r\n            // kill cmd not found msg until   is enabled\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"bNNR\")) {\r\n            // kill cmd not found msg until view is enabled\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"bDMD\")) {\r\n            // kill cmd not found msg until view is enabled\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"bSPY\")) {\r\n            // kill cmd not found msg until view is enabled\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"bCL\")) {\r\n            // kill cmd not found msg until view is enabled\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"bALARM\")) {\r\n            // kill cmd not found msg until view is enabled\r\n        }\r\n        else if ((dataLayer.getKEY()).equals(\"tank\")) {\r\n            dataLayer.setTank(dataLayer.getVALUE());\r\n            if (dataLayer.getVALUE() != null) {\r\n //               int spinnerPosition = adapter.getPosition(dataLayer.getVALUE());\r\n //               tankDropDown.setSelectedItem(spinnerPosition);\r\n            }\r\n        }\r\n\r\n        else\r\n            Toast.makeText(getActivity(), \"CMD not Recognized \" + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();\r\n\r\n    }\r\n\r\n    public void updateDataLayer() {\r\n//        if(check5lTime()) {\r\n//            Toast.makeText(getActivity(), \"Update 5L Time\", Toast.LENGTH_SHORT).show();\r\n//        }\r\n\r\n        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);\r\n        //mainLooper.postDelayed(clearAck, 200);\r\n        if (connected) {\r\n            sendJson(updateCommandList.get(commandListIndex++), \"Query\");\r\n            if (commandListIndex == commandLength)\r\n                commandListIndex = 0;\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void onCreate(@Nullable Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setHasOptionsMenu(true);\r\n        setRetainInstance(true);\r\n        assert getArguments() != null;\r\n        deviceId = getArguments().getInt(\"device\");\r\n        portNum = getArguments().getInt(\"port\");\r\n        baudRate = getArguments().getInt(\"baud\");\r\n        withIoManager = getArguments().getBoolean(\"withIoManager\");\r\n    }\r\n\r\n    @Override\r\n    public void onResume() {\r\n        super.onResume();\r\n        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));\r\n\r\n        if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)\r\n            mainLooper.post(this::connect);\r\n    }\r\n\r\n    @Override\r\n    public void onPause() {\r\n        if(connected) {\r\n            status(\"disconnected\");\r\n            disconnect();\r\n        }\r\n        getActivity().unregisterReceiver(broadcastReceiver);\r\n        super.onPause();\r\n    }\r\n\r\n    /*\r\n     * UI\r\n     */\r\n    @Override\r\n    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {\r\n        View view = inflater.inflate(R.layout.fragment_terminal, container, false);\r\n        //main_mode = (RadioGroup) view.findViewById(R.id.main_mode);\r\n        bgrav = view.findViewById(R.id.grav);\r\n        banr = view.findViewById(R.id.banr);\r\n        bbnr = view.findViewById(R.id.bbnr);\r\n        bspy = view.findViewById(R.id.bspy);\r\n        bdmd = view.findViewById(R.id.bdmd);\r\n        bdrip = view.findViewById(R.id.bdrip);\r\n        receiveText = view.findViewById(R.id.receiveText);\r\n        timeRemote = view.findViewById(R.id.timeRemote);\r\n        bgrav.setOnClickListener(v -> gravCallback());  // something is always true\r\n        banr.setOnClickListener(v -> banrCallback());\r\n        bbnr.setOnClickListener(v -> bbnrCallback());\r\n        bspy.setOnClickListener(v -> bspyCallback());\r\n        bdmd.setOnClickListener(v -> bdmdCallback());\r\n        bdrip.setOnClickListener(v -> bdripCallback());\r\n        /* Spinner Tank Size */\r\n        Spinner tankDropDown = (Spinner) view.findViewById(R.id.tankDropDown);\r\n        ArrayAdapter<CharSequence>adapter= ArrayAdapter.createFromResource(getActivity(), R.array.tankArray, R.layout.mode_spinner);\r\n        adapter.setDropDownViewResource(R.layout.mode_spinner);\r\n        tankDropDown.setAdapter(adapter);\r\n        tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {\r\n            @Override\r\n            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {\r\n                long tankIndex = parent.getItemIdAtPosition(position);\r\n                dataLayer.setTank(tankDropDown.getSelectedItem().toString());\r\n                mainLooper.post(updateTank);\r\n            }\r\n\r\n            @Override\r\n            public void onNothingSelected(AdapterView<?> parent) {\r\n                Toast.makeText(getActivity(), \"Spinner Nothing\", Toast.LENGTH_SHORT).show();\r\n            }\r\n        });\r\n        /* Start Update timer to sync UI   */\r\n        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);\r\n        return view;\r\n    }\r\n\r\n    public void onItemSelected(AdapterView<?> parent, View view,\r\n                               int pos, long id) {\r\n        // An item was selected. You can retrieve the selected item using\r\n        // parent.getItemAtPosition(pos)\r\n    }\r\n\r\n    public void onNothingSelected(AdapterView<?> parent) {\r\n        // Another interface callback\r\n    }\r\n\r\n    @Override\r\n    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {\r\n        inflater.inflate(R.menu.menu_terminal, menu);\r\n    }\r\n\r\n    @Override\r\n    public boolean onOptionsItemSelected(MenuItem item) {\r\n        int id = item.getItemId();\r\n        if (id == R.id.clear) {\r\n            receiveText.setText(\"\");\r\n            return true;\r\n        } else if( id == R.id.send_break) {\r\n            if(!connected) {\r\n                Toast.makeText(getActivity(), \"not connected\", Toast.LENGTH_SHORT).show();\r\n            } else {\r\n                try {\r\n                    usbSerialPort.setBreak(true);\r\n                    Thread.sleep(100); // should show progress bar instead of blocking UI thread\r\n                    usbSerialPort.setBreak(false);\r\n                    SpannableStringBuilder spn = new SpannableStringBuilder();\r\n                    spn.append(\"send <break>\\n\");\r\n                    spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);\r\n                    receiveText.append(spn);\r\n                } catch(UnsupportedOperationException ignored) {\r\n                    Toast.makeText(getActivity(), \"BREAK not supported\", Toast.LENGTH_SHORT).show();\r\n                } catch(Exception e) {\r\n                    Toast.makeText(getActivity(), \"BREAK failed: \" + e.getMessage(), Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n            return true;\r\n        } else {\r\n            return super.onOptionsItemSelected(item);\r\n        }\r\n    }\r\n\r\n    /*\r\n     * Serial\r\n     */\r\n    @Override\r\n    public void onNewData(byte[] data) {\r\n        mainLooper.post(() -> {\r\n            receive(data); });\r\n    }\r\n\r\n    @Override\r\n    public void onRunError(Exception e) {\r\n        mainLooper.post(() -> {\r\n            status(\"connection lost: \" + e.getMessage());\r\n            disconnect();\r\n        });\r\n    }\r\n\r\n    /*\r\n     * Serial + UI\r\n     */\r\n    private void connect() {\r\n        UsbDevice device = null;\r\n        UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);\r\n        for(UsbDevice v : usbManager.getDeviceList().values())\r\n            if(v.getDeviceId() == deviceId)\r\n                device = v;\r\n        if(device == null) {\r\n            status(\"connection failed: device not found\");\r\n            return;\r\n        }\r\n        UsbSerialDriver driver = UsbSerialProber.getDefaultProber().probeDevice(device);\r\n        if(driver == null) {\r\n            driver = CustomProber.getCustomProber().probeDevice(device);\r\n        }\r\n        if(driver == null) {\r\n            status(\"connection failed: no driver for device\");\r\n            return;\r\n        }\r\n        if(driver.getPorts().size() < portNum) {\r\n            status(\"connection failed: not enough ports at device\");\r\n            return;\r\n        }\r\n        usbSerialPort = driver.getPorts().get(portNum);\r\n        UsbDeviceConnection usbConnection = usbManager.openDevice(driver.getDevice());\r\n        if(usbConnection == null && usbPermission == UsbPermission.Unknown && !usbManager.hasPermission(driver.getDevice())) {\r\n            usbPermission = UsbPermission.Requested;\r\n            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;\r\n            PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), flags);\r\n            usbManager.requestPermission(driver.getDevice(), usbPermissionIntent);\r\n            return;\r\n        }\r\n        if(usbConnection == null) {\r\n            if (!usbManager.hasPermission(driver.getDevice()))\r\n                status(\"connection failed: permission denied\");\r\n            else\r\n                status(\"connection failed: open failed\");\r\n            return;\r\n        }\r\n\r\n        try {\r\n            usbSerialPort.open(usbConnection);\r\n            usbSerialPort.setParameters(baudRate, 8, 1, UsbSerialPort.PARITY_NONE);\r\n            if(withIoManager) {\r\n                usbIoManager = new SerialInputOutputManager(usbSerialPort, this);\r\n                usbIoManager.start();\r\n            }\r\n            status(\"connected\");\r\n            connected = true;\r\n        } catch (Exception e) {\r\n            status(\"connection failed: \" + e.getMessage());\r\n            disconnect();\r\n        }\r\n    }\r\n\r\n    private void disconnect() {\r\n        connected = false;\r\n        if(usbIoManager != null) {\r\n            usbIoManager.setListener(null);\r\n            usbIoManager.stop();\r\n        }\r\n        usbIoManager = null;\r\n        try {\r\n            usbSerialPort.close();\r\n        } catch (IOException ignored) {}\r\n        usbSerialPort = null;\r\n    }\r\n\r\n    private void setTextViewFlavor(TextView textview, String value) {\r\n        if (value.equalsIgnoreCase(\"true\")) {\r\n            textview.setBackgroundColor(Color.GREEN);\r\n            textview.setTextColor(Color.BLACK);\r\n        }\r\n        else {\r\n            textview.setBackgroundColor(Color.BLACK);\r\n            textview.setTextColor(Color.WHITE);\r\n        }\r\n    }\r\n    public void serviceUi() {\r\n        if(dataLayer.getKEY().equals(\"mode\")) {\r\n            //final RadioGroup main_mode = (RadioButton)findGroupById(R.id.grav);\r\n            if(dataLayer.getVALUE().equals(\"grav\")) {\r\n                main_mode.check(R.id.grav);\r\n            }\r\n            else if(dataLayer.getVALUE().equals(\"bANR\")) {\r\n                main_mode.check(R.id.banr);\r\n            }\r\n            else if(dataLayer.getVALUE().equals(\"bBNR\") {\r\n                main_mode.check(R.id.bbnr);\r\n            }\r\n            else if(dataLayer.getVALUE().equals(\"bSPY\")) {\r\n                main_mode.check(R.id.bspy);\r\n            }\r\n            else if(dataLayer.getVALUE().equals(\"bDRIP\")) {\r\n                main_mode.check(R.id.bdrip);\r\n            }\r\n            else if(dataLayer.getVALUE().equals(\"bDMD\")) {\r\n                main_mode.check(R.id.bdmd);\r\n            }\r\n        }\r\n    }\r\n    private boolean check5lTime() {\r\n        Calendar rightNow = Calendar.getInstance();\r\n        int hour = rightNow.get(Calendar.HOUR_OF_DAY);\r\n\r\n        sendJson(\"hour\", String.valueOf(hour));\r\n\r\n        int minute = rightNow.get(Calendar.MINUTE);\r\n        sendJson(\"min\", String.valueOf(minute));\r\n        int second = rightNow.get(Calendar.SECOND);\r\n        sendJson(\"sec\", String.valueOf(second));\r\n        int month = rightNow.get(Calendar.DAY_OF_MONTH);\r\n        sendJson(\"month\", String.valueOf(month));\r\n        int day = rightNow.get(Calendar.DAY_OF_MONTH);\r\n        sendJson(\"day\", String.valueOf(day));\r\n        int year = rightNow.get(Calendar.YEAR);\r\n        sendJson(\"year\", String.valueOf(year));\r\n        return true;\r\n    }\r\n    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){\r\n        SpannableStringBuilder remoteTime = new SpannableStringBuilder();\r\n        remoteTime.append(String.valueOf(remoteHr));\r\n        remoteTime.append(\":\");\r\n        remoteTime.append(String.valueOf(remoteMin));\r\n        remoteTime.append(\":\");\r\n        remoteTime.append(String.valueOf(remoteSec));\r\n        return(remoteTime);\r\n    }\r\n    private SpannableStringBuilder updateTime(String remoteHr, String remoteMin, String remoteSec){\r\n        SpannableStringBuilder updateTime = new SpannableStringBuilder();\r\n        updateTime.append(remoteHr);\r\n        updateTime.append(\":\");\r\n        updateTime.append(remoteMin);\r\n        updateTime.append(\":\");\r\n        updateTime.append(remoteSec);\r\n        return(updateTime);\r\n    }\r\n    private void ackModeCmd(RadioButton activeButton){\r\n        bgrav.setTextColor(Color.WHITE);\r\n        banr.setTextColor(Color.WHITE);\r\n        bbnr.setTextColor(Color.WHITE);\r\n        bspy.setTextColor(Color.WHITE);\r\n        bdrip.setTextColor(Color.WHITE);\r\n        bdmd.setTextColor(Color.WHITE);\r\n       if(activeButton == bgrav)\r\n           bgrav.setTextColor(Color.GREEN);\r\n       else if (activeButton == banr)\r\n           banr.setTextColor(Color.GREEN);\r\n       else if (activeButton == bbnr)\r\n           bbnr.setTextColor(Color.GREEN);\r\n       else if (activeButton == bspy)\r\n           bspy.setTextColor(Color.GREEN);\r\n       else if (activeButton == bdrip)\r\n           bdrip.setTextColor(Color.GREEN);\r\n       else if (activeButton == bdmd)\r\n           bdmd.setTextColor(Color.GREEN);\r\n    }\r\n\r\n    private void gravCallback() {\r\n        sendJson(\"bGRAV\",\"true\");\r\n    }\r\n    private void banrCallback() {\r\n        sendJson(\"bANR\",\"true\");\r\n    }\r\n    private void bbnrCallback() {\r\n        sendJson(\"bBNR\",\"true\");\r\n    }\r\n    private void bspyCallback() {\r\n        sendJson(\"bSPY\",\"true\");\r\n    }\r\n    private void bdmdCallback() {\r\n        sendJson(\"bDMD\", \"true\");\r\n    }\r\n    private void bdripCallback() {\r\n        sendJson(\"bDRIP\", \"true\");\r\n    }\r\n\r\n    private boolean sendJson(String cmd, String value) {\r\n        int j = 0;\r\n        SpannableStringBuilder json = new SpannableStringBuilder();\r\n        json.append(\"{\\\"\");\r\n        json.append(cmd);\r\n        json.append(\"\\\":\");\r\n        json.append(value);\r\n        json.append(\"}\");\r\n        json.append(\"\\n\");\r\n        try {\r\n            send(String.valueOf(json));\r\n        } catch (Exception e) {\r\n            onRunError(e);\r\n        }\r\n        return true;\r\n    }\r\n\r\n    private void send(String str) {\r\n        if(!connected) {\r\n            Toast.makeText(getActivity(), \"not connected\", Toast.LENGTH_SHORT).show();\r\n            return;\r\n        }\r\n        try {\r\n            //dataLayer.setMsgAck(false);\r\n            byte[] data = (str + '\\n').getBytes();\r\n            SpannableStringBuilder spn = new SpannableStringBuilder();\r\n            /* spn.append(\"send \" + data.length + \" bytes\\n\");\r\n            spn.append(HexDump.dumpHexString(data)).append(\"\\n\");\r\n            spn.append(data + \"\\n\");*/\r\n            spn.append(str);\r\n            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);\r\n            receiveText.append(spn);\r\n            usbSerialPort.write(data, WRITE_WAIT_MILLIS);\r\n        } catch (Exception e) {\r\n            onRunError(e);\r\n        }\r\n/*        for (int k = 0; k < 30000; k++) {\r\n            if (dataLayer.isMsgAck())\r\n                break;\r\n        }*/\r\n    }\r\n\r\n    private void read() {\r\n        if(!connected) {\r\n            Toast.makeText(getActivity(), \"not connected\", Toast.LENGTH_SHORT).show();\r\n            return;\r\n        }\r\n        try {\r\n            byte[] buffer = new byte[8192];\r\n            int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);\r\n/*            if(len == -1)\r\n                msgAck = false;\r\n            else\r\n                msgAck = true;*/\r\n            receive(Arrays.copyOf(buffer, len));\r\n        } catch (IOException e) {\r\n            // when using read with timeout, USB bulkTransfer returns -1 on timeout _and_ errors\r\n            // like connection loss, so there is typically no exception thrown here on error\r\n            status(\"connection lost: \" + e.getMessage());\r\n            disconnect();\r\n        }\r\n    }\r\n\r\n    public void receive(byte[] data) {\r\n        SpannableStringBuilder spn = new SpannableStringBuilder();\r\n        if(data.length > 0)\r\n        {\r\n            spn.append(\"receive \" + data.length + \" bytes\\n\");\r\n            spn.append(HexDump.dumpHexString(data)).append(\"\\n\");\r\n            parse(data);\r\n        }\r\n    }\r\n\r\n    public void parse(byte[] data)\r\n    {\r\n        String rx = new String(data);\r\n        //String valueString = null;\r\n        boolean key = false;\r\n        boolean value = false;\r\n\r\n        if(rx.length() > 0){\r\n            for(int k = 0; k < rx.length(); k++){\r\n                switch(rx.charAt(k)) {\r\n                    case '{':                           // start case start key phase\r\n                        key = true;\r\n                        keyString = \"\";\r\n                        break;\r\n                    case '}':                           // save value and exit\r\n                        key = false;\r\n                        value = false;\r\n                        dataLayer.setVALUE(keyString);\r\n                        keyString = \"\";\r\n                        receiveText.append(dataLayer.getKEY() + \":\" + dataLayer.getVALUE()  + \"\\n\");\r\n                        //Toast.makeText(getActivity(), \"ACK\", Toast.LENGTH_SHORT).show();\r\n                        //dataLayer.setMsgAck(true);\r\n                        mainLooper.post(postMsg);\r\n                        //mainLooper.post(() -> { postMsg; });\r\n                        break;\r\n                    case ':':                           // save key move to value phase\r\n                        key = false;\r\n                        dataLayer.setKEY(keyString);\r\n                        value = true;\r\n                        keyString = \"\";\r\n                        break;\r\n                    case '\"':                           // ignore these\r\n                    case '\\n':\r\n                    case '\\r':\r\n                    case ' ':\r\n                        break;\r\n                    default:\r\n                        keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string\r\n                        break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    void status(String str) {\r\n        SpannableStringBuilder spn = new SpannableStringBuilder(str+'\\n');\r\n        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);\r\n        receiveText.append(spn);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/usbSerialExamples/src/main/java/com/hoho/android/usbserial/examples/TerminalFragment.java b/usbSerialExamples/src/main/java/com/hoho/android/usbserial/examples/TerminalFragment.java
+--- a/usbSerialExamples/src/main/java/com/hoho/android/usbserial/examples/TerminalFragment.java	
++++ b/usbSerialExamples/src/main/java/com/hoho/android/usbserial/examples/TerminalFragment.java	
+@@ -137,7 +137,7 @@
+      * Lifecycle
+      */
+     final Runnable updateTank = new Runnable() {
+-        @Override
++        //@Override
+         public void run() {
+             Toast.makeText(getActivity(), "Spinner Item " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
+             sendJson("tank", dataLayer.getTank());
+@@ -220,11 +220,11 @@
+             // kill cmd not found msg until view is enabled
+         }
+         else if ((dataLayer.getKEY()).equals("tank")) {
+-            dataLayer.setTank(dataLayer.getVALUE());
+-            if (dataLayer.getVALUE() != null) {
++            //dataLayer.setTank(dataLayer.getVALUE());
++            //if (dataLayer.getVALUE() != null) {
+  //               int spinnerPosition = adapter.getPosition(dataLayer.getVALUE());
+  //               tankDropDown.setSelectedItem(spinnerPosition);
+-            }
++           // }
+         }
+ 
+         else
+@@ -472,7 +472,7 @@
+             else if(dataLayer.getVALUE().equals("bANR")) {
+                 main_mode.check(R.id.banr);
+             }
+-            else if(dataLayer.getVALUE().equals("bBNR") {
++            else if(dataLayer.getVALUE().equals("bBNR")) {
+                 main_mode.check(R.id.bbnr);
+             }
+             else if(dataLayer.getVALUE().equals("bSPY")) {
+Index: .idea/assetWizardSettings.xml
+===================================================================
+diff --git a/.idea/assetWizardSettings.xml b/.idea/assetWizardSettings.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/assetWizardSettings.xml	
+@@ -0,0 +1,315 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="WizardSettings">
++    <option name="children">
++      <map>
++        <entry key="imageWizard">
++          <value>
++            <PersistentState>
++              <option name="children">
++                <map>
++                  <entry key="imageAssetPanel">
++                    <value>
++                      <PersistentState>
++                        <option name="children">
++                          <map>
++                            <entry key="actionbar">
++                              <value>
++                                <PersistentState>
++                                  <option name="children">
++                                    <map>
++                                      <entry key="clipArt">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                                <entry key="imagePath" value="C:\Users\techs\AppData\Local\Temp\ic_android_black_24dp.xml" />
++                                                <entry key="opacityPercent" value="60" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="image">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                                <entry key="imagePath" value="D:\Projects\AndroidSerial\mik3y\Hoot_big.jpg" />
++                                                <entry key="opacityPercent" value="60" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="text">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="textAsset">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                    </map>
++                                  </option>
++                                  <option name="values">
++                                    <map>
++                                      <entry key="assetType" value="IMAGE" />
++                                      <entry key="imageAsset" value="D:\Projects\AndroidSerial\mik3y\Hoot_big.jpg" />
++                                    </map>
++                                  </option>
++                                </PersistentState>
++                              </value>
++                            </entry>
++                            <entry key="launcher">
++                              <value>
++                                <PersistentState>
++                                  <option name="children">
++                                    <map>
++                                      <entry key="foregroundClipArt">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="imagePath" value="C:\Users\techs\AppData\Local\Temp\ic_android_black_24dp.xml" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="foregroundImage">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="foregroundText">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="foregroundTextAsset">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                    </map>
++                                  </option>
++                                </PersistentState>
++                              </value>
++                            </entry>
++                            <entry key="launcherLegacy">
++                              <value>
++                                <PersistentState>
++                                  <option name="children">
++                                    <map>
++                                      <entry key="clipArt">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                                <entry key="imagePath" value="C:\Users\techs\AppData\Local\Temp\ic_android_black_24dp.xml" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="text">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="textAsset">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                    </map>
++                                  </option>
++                                </PersistentState>
++                              </value>
++                            </entry>
++                            <entry key="notification">
++                              <value>
++                                <PersistentState>
++                                  <option name="children">
++                                    <map>
++                                      <entry key="clipArt">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                                <entry key="imagePath" value="C:\Users\techs\AppData\Local\Temp\ic_android_black_24dp.xml" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="text">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="textAsset">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                    </map>
++                                  </option>
++                                </PersistentState>
++                              </value>
++                            </entry>
++                            <entry key="tvBanner">
++                              <value>
++                                <PersistentState>
++                                  <option name="children">
++                                    <map>
++                                      <entry key="foregroundText">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                    </map>
++                                  </option>
++                                </PersistentState>
++                              </value>
++                            </entry>
++                            <entry key="tvChannel">
++                              <value>
++                                <PersistentState>
++                                  <option name="children">
++                                    <map>
++                                      <entry key="foregroundClipArt">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="imagePath" value="C:\Users\techs\AppData\Local\Temp\ic_android_black_24dp.xml" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="foregroundImage">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="foregroundText">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                      <entry key="foregroundTextAsset">
++                                        <value>
++                                          <PersistentState>
++                                            <option name="values">
++                                              <map>
++                                                <entry key="color" value="000000" />
++                                              </map>
++                                            </option>
++                                          </PersistentState>
++                                        </value>
++                                      </entry>
++                                    </map>
++                                  </option>
++                                </PersistentState>
++                              </value>
++                            </entry>
++                          </map>
++                        </option>
++                        <option name="values">
++                          <map>
++                            <entry key="outputIconType" value="ACTIONBAR" />
++                          </map>
++                        </option>
++                      </PersistentState>
++                    </value>
++                  </entry>
++                </map>
++              </option>
++            </PersistentState>
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
