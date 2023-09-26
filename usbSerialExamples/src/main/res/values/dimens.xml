@@ -8,5 +8,5 @@
     <dimen name="ModeButtonMinWidth">50sp</dimen>
     <dimen name="RadioButtonMarginTop">20sp</dimen>
     <dimen name="RadioButtonBottomMargin">20sp</dimen>
-    <dimen name="anrTextSize">12sp</dimen>
+    <dimen name="anrTextSize">14sp</dimen>
 </resources>

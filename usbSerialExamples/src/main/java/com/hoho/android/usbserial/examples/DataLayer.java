@@ -19,6 +19,13 @@ public class DataLayer {
     public boolean balrmltch = false;
     public boolean bmantest = false;
     public boolean bairalrm = false;
+    public boolean RY1 = false;
+    public boolean recirculate = false;
+    public boolean effpump2 = false;
+    public boolean effpump = false;
+    public boolean filterFlush = false;
+    public boolean peristolic = false;
+    public boolean RY2 = false;
     public String rrepeat = "0";
     public String rrun = "0";
     public String airpres = "0";

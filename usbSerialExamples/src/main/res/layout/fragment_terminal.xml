@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
+    android:id="@+id/TerminalLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginStart="50sp"
@@ -13,8 +13,8 @@
 
     <RadioGroup
         android:id="@+id/main_mode"
-        android:layout_width="433dp"
-        android:layout_height="341dp"
+        android:layout_width="445dp"
+        android:layout_height="397dp"
         android:layout_marginTop="52dp"
         android:orientation="vertical"
         android:visibility="visible"
@@ -116,6 +116,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <RadioButton
+            android:id="@+id/manual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="false"
+            android:minWidth="@dimen/minWidth"
+            android:text="Manual Operation"
+            android:textSize="@dimen/RadioButtonTextSize"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </RadioGroup>
 
     <!--Time,Gallons Labels Here -->
@@ -126,8 +138,8 @@
         android:id="@+id/tankDropDown"
         android:layout_width="304dp"
         android:layout_height="58dp"
-        android:layout_marginStart="220dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="224dp"
+        android:layout_marginTop="24dp"
         android:paddingLeft="10pt"
         android:paddingRight="10pt"
         android:paddingBottom="10pt"
@@ -139,13 +151,26 @@
         app:layout_constraintTop_toBottomOf="@+id/_gallonslabel" />
 
     <TextView
-        android:id="@+id/_gallonslabel"
+        android:id="@+id/RevNumber"
+        android:layout_width="159dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="80dp"
+        android:text="Rev 0.0"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.126"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
+
+    <TextView
+        android:id="@+id/timeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="212dp"
-        android:layout_marginTop="72dp"
-        android:paddingLeft="10pt"
-        android:text=" Tank Size Gallons"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="140dp"
+        android:paddingStart="10pt"
+        android:paddingEnd="10pt"
+        android:text="Time"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="@dimen/GallonTextSize"
         app:layout_constraintStart_toStartOf="parent"
@@ -155,8 +180,8 @@
         android:id="@+id/timeRemote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="24dp"
         android:maxLines="2"
         android:minLines="1"
         android:paddingStart="10pt"
@@ -171,14 +196,24 @@
         app:layout_constraintTop_toBottomOf="@+id/timeLabel" />
 
     <TextView
-        android:id="@+id/timeLabel"
+        android:id="@+id/SerialNumber"
+        android:layout_width="222dp"
+        android:layout_height="51dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="132dp"
+        android:text="SN 1234567890"
+        android:textSize="@dimen/GallonTextSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
+
+    <TextView
+        android:id="@+id/_gallonslabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="72dp"
-        android:paddingStart="10pt"
-        android:paddingEnd="10pt"
-        android:text="Time"
+        android:layout_marginStart="216dp"
+        android:layout_marginTop="140dp"
+        android:paddingLeft="10pt"
+        android:text=" Tank Size Gallons"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="@dimen/GallonTextSize"
         app:layout_constraintStart_toStartOf="parent"
@@ -213,29 +248,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/hoot_big" />
-
-    <TextView
-        android:id="@+id/SerialNumber"
-        android:layout_width="222dp"
-        android:layout_height="51dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="140dp"
-        android:text="SN 1234567890"
-        android:textSize="@dimen/GallonTextSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
-
-    <TextView
-        android:id="@+id/RevNumber"
-        android:layout_width="159dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="12dp"
-        android:text="Rev 0.0"
-        android:textSize="@dimen/GallonTextSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.115"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_mode" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

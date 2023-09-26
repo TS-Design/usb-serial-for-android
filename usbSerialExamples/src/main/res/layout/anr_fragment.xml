@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
+    android:id="@+id/AnrLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginStart="50sp"
@@ -104,59 +104,59 @@
      app:layout_constraintTop_toTopOf="parent" />
 
  <Button
-     android:id="@+id/alarmReset"
-     android:layout_width="100dp"
-     android:layout_height="60dp"
-     android:layout_marginTop="24dp"
-     android:layout_marginEnd="108dp"
-     android:text="System Alarm Latching Reset"
-     android:textSize="12sp"
-     app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/effPumpTest" />
-
- <Button
      android:id="@+id/effPumpTest"
      android:layout_width="100dp"
      android:layout_height="60dp"
-     android:layout_marginTop="212dp"
-     android:layout_marginEnd="108dp"
+     android:layout_marginTop="220dp"
+     android:layout_marginEnd="36dp"
      android:text=" Effluent Pump Manual Run"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintTop_toTopOf="parent" />
 
  <Button
-     android:id="@+id/recirTest"
+     android:id="@+id/ffTest"
      android:layout_width="100dp"
      android:layout_height="60dp"
-     android:layout_marginTop="16dp"
-     android:layout_marginEnd="108dp"
-     android:text="Recir Valve Test"
+     android:layout_marginTop="12dp"
+     android:layout_marginEnd="36dp"
+     android:text="Field Flush Test"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
+     app:layout_constraintTop_toBottomOf="@+id/recirTest" />
 
  <Button
      android:id="@+id/peristalticTest"
      android:layout_width="100dp"
      android:layout_height="60dp"
-     android:layout_marginTop="16dp"
-     android:layout_marginEnd="108dp"
+     android:layout_marginTop="24dp"
+     android:layout_marginEnd="36dp"
      android:text="Peristaltic Pump Test"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/ffTest" />
 
  <Button
-     android:id="@+id/ffTest"
+     android:id="@+id/alarmReset"
      android:layout_width="100dp"
      android:layout_height="60dp"
-     android:layout_marginTop="20dp"
-     android:layout_marginEnd="108dp"
-     android:text="Field Flush Test"
+     android:layout_marginTop="16dp"
+     android:layout_marginEnd="36dp"
+     android:text="System Alarm Latching Reset"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/recirTest" />
+     app:layout_constraintTop_toBottomOf="@+id/effPumpTest" />
+
+ <Button
+     android:id="@+id/recirTest"
+     android:layout_width="100dp"
+     android:layout_height="60dp"
+     android:layout_marginTop="24dp"
+     android:layout_marginEnd="36dp"
+     android:text="Recir Valve Test"
+     android:textSize="12sp"
+     app:layout_constraintEnd_toEndOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
 
  <TextView
      android:id="@+id/dosesDay"

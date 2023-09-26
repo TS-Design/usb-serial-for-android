@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/manualCancel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RadioButton
+        android:id="@+id/RY1"
+        android:layout_width="wrap_content"
+        android:layout_height="59dp"
+        android:layout_marginTop="28dp"
+        android:text="Unassigned (RY1)"
+        app:layout_constraintStart_toStartOf="@+id/peristolic"
+        app:layout_constraintTop_toBottomOf="@+id/peristolic" />
+
+    <RadioButton
+        android:id="@+id/recirculate"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Recirculate(SO1)"
+        app:layout_constraintStart_toStartOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
+
+    <RadioButton
+        android:id="@+id/effpump2"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="Effluent Pump (RY4)"
+        app:layout_constraintStart_toStartOf="@+id/effpump"
+        app:layout_constraintTop_toBottomOf="@+id/effpump" />
+
+    <RadioButton
+        android:id="@+id/effpump"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="Effluent Pump (RY3)"
+        app:layout_constraintStart_toStartOf="@+id/RY2"
+        app:layout_constraintTop_toBottomOf="@+id/RY2" />
+
+    <RadioButton
+        android:id="@+id/filterFlush"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="Filter Flush (SO2)"
+        app:layout_constraintStart_toStartOf="@+id/recirculate"
+        app:layout_constraintTop_toBottomOf="@+id/recirculate" />
+
+    <RadioButton
+        android:id="@+id/peristolic"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="Peristolic Pump (SO3 DPump)"
+        app:layout_constraintStart_toStartOf="@+id/filterFlush"
+        app:layout_constraintTop_toBottomOf="@+id/filterFlush" />
+
+    <RadioButton
+        android:id="@+id/RY2"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="32dp"
+        android:text="Unassigned (RY2)"
+        app:layout_constraintStart_toStartOf="@+id/RY1"
+        app:layout_constraintTop_toBottomOf="@+id/RY1" />
+
+    <TextView
+        android:id="@+id/manualOutHeader"
+        android:layout_width="137dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="76dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center|center_horizontal"
+        android:text="Outputs"
+        android:textAlignment="center"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/manualInHeader"
+        android:layout_width="137dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="244dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center|center_horizontal"
+        android:text="Inputs"
+        android:textAlignment="center"
+        android:textSize="34sp"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/maintLowProbe"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="32dp"
+        android:gravity="center|center_horizontal"
+        android:text="Low Probe"
+        app:layout_constraintStart_toStartOf="@+id/manualInHeader"
+        app:layout_constraintTop_toBottomOf="@+id/manualInHeader" />
+
+    <TextView
+        android:id="@+id/maintHiProbe"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="32dp"
+        android:gravity="center|center_horizontal"
+        android:text="High Probe"
+        app:layout_constraintStart_toStartOf="@+id/maintLowProbe"
+        app:layout_constraintTop_toBottomOf="@+id/maintLowProbe" />
+
+    <TextView
+        android:id="@+id/maintAlarmProbe"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="32dp"
+        android:gravity="center|center_horizontal"
+        android:text="Alarm Probe"
+        app:layout_constraintStart_toStartOf="@+id/maintHiProbe"
+        app:layout_constraintTop_toBottomOf="@+id/maintHiProbe" />
+
+    <Button
+        android:id="@+id/cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="344dp"
+        android:layout_marginEnd="240dp"
+        android:text="@android:string/cancel"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.935"
+        app:layout_constraintStart_toEndOf="@+id/effpump2"
+        app:layout_constraintTop_toBottomOf="@+id/maintAlarmProbe" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
