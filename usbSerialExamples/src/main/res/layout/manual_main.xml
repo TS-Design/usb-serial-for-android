@@ -6,67 +6,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/RY1"
         android:layout_width="wrap_content"
         android:layout_height="59dp"
         android:layout_marginTop="28dp"
-        android:text="Unassigned (RY1)"
+        android:text="Unassigned (RY1)  "
         app:layout_constraintStart_toStartOf="@+id/peristolic"
         app:layout_constraintTop_toBottomOf="@+id/peristolic" />
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/recirculate"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:text="Recirculate(SO1)"
+        android:text="Recirculate(SO1)  "
         app:layout_constraintStart_toStartOf="@+id/manualOutHeader"
         app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/effpump2"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="Effluent Pump (RY4)"
+        android:text="Effluent Pump (RY4)  "
         app:layout_constraintStart_toStartOf="@+id/effpump"
         app:layout_constraintTop_toBottomOf="@+id/effpump" />
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/effpump"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="Effluent Pump (RY3)"
+        android:text="Effluent Pump (RY3)  "
         app:layout_constraintStart_toStartOf="@+id/RY2"
         app:layout_constraintTop_toBottomOf="@+id/RY2" />
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/filterFlush"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="Filter Flush (SO2)"
+        android:text="Filter Flush (SO2)  "
         app:layout_constraintStart_toStartOf="@+id/recirculate"
         app:layout_constraintTop_toBottomOf="@+id/recirculate" />
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/peristolic"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="Peristolic Pump (SO3 DPump)"
+        android:text="Peristolic Pump (SO3 DPump)  "
         app:layout_constraintStart_toStartOf="@+id/filterFlush"
         app:layout_constraintTop_toBottomOf="@+id/filterFlush" />
 
-    <RadioButton
+    <CheckBox
         android:id="@+id/RY2"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="32dp"
-        android:text="Unassigned (RY2)"
+        android:text="Unassigned (RY2)  "
         app:layout_constraintStart_toStartOf="@+id/RY1"
         app:layout_constraintTop_toBottomOf="@+id/RY1" />
 
@@ -127,18 +127,5 @@
         android:text="Alarm Probe"
         app:layout_constraintStart_toStartOf="@+id/maintHiProbe"
         app:layout_constraintTop_toBottomOf="@+id/maintHiProbe" />
-
-    <Button
-        android:id="@+id/cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="344dp"
-        android:layout_marginEnd="240dp"
-        android:text="@android:string/cancel"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.935"
-        app:layout_constraintStart_toEndOf="@+id/effpump2"
-        app:layout_constraintTop_toBottomOf="@+id/maintAlarmProbe" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

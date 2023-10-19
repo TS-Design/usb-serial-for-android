@@ -12,9 +12,9 @@
     <color name="light_blue_A200">#FF40C4FF</color>
     <color name="light_blue_A400">#FF00B0FF</color>
     <color name="black_overlay">#66000000</color>
-    <color name="textOffBackground">#FF858989</color>
-    <color name="textOff">#FFFFFF</color>
+    <color name="textOffBackground">#068383</color>
     <color name="textOnBackground">#4CAF50</color>
+    <color name="textOff">#A19C9C</color>
     <color name="textOn">#4CAF50</color>
 
 </resources>

@@ -53,7 +53,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 10;
+    private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -236,7 +236,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
         dosesDay = view.findViewById(R.id.dosesDay);
         recirRunTime = view.findViewById(R.id.recirRunTime);
-        receiveText = view.findViewById(R.id.receiveText);
+        //receiveText = view.findViewById(R.id.receiveText);
         alarmHistory = view.findViewById(R.id.alarmHistory);
         alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
         recirTest = view.findViewById(R.id.recirTest);
@@ -249,8 +249,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         effPumpTest.setOnClickListener(v -> effPumpTestCallback());
         effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         effStatus = view.findViewById(R.id.effStatus);
-        manualTest = view.findViewById(R.id.manualTest);
-        manualTest.setOnClickListener(v -> manualTestCallback());
         timeRemote = view.findViewById(R.id.timeRemote);
         airAlarm = view.findViewById(R.id.airAlarm );
         alarm = view.findViewById(R.id.alarm);
@@ -393,16 +391,16 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         } catch (IOException ignored) {}
         usbSerialPort = null;
     }
-    public void postDataLayer() {
+    public void postDataLayer() {                           // Convert string to bool and update UI with command
         boolean enableMode;
-
+        /* Status Banner */
        if ((dataLayer.getKEY()).equals("bok")) {
            dataLayer.bok = Boolean.parseBoolean(dataLayer.getVALUE());
            if (dataLayer.isBok()) {
                systemOk.setTextColor(Color.BLACK);
                systemOk.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
            } else {
-               systemOk.setTextColor(Color.WHITE);
+               systemOk.setTextColor(Color.BLACK);
                systemOk.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
            }
        }
@@ -449,7 +447,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
        else if((dataLayer.getKEY()).equals("bpertest")) {
            dataLayer.bpertest = Boolean.parseBoolean(dataLayer.getVALUE());
            if (dataLayer.bpertest) {
-               peristalticTest.setTextColor(Color.WHITE);
+               peristalticTest.setTextColor(Color.BLACK);
                peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
            } else {
                peristalticTest.setTextColor(Color.BLACK);
@@ -464,16 +462,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
            } else {
                alarmLatch.setTextColor(Color.BLACK);
                alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-           }
-       }
-       else if((dataLayer.getKEY()).equals("bmantest")) {
-           dataLayer.bmantest = Boolean.parseBoolean(dataLayer.getVALUE());
-           if (dataLayer.bmantest) {
-               manualTest.setTextColor(Color.BLACK);
-               manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-           } else {
-               manualTest.setTextColor(Color.BLACK);
-               manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
            }
        }
        else if((dataLayer.getKEY()).equals("balarm")) {
@@ -506,6 +494,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                airAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
            }
        }
+       /* Variables */
        else if((dataLayer.getKEY()).equals("dosesday")) {
            dataLayer.dosesday = dataLayer.getVALUE();
            dosesDay.setText("Dose Setting per Day (Field Dose):" + dataLayer.dosesday);
@@ -521,10 +510,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
        else if((dataLayer.getKEY()).equals("rrun")) {
            dataLayer.rrun = dataLayer.getVALUE();
            recirRunTime.setText("Water Pump Recirc Run Timer: " + dataLayer.rrun);
-       }
-       else if((dataLayer.getKEY()).equals("dosesday")) {
-           dataLayer.dosesday = dataLayer.getVALUE();
-           dosesDay.setText("Dose Setting per Day (Field Dose): " + dataLayer.dosesday);
        }
        else if((dataLayer.getKEY()).equals("effstat")) {
            dataLayer.effstat = dataLayer.getVALUE();
@@ -864,21 +849,19 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void parse(byte[] data) {
         String rx = new String(data);
         //String valueString = null;
-        boolean key = false;
-        boolean value = false;
+        //boolean key = false;
+        //boolean value = false;
 
         if(rx.length() > 0){
             for(int k = 0; k < rx.length(); k++){
                 switch(rx.charAt(k)) {
                     case '{':                           // start case start key phase
-                        key = true;
+                        //key = true;
                         keyString = "";
                         break;
                     case '}':                           // save value and exit
-                        key = false;
-                        value = false;
                         dataLayer.setVALUE(keyString);
-                        dataLayer.setValuebyKey();
+                        dataLayer.setValuebyKey();      // decode key and set to value
                         keyString = "";
                         //receiveText.append(dataLayer.getKEY() + ":" + dataLayer.getVALUE()  + "\n");
                         //Toast.makeText(getActivity(), "ACK", Toast.LENGTH_SHORT).show();
@@ -887,9 +870,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                         //mainLooper.post(() -> { postMsg; });
                         break;
                     case ':':                           // save key move to value phase
-                        key = false;
                         dataLayer.setKEY(keyString);
-                        value = true;
                         keyString = "";
                         break;
                     case '"':                           // ignore these

@@ -20,11 +20,13 @@
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="76dp"
+     android:layout_marginTop="172dp"
      android:background="@color/colorSendText"
      android:text="Alarm History"
      android:textColor="@color/design_default_color_on_secondary"
-     app:layout_constraintStart_toEndOf="@+id/manualTest"
-     app:layout_constraintTop_toTopOf="@+id/manualTest" />
+     app:layout_constraintEnd_toStartOf="@+id/peristalticTest"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
 
  <TextView
      android:id="@+id/timeRemote"
@@ -45,26 +47,6 @@
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toTopOf="parent" />
  <!--comment out recieve text-->
- <TextView
-     android:id="@+id/receiveText"
-     android:layout_width="742dp"
-     android:layout_height="30dp"
-     android:layout_marginBottom="32dp"
-     android:background="@color/RectangleNotSelected"
-     android:clickable="false"
-     android:enabled="true"
-     android:freezesText="true"
-     android:gravity="bottom"
-     android:maxLines="10"
-     android:minLines="1"
-     android:paddingTop="100pt"
-     android:scrollbars="vertical"
-     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-     android:typeface="monospace"
-     app:layout_constraintBottom_toBottomOf="parent"
-     app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintHorizontal_bias="0.0"
-     app:layout_constraintStart_toStartOf="parent" />
 
  <ImageView
      android:id="@+id/hootBug"
@@ -79,8 +61,8 @@
 
  <TextView
      android:id="@+id/textAnr"
-     android:layout_width="104dp"
-     android:layout_height="54dp"
+     android:layout_width="130dp"
+     android:layout_height="59dp"
      android:layout_marginTop="16dp"
      android:text="ANR"
      android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -109,7 +91,7 @@
      android:layout_height="60dp"
      android:layout_marginTop="220dp"
      android:layout_marginEnd="36dp"
-     android:text=" Effluent Pump Manual Run"
+     android:text=" Effluent Pump"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintTop_toTopOf="parent" />
@@ -120,7 +102,7 @@
      android:layout_height="60dp"
      android:layout_marginTop="12dp"
      android:layout_marginEnd="36dp"
-     android:text="Field Flush Test"
+     android:text="Field Flush"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/recirTest" />
@@ -131,7 +113,7 @@
      android:layout_height="60dp"
      android:layout_marginTop="24dp"
      android:layout_marginEnd="36dp"
-     android:text="Peristaltic Pump Test"
+     android:text="Peristaltic"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/ffTest" />
@@ -153,7 +135,7 @@
      android:layout_height="60dp"
      android:layout_marginTop="24dp"
      android:layout_marginEnd="36dp"
-     android:text="Recir Valve Test"
+     android:text="Recirculate"
      android:textSize="12sp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
@@ -257,18 +239,6 @@
      android:textSize="12sp"
      app:layout_constraintStart_toEndOf="@+id/airAlarm"
      app:layout_constraintTop_toTopOf="parent" />
-
- <Button
-     android:id="@+id/manualTest"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_marginStart="24dp"
-     android:layout_marginTop="248dp"
-     android:background="@color/colorSendText"
-     android:text="Manually Test (Parameter Setting)"
-     android:textColor="@color/design_default_color_on_secondary"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
 
  <Button
      android:id="@+id/alarm"

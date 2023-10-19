@@ -1,5 +1,8 @@
 package com.hoho.android.usbserial.examples;
 import static java.util.List.of;
+
+import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -22,19 +25,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.ListFragment;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -42,17 +41,19 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Calendar;
+import java.util.Map;
+
 import android.graphics.Color;
 
 public class manualClass extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+
+    //public HashMap<String, String> panelData;
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 350;
+    private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -73,27 +74,25 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         private TextView alarmExt;
         private TextView chlorineIn;
         private TextView waterMeterIn;*/
-    private TextView timeRemote;
-    private RadioButton RY1;
-    private RadioButton recirculate;
-    private RadioButton effpump2;
-    private RadioButton effpump;
-    private RadioButton filterFlush;
-    private RadioButton peristolic;
-    private RadioButton RY2;
-    //private RadioButton manual;
-    //private Spinner tankDropDown;
-    //private TextView remoteTime;
+    //private TextView timeRemote;
+    private TextView maintLowProbe;
+    private TextView maintHiProbe;
+    private TextView maintAlarmProbe;
+    private CheckBox recirculate;
+    private CheckBox effpump2;
+    private CheckBox effpump;
+    private CheckBox filterFlush;
+    private CheckBox peristolic;
+    private CheckBox RY1;
+    private CheckBox RY2;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
-    public DataLayer dataLayer = new DataLayer();
+   // public DataLayer dataLayer = new DataLayer();
+    public PanelData panelData = new PanelData();
     /* Hoot adds */
-    //static boolean cmd_busy = false;
     public String keyString = "";
-    //public String KEY = "";
-    //public String VALUE = "";
     public String remoteMin = "00";
     public String remoteSec = "00";
     public String remoteHr = "00";
@@ -101,15 +100,29 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
     public String remoteDow = "00";
     public String remoteDay = "00";
     public String remoteMonth = "00";
-    public boolean popUpDialogPosted = false;
-    //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
      *   command lenght is length of commandList
      */
-    public List<String> updateCommandList;
+    //public List<String, String> panelData;
+    public static List<String> updateCommandList = of(
+        "balarm",
+        "bHigh",
+        "bLow",
+        "bry1",
+        "bry2",
+        "bptest",
+        "bptest2",
+        "bpertest",
+        "bfftest",
+        "brtest",
+        "airpres"
+        //"bmantest"                  // UI manual mode
+    );
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
+   // public HashMap panelData;
+            // Creating an empty HashMap
 
     public manualClass() {
         broadcastReceiver = new BroadcastReceiver() {
@@ -123,65 +136,24 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
             }
         };
         mainLooper = new Handler(Looper.getMainLooper());
-        updateCommandList = of(
-            "bAlarm",
-            "bHigh",
-            "bLow",
-            "bRY1",
-            "bRY2",
-            "effstat",
-            "airpres"
-        );
     }
     /*
      * Lifecycle
      */
-    final Runnable timeHandler = new Runnable() {
+    final Runnable timeHandler = new Runnable() {  // Post Time not used
         @Override
         public void run() {
             //timeRemote.setText(dataLayer.getTime());
             mainLooper.postDelayed(timeHandler,1000);
         }
     };
-    final Runnable waitOnTank = new Runnable() {
-        @Override
-        public void run() {
-            if(dataLayer.getTank().equals("0")) {
-                if(!popUpDialogPosted) {
-                    showTankPopUp();
-                    popUpDialogPosted = true;
-                }
-                mainLooper.postDelayed(waitOnTank, UPDATE_INTERVAL_MILLIS);
-            }
-            else {
-                // mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
-                popUpDialogPosted = false;
-            }
-        }
-    };
-/*    final Runnable modeSpinner = new Runnable() {
-        @Override
-        public void run() {
-
-            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-            // tankDropDown.setSelection(item);
-            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
-        }
-    };
-    final Runnable updateTank = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(getActivity(), "Send Tank " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-            sendJson("tank", dataLayer.getTank());
-        }
-    };*/
-    final Runnable update = new Runnable() {
+    final Runnable update = new Runnable() { // Read Panel Status
         public void run() {
             //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
             getPanelStatus();
         }
     };
-    final Runnable postMsg = new Runnable() {
+    final Runnable postMsg = new Runnable() { // Post Data to UI
         public void run() {
             postDataLayer();
 
@@ -199,7 +171,6 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
         mainLooper.postDelayed(timeHandler,1000);
-
     }
     @Override
     public void onResume() {
@@ -224,66 +195,69 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.manual_main, container, false);
-        PopUpFragment popUpFragment;
+        maintLowProbe = view.findViewById(R.id.maintLowProbe);
+        maintAlarmProbe = view.findViewById(R.id.maintAlarmProbe);
+        maintHiProbe = view.findViewById(R.id.maintHiProbe);
         RY1 = view.findViewById(R.id.RY1);
+        RY2 = view.findViewById(R.id.RY2);
         recirculate = view.findViewById(R.id.recirculate);
         effpump = view.findViewById(R.id.effpump);
         effpump2 = view.findViewById(R.id.effpump2);
         filterFlush = view.findViewById(R.id.filterFlush);
         peristolic = view.findViewById(R.id.peristolic);
-        RY2 = view.findViewById(R.id.RY2);
+        /* CallBacks */
         RY1.setOnClickListener(v -> RY1Callback());  // something is always true
+        RY2.setOnClickListener(v -> RY2Callback());
         recirculate.setOnClickListener(v -> recirculateCallback());
         effpump.setOnClickListener(v -> effpumpCallback());
         effpump2.setOnClickListener(v -> effpump2Callback());
         filterFlush.setOnClickListener(v -> filterFlushCallback());
         peristolic.setOnClickListener(v -> peristolicCallback());
-        RY2.setOnClickListener(v -> RY2Callback());
-        //manual.setOnClickListener(v -> manualCallback());
-
-        /* Spinner Tank Size */
-//        tankDropDown = view.findViewById(R.id.tankDropDown);
-/*        final ArrayAdapter<CharSequence> tankAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.tankArray, R.layout.mode_spinner);
-        tankAdapter.setDropDownViewResource(R.layout.mode_spinner);
-        tankDropDown.setAdapter(tankAdapter);
-        tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long tankIndex = parent.getItemIdAtPosition(position);
-                dataLayer.setTank(tankDropDown.getSelectedItem().toString());
-                if(tankIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    mainLooper.post(updateTank);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Spinner Nothing", Toast.LENGTH_SHORT).show();
-            }
-        });*/
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
     }
-
-    private void RY2Callback() {
-    }
-
-    private void peristolicCallback() {
-    }
-
-    private void filterFlushCallback() {
-    }
-
-    private void effpump2Callback() {
-    }
-
-    private void effpumpCallback() {
-    }
-
-    private void recirculateCallback() {
-    }
-
     private void RY1Callback() {
+        if(RY1.isChecked())
+            sendJson("bry1","true");
+        else
+            sendJson("bry1","false");
+    }
+    private void RY2Callback() {
+        if(RY2.isChecked())
+            sendJson("bry2","true");
+        else
+            sendJson("bry2","false");
+    }
+    private void peristolicCallback() {
+        if(peristolic.isChecked())
+            sendJson("bpertest","true");
+        else
+            sendJson("bpertest","false");
+    }
+    private void filterFlushCallback() {
+        if(filterFlush.isChecked())
+            sendJson("bfftest","true");
+        else
+            sendJson("bfftest","false");
+    }
+    private void effpump2Callback() {
+        if(effpump2.isChecked())
+            sendJson("bptest2","true");
+        else
+            sendJson("bptest2","false");
+    }
+    private void effpumpCallback() {
+        if(effpump.isChecked())
+            sendJson("bptest","true");
+        else
+            sendJson("bptest","false");
+    }
+    private void recirculateCallback()  {
+        if(recirculate.isChecked())
+            sendJson("brtest","true");
+        else
+            sendJson("brtest","false");
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -415,90 +389,42 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         } catch (IOException ignored) {}
         usbSerialPort = null;
     }
-    public void postDataLayer() {
-        boolean enableMode;
+    private void putTextColor(TextView tv, boolean value) {
+       if (value) {
+          tv.setTextColor(Color.BLACK);
+          tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+       } else {
+          tv.setTextColor(Color.BLACK);
+          tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+       }
+}
 
-/*        if ((dataLayer.getKEY()).equals("bCL"))
-            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bAlarm"))
-            dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bLow"))
-            dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bHigh"))
-            dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bWM"))
-            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));*/
-        if(dataLayer.effpump){
-            dataLayer.effpump = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.effpump) {
-                effpump.setTextColor(Color.BLACK);
-                effpump.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                effpump.setTextColor(Color.WHITE);
-                effpump.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-        else if(dataLayer.effpump2){
-            dataLayer.effpump2 = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.effpump2) {
-                effpump2.setTextColor(Color.BLACK);
-                effpump2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                effpump2.setTextColor(Color.WHITE);
-                effpump2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-        else if(dataLayer.recirculate){
-            dataLayer.recirculate = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.recirculate) {
-                recirculate.setTextColor(Color.BLACK);
-                recirculate.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                recirculate.setTextColor(Color.WHITE);
-                recirculate.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-        else if(dataLayer.filterFlush){
-            dataLayer.filterFlush = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.filterFlush) {
-                filterFlush.setTextColor(Color.BLACK);
-                filterFlush.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                filterFlush.setTextColor(Color.WHITE);
-                filterFlush.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-        else if(dataLayer.peristolic){
-            dataLayer.peristolic = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.peristolic) {
-                peristolic.setTextColor(Color.BLACK);
-                peristolic.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                peristolic.setTextColor(Color.WHITE);
-                peristolic.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-        else if ((dataLayer.getKEY()).equals("RY1")) {
-            dataLayer.RY1 = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.RY1) {
-                RY1.setTextColor(Color.BLACK);
-                RY1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                RY1.setTextColor(Color.WHITE);
-                RY1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-        else if ((dataLayer.getKEY()).equals("RY2")) {
-            dataLayer.RY2 = Boolean.parseBoolean(dataLayer.getVALUE());
-            if (dataLayer.RY2) {
-                RY2.setTextColor(Color.BLACK);
-                RY2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            } else {
-                RY2.setTextColor(Color.WHITE);
-                RY2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            }
-        }
-/*        if ((dataLayer.getKEY()).equals("mode")) {
+    public void postDataLayer() {  // Update UI inputs and outputs
+        /* Post these everytime */
+        if(panelData.containsKey("bLow"))
+            putTextColor(maintLowProbe, panelData.getPanel("bLow"));
+        if(panelData.containsKey("bHigh"))
+            putTextColor(maintHiProbe, panelData.getPanel("bHigh"));
+        if(panelData.containsKey("balarm"))
+            putTextColor(maintAlarmProbe, panelData.getPanel("balarm"));
+        if(panelData.containsKey("bptest"))
+            putTextColor(effpump, panelData.getPanel("bptest"));
+        if(panelData.containsKey("bLow"))
+            if(panelData.containsKey("bptest2"))
+            putTextColor(effpump2, panelData.getPanel("bptest2"));
+        if(panelData.containsKey("brtest"))
+            putTextColor(recirculate, panelData.getPanel("brtest"));
+        if(panelData.containsKey("bfftest"))
+            putTextColor(filterFlush, panelData.getPanel("bfftest"));
+        if(panelData.containsKey("bpertest"))
+            putTextColor(peristolic, panelData.getPanel("bpertest"));
+        if(panelData.containsKey("bry1"))
+            putTextColor(RY1, panelData.getPanel("bry1"));
+        if(panelData.containsKey("bry2"))
+            putTextColor(RY2, panelData.getPanel("bry2"));
+
+       }
+    /*        if ((dataLayer.getKEY()).equals("mode")) {
             //dataLayer.setMode(dataLayer.getVALUE());
             if(dataLayer.getMode().equals("bANR"))
                 main_mode.check(R.id.banr);
@@ -528,8 +454,8 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
                     }
                 }
             }
-        }*/
-/*        else if ((dataLayer.getKEY()).equals("dow"))
+        }
+        else if ((dataLayer.getKEY()).equals("dow"))
             remoteDow = dataLayer.getVALUE();
         else if ((dataLayer.getKEY()).equals("day"))
             remoteDay = dataLayer.getVALUE();
@@ -544,7 +470,7 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         else if ((dataLayer.getKEY()).equals("sec")) {
             remoteSec = dataLayer.getVALUE();
             timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }*/
+        }
         else if ((dataLayer.getKEY()).equals("Tank")) {
             Toast.makeText(getActivity(), "Tank Size " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
         }
@@ -563,7 +489,7 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         else if ((dataLayer.getKEY()).equals("bALARM")) {
             // kill cmd not found msg until view is enabled
         }
-/*        else if ((dataLayer.getKEY()).equals("tank")) {
+        else if ((dataLayer.getKEY()).equals("tank")) {
             if (dataLayer.getVALUE() != null) {
                 tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
                 // mainLooper.post(waitOnTank);
@@ -573,59 +499,22 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
                 mainLooper.post(modeSpinner);
             }
         }*/
-        //       else
-        //Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
-    }
-    //public void dataLayerItemSet()
-    public void modeEnable(RadioGroup main_mode) {
-    }
-    public void getPanelStatus() {
+       //       else
+       //Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
+       public void getPanelStatus() {
  /*       if(check5lTime()) {
             Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
         }*/
 
-        mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
-        //mainLooper.postDelayed(clearAck, 200);
-        if (connected) {
-            sendJson(updateCommandList.get(commandListIndex++), "Query");
-            if (commandListIndex == commandLength)
-                commandListIndex = 0;
-        }
-    }
-    public void showTankPopUp() {
-        DialogFragment newFragment = new PopUpFragment();
-        assert getFragmentManager() != null;
-        newFragment.show(getFragmentManager(), "tank");
-    }
-    private void setTextViewFlavor(TextView textview, String value) {
-        if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(Color.GREEN);
-            textview.setTextColor(Color.BLACK);
-        }
-        else {
-            textview.setBackgroundColor(Color.BLACK);
-            textview.setTextColor(Color.WHITE);
-        }
-    }
-    private boolean check5lTime() {
-        Calendar rightNow = Calendar.getInstance();
-        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
-
-        sendJson("hour", String.valueOf(hour));
-
-        int minute = rightNow.get(Calendar.MINUTE);
-        sendJson("min", String.valueOf(minute));
-        int second = rightNow.get(Calendar.SECOND);
-        sendJson("sec", String.valueOf(second));
-        int month = rightNow.get(Calendar.DAY_OF_MONTH);
-        sendJson("month", String.valueOf(month));
-        int day = rightNow.get(Calendar.DAY_OF_MONTH);
-        sendJson("day", String.valueOf(day));
-        int year = rightNow.get(Calendar.YEAR);
-        sendJson("year", String.valueOf(year));
-        return true;
-    }
-    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
+           mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+           //mainLooper.postDelayed(clearAck, 200);
+           if (connected) {
+               sendJson(updateCommandList.get(commandListIndex++), "Query");
+               if (commandListIndex == commandLength)
+                   commandListIndex = 0;
+           }
+       }
+    /*private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
         SpannableStringBuilder remoteTime = new SpannableStringBuilder();
         remoteTime.append(String.valueOf(remoteHr));
         remoteTime.append(":");
@@ -650,8 +539,8 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         updateTime.append(":");
         updateTime.append(remoteSec);
         return(updateTime);
-    }
-/*    private void ackModeCmd(RadioButton activeButton){
+    }*/
+    /*  private void ackModeCmd(RadioButton activeButton){
         bgrav.setTextColor(Color.WHITE);
         banr.setTextColor(Color.WHITE);
         bbnr.setTextColor(Color.WHITE);
@@ -671,10 +560,10 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         else if (activeButton == bdmd)
             bdmd.setTextColor(Color.GREEN);
     }*/
-    private void gravCallback() {
-        sendJson("bGRAV","true");
-    }
-    private void banrCallback() {
+       private void gravCallback () {
+           sendJson("bGRAV", "true");
+       }
+    /*  private void banrCallback() {
         sendJson("bANR","true");
         Bundle args = new Bundle();
         args.putInt("device", deviceId);
@@ -684,77 +573,62 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         Fragment TerminalFragment = new AnrFragment();
         TerminalFragment.setArguments(args);
         getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "anr").addToBackStack(null).commit();
-    }
-    private void manualCallback() {
-        sendJson("bANR","true");
-        Bundle args = new Bundle();
-        args.putInt("device", deviceId);
-        args.putInt("port", portNum);
-        args.putInt("baud", baudRate);
-        args.putBoolean("withIoManager", withIoManager);
-        Fragment TerminalFragment = new AnrFragment();
-        TerminalFragment.setArguments(args);
-        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "anr").addToBackStack(null).commit();
-    }
-    private void bbnrCallback() {
-        sendJson("bBNR","true");
-    }
-    private void bspyCallback() {
-        sendJson("bSPY","true");
-    }
-    private void bdmdCallback() {
-        sendJson("bDMD", "true");
-    }
-    private void bdripCallback() {
-        sendJson("bDRIP", "true");
-    }
-    private void binitCallback() {
+    }*/
+       private void bbnrCallback() {
+           sendJson("bBNR", "true");
+       }
+       private void bspyCallback () {
+           sendJson("bSPY", "true");
+       }
+       private void bdmdCallback () {
+           sendJson("bDMD", "true");
+       }
+       private void bdripCallback () {
+           sendJson("bDRIP", "true");
+       }
+       private void binitCallback () {
 //        if(dataLayer.getTank().equals("0") && main_mode.isEnabled())
 //            main_mode.setEnabled(false);
 //        else
 //            main_mode.setEnabled(true);
-    }
-    private boolean sendJson(String cmd, String value) {
-        int j = 0;
-        SpannableStringBuilder json = new SpannableStringBuilder();
-        json.append("{\"");
-        json.append(cmd);
-        json.append("\":");
-        json.append(value);
-        json.append("}");
-        json.append("\n");
-        try {
-            send(String.valueOf(json));
-        } catch (Exception e) {
-            onRunError(e);
-        }
-        return true;
-    }
-    private void send(String str) {
-        if(!connected) {
-            Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            //dataLayer.setMsgAck(false);
-            byte[] data = (str + '\n').getBytes();
-            SpannableStringBuilder spn = new SpannableStringBuilder();
+       }
+       private boolean sendJson (String cmd, String value){
+           int j = 0;
+           SpannableStringBuilder json = new SpannableStringBuilder();
+           json.append("{\"");
+           json.append(cmd);
+           json.append("\":");
+           json.append(value);
+           json.append("}");
+           json.append("\n");
+           try {
+               send(String.valueOf(json));
+           } catch (Exception e) {
+               onRunError(e);
+           }
+           return true;
+       }
+       private void send (String str) {
+           if (!connected) {
+               Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
+               return;
+           }
+           try {
+               //dataLayer.setMsgAck(false);
+               byte[] data = (str + '\n').getBytes();
+               SpannableStringBuilder spn = new SpannableStringBuilder();
             /* spn.append("send " + data.length + " bytes\n");
             spn.append(HexDump.dumpHexString(data)).append("\n");
             spn.append(data + "\n");*/
-            spn.append(str);
-            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            //receiveText.append(spn);
-            usbSerialPort.write(data, WRITE_WAIT_MILLIS);
-        } catch (Exception e) {
-            onRunError(e);
-        }
-/*        for (int k = 0; k < 30000; k++) {
-            if (dataLayer.isMsgAck())
-                break;
-        }*/
-    }
-    private void read() {
+               spn.append(str);
+               spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+               //receiveText.append(spn);
+               usbSerialPort.write(data, WRITE_WAIT_MILLIS);
+           } catch (Exception e) {
+               onRunError(e);
+           }
+       }
+    /*private void read() {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
@@ -762,18 +636,18 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         try {
             byte[] buffer = new byte[8192];
             int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);
-/*            if(len == -1)
+    /*      if(len == -1)
                 msgAck = false;
             else
                 msgAck = true;*/
-            receive(Arrays.copyOf(buffer, len));
+    /*    receive(Arrays.copyOf(buffer, len));
         } catch (IOException e) {
             // when using read with timeout, USB bulkTransfer returns -1 on timeout _and_ errors
             // like connection loss, so there is typically no exception thrown here on error
             status("connection lost: " + e.getMessage());
             disconnect();
         }
-    }
+    }*/
     public void receive(byte[] data) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
         if(data.length > 0)
@@ -785,7 +659,8 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
     }
     public void parse(byte[] data) {
         String rx = new String(data);
-        //String valueString = null;
+        String K = null;
+        String V = null;
         boolean key = false;
         boolean value = false;
 
@@ -793,25 +668,16 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
             for(int k = 0; k < rx.length(); k++){
                 switch(rx.charAt(k)) {
                     case '{':                           // start case start key phase
-                        key = true;
                         keyString = "";
                         break;
-                    case '}':                           // save value and exit
-                        key = false;
-                        value = false;
-                        dataLayer.setVALUE(keyString);          // save key/value pair for
-                        dataLayer.setValuebyKey();
+                    case '}':                           // End Parse Save [key,Value] and exit
+                        V = keyString;
+                        panelData.setPanel(K, V);
                         keyString = "";
-                        //receiveText.append(dataLayer.getKEY() + ":" + dataLayer.getVALUE()  + "\n");
-                        //Toast.makeText(getActivity(), "ACK", Toast.LENGTH_SHORT).show();
-                        //dataLayer.setMsgAck(true);
-                        mainLooper.post(postMsg);
-                        //mainLooper.post(() -> { postMsg; });
+                        mainLooper.post(postMsg);       // Post Message to UI
                         break;
                     case ':':                           // save key move to value phase
-                        key = false;
-                        dataLayer.setKEY(keyString);
-                        value = true;
+                        K = keyString;
                         keyString = "";
                         break;
                     case '"':                           // ignore these

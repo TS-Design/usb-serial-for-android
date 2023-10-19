@@ -1,6 +1,8 @@
 package com.hoho.android.usbserial.examples;
 import android.text.SpannableStringBuilder;
 
+// Main class
+
 public class DataLayer {
     public String mode = "binit";
     public boolean binit = true;
@@ -11,6 +13,7 @@ public class DataLayer {
     public boolean bHigh = false;
     public boolean bWM = false;
     public boolean bptest = false;
+    public boolean bptest2 = false;
     public boolean balmrset = false;
     public boolean alarmHistory = false;
     public boolean brtest = false;
@@ -19,13 +22,13 @@ public class DataLayer {
     public boolean balrmltch = false;
     public boolean bmantest = false;
     public boolean bairalrm = false;
-    public boolean RY1 = false;
+    public boolean bry1 = false;
     public boolean recirculate = false;
     public boolean effpump2 = false;
     public boolean effpump = false;
     public boolean filterFlush = false;
     public boolean peristolic = false;
-    public boolean RY2 = false;
+    public boolean bry2 = false;
     public String rrepeat = "0";
     public String rrun = "0";
     public String airpres = "0";
@@ -153,9 +156,9 @@ public class DataLayer {
         updateTime.append(remoteSec);
         return(updateTime);
     }
-    public void setValuebyKey() {
+    public void setValuebyKey() {       //Save select key/value to database
         switch (KEY) {
-            case ("mode"):
+            case ("mode"):                          // needs to be here to get back to correct state on back
                 if (VALUE.equals("binit")) {
                     mode = "binit";
                 }
@@ -198,6 +201,9 @@ public class DataLayer {
                 break;
             case("sec"):
                 sec = VALUE;
+                break;
+            case("bLow"):
+                bLow = Boolean.parseBoolean(this.getVALUE());
                 break;
             default: break;
            }
