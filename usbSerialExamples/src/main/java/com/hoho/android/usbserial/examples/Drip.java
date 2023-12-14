@@ -46,13 +46,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+public class Drip extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 200;
+    private static final int UPDATE_INTERVAL_MILLIS = 100;
+    private static final int RESET_ALARM_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -60,10 +61,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private final boolean UiMessageSent = false;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
-    private TextView receiveText;
     public PanelData panelData = new PanelData();
 
-    private TextView timeRemote;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
@@ -72,30 +71,30 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
+    private TextView timeRemote;
+    //private TextView FdRunTime;
     private TextView dosesDay;
-    private TextView effStatus;
-    private TextView FdRunTime;
-    private TextView recirRepeatTime;
-    private TextView recirRunTime;
+    //private TextView recirRepeatTime;
+    //private TextView recirRunTime;
+    //private TextView effStatus;
     private TextView airPressure;
-    private TextView effPumpAlarmTime;
+    //private TextView effPumpAlarmTime;
     private TextView numberZones;
-
-    public Button systemOk;
-    public Button effPumpTest;
-    public Button alarmLatch;
+    private TextView receiveText;
+    private TextView dripOnTimer;
+    //private TextView dripOffTimer;
     public Button alarmHistory;
-    public Button ffTest;
-    public Button recirTest;
+    public Button systemOk;
+    public Button so0;
+    public Button so1;
+    public Button so2;
     public Button alarmReset;
-    public Button manualTest;
+    public Button alarmLatch;
     public Button alarm;
     public Button lowProbe;
     public Button airAlarm;
-    public Button peristalticTest;
     public String keyString = "";
-    //public String KEY = "";
-    //public String VALUE = "";
+
     public String remoteMin = "00";
     public String remoteSec = "00";
     public String remoteHr = "00";
@@ -105,24 +104,38 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public String remoteMonth = "00";
     public boolean popUpDialogPosted = false;
     //Button showPopupBtn, closePopupBtn;
+    //public Button effPumpTest;
+    //public Button ffTest;
+    //public Button recirTest;
+    //public Button manualTest;
+    //public Button peristalticTest;
+    //public String KEY = "";
+    //public String VALUE = "";
     /*  List of data layer commands to process
-*   command index keeps trck of next command to send
-*   command lenght is length of commandList
-*/
+     *   command index keeps trck of next command to send
+     *   command lenght is length of commandList
+     */
     public List<String> updateCommandList = of(
-        "mode", "year", "month","day",
-            "hour", "min", "sec",
-            "tank", "bok", "bptest","balmrset",
-            "brtest", "bfftest", "bpertest",
-            "dosesday", "fdrun", "rrepeat",
-            "rrun", "effstat", "airpres",
-            "palmtime", "zone", "balrmltch",
-            "bmantest", "balarm", "bLow", "bairalrm"
-    );                                                  /* dont need bmantest? */
+            "mode",
+            "year", "month","day","hour", "min", "sec",
+            "bok", "balarm","bLow","bairalrm","balrmltch",
+            "zone",
+            "dosesday",
+            "airpres",
+            "palmtime",
+            "bptest",
+            "balmrset",
+            "bmantest",
+            "so0",
+            "so1",
+            "so2",
+            "dripon",
+            "dripoff"
+            );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
 
-    public AnrFragment() {
+    public Drip() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -143,7 +156,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         public void run() {
             String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
             timeRemote.setText(time);
-        mainLooper.postDelayed(timeHandler,1000);
+            mainLooper.postDelayed(timeHandler,1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
@@ -167,6 +180,13 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         public void run() {
             Toast.makeText(getActivity(), "Send Tank " + panelData.getPanelString("tank"), Toast.LENGTH_SHORT).show();
             sendJson("tank", panelData.getPanelString("tank"));
+        }
+    };
+    final Runnable resetAlarmClear = new Runnable() {
+        @Override
+        public void run() {
+            Toast.makeText(getActivity(), "Alarm Reset End ", Toast.LENGTH_SHORT).show();
+            sendJson("balmrset", "false");
         }
     };
     final Runnable update = new Runnable() {
@@ -199,7 +219,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-        Toast.makeText(getActivity(), "onResume", Toast.LENGTH_SHORT).show();
 
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
@@ -218,35 +237,42 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.anr_fragment, container, false);
+        View view = inflater.inflate(R.layout.drip_frag, container, false);
         PopUpFragment popUpFragment;
+        timeRemote = view.findViewById(R.id.timeRemote);
         systemOk = view.findViewById(R.id.systemOk);
-        numberZones = view.findViewById(R.id.numberZones);
+        alarm = view.findViewById(R.id.alarm);
+        lowProbe = view.findViewById(R.id.lowProbe);
+        airAlarm = view.findViewById(R.id.airAlarm );
         alarmLatch = view.findViewById(R.id.alarmLatch);
-        FdRunTime = view.findViewById(R.id.FdRunTime);
-        recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
+        numberZones = view.findViewById(R.id.numberZones);
         dosesDay = view.findViewById(R.id.dosesDay);
-        recirRunTime = view.findViewById(R.id.recirRunTime);
-        //receiveText = view.findViewById(R.id.receiveText);
+        //FdRunTime = view.findViewById(R.id.FdRunTime);
+        //recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
+        //recirRunTime = view.findViewById(R.id.recirRunTime);
+        //effStatus = view.findViewById(R.id.effStatus);
+        airPressure = view.findViewById(R.id.airPressure);
+        //effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         alarmHistory = view.findViewById(R.id.alarmHistory);
         alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
-        recirTest = view.findViewById(R.id.recirTest);
-        recirTest.setOnClickListener(v -> recirTestCallback());
-        ffTest = view.findViewById(R.id.ffTest);
-        ffTest.setOnClickListener(v -> ffTestCallback());
-        peristalticTest = view.findViewById(R.id.peristalticTest);
-        peristalticTest.setOnClickListener(v -> peristalticTestCallback());
-        effPumpTest = view.findViewById(R.id.effPumpTest);
-        effPumpTest.setOnClickListener(v -> effPumpTestCallback());
-        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
-        effStatus = view.findViewById(R.id.effStatus);
-        timeRemote = view.findViewById(R.id.timeRemote);
-        airAlarm = view.findViewById(R.id.airAlarm );
-        alarm = view.findViewById(R.id.alarm);
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
-        airPressure = view.findViewById(R.id.airPressure);
-        lowProbe = view.findViewById(R.id.lowProbe);
+        dripOnTimer = view.findViewById(R.id.dripOnTimer);
+        dripOnTimer.setOnClickListener(v -> dripOnTimerCallback());
+        //dripOffTimer = view.findViewById(R.id.dripOffTimer);
+       // dripOffTimer.setOnClickListener(v -> dripOffTimerCallback());
+        so0 = view.findViewById(R.id.so0);
+        so1 = view.findViewById(R.id.so1);
+        so2 = view.findViewById(R.id.so2);
+        receiveText = view.findViewById(R.id.receiveText);
+        //recirTest = view.findViewById(R.id.recirTest);
+        //recirTest.setOnClickListener(v -> recirTestCallback());
+        //ffTest = view.findViewById(R.id.ffTest);
+        //ffTest.setOnClickListener(v -> ffTestCallback());
+        //peristalticTest = view.findViewById(R.id.peristalticTest);
+        //peristalticTest.setOnClickListener(v -> peristalticTestCallback());
+        //effPumpTest = view.findViewById(R.id.effPumpTest);
+        //effPumpTest.setOnClickListener(v -> effPumpTestCallback());
 
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
@@ -391,44 +417,73 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+    private void putYellowAlarmTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+        } else {
+            tv.setTextColor(Color.YELLOW);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
+        }
+    }
+    private void putRedAlarmTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+        } else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        }
+    }
+    private void putWaterLevelTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+        } else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+        }
+    }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
         boolean enableMode;
         /* Status Banner */
         if(panelData.containsKey("bok"))
-            putTextColor(systemOk, panelData.getPanelBool("bok"));
-        if(panelData.containsKey("bptest"))
-            putTextColor(effPumpTest, panelData.getPanelBool("bptest"));
-        if(panelData.containsKey("balmrset"))
-            putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
-        if(panelData.containsKey("brtest"))
-            putTextColor(recirTest, panelData.getPanelBool("brtest"));
-        if(panelData.containsKey("bfftest"))
-            putTextColor(ffTest, panelData.getPanelBool("bfftest"));
-        if(panelData.containsKey("bpertest"))
-            putTextColor(peristalticTest, panelData.getPanelBool("bpertest"));
+            putYellowAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
         if(panelData.containsKey("balarm"))
-            putTextColor(alarm, !panelData.getPanelBool("balarm"));
+            putRedAlarmTextColor(alarm, !panelData.getPanelBool("balarm"));
         if(panelData.containsKey("bLow"))
-            putTextColor(lowProbe, panelData.getPanelBool("bLow"));
+            putWaterLevelTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
             putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
-       /* Variables */
+        if(panelData.containsKey("balmrset"))
+            putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
+        if(panelData.containsKey("so0"))
+            putTextColor(so0, panelData.getPanelBool("so0"));
+        if(panelData.containsKey("so1"))
+            putTextColor(so1, panelData.getPanelBool("so1"));
+        if(panelData.containsKey("so2"))
+            putTextColor(so2, panelData.getPanelBool("so2"));
+        /* Variables */
         if(panelData.containsKey("dosesday"))
             dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
-        if(panelData.containsKey("fdrun"))
-            FdRunTime.setText(String.format("Pump Run Time (Field Dose):%s", panelData.getPanelString("fdrun")));
-        if(panelData.containsKey("rrepeat"))
-            recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %s", panelData.getPanelString("rrepeat")));
-        if(panelData.containsKey("rrun"))
-            recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
-        if(panelData.containsKey("effstat"))
-            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
+//        if(panelData.containsKey("fdrun"))
+//            FdRunTime.setText(String.format("Pump Run Time (Field Dose):%s", panelData.getPanelString("fdrun")));
+//        if(panelData.containsKey("rrepeat"))
+//            recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %s", panelData.getPanelString("rrepeat")));
+//        if(panelData.containsKey("rrun"))
+ //           recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
+//        if(panelData.containsKey("effstat"))
+//            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
-        if(panelData.containsKey("palmtime"))
-            effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %s", panelData.getPanelString("palmtime")));
+        if(panelData.containsKey("dripon"))
+            dripOnTimer.setText(String.format("Drip Current Timer: %s", panelData.getPanelString ("dripon")));
+//        if(panelData.containsKey("dripoff"))
+//            dripOffTimer.setText(String.format("Drip Off Timer: %s", panelData.getPanelString ("dripoff")));
+  //      if(panelData.containsKey("palmtime"))
+    //        effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %s", panelData.getPanelString("palmtime")));
         if(panelData.containsKey("zone"))
             numberZones.setText(String.format("Number of Zones %s", panelData.getPanelString("zone")));
         if(panelData.containsKey("dow"))
@@ -436,7 +491,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if(panelData.containsKey(""))
             dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"\")")));
         if (panelData.containsKey("dow"))
-                remoteDow = panelData.getPanelString("dow");
+            remoteDow = panelData.getPanelString("dow");
         if (panelData.containsKey("day"))
             remoteDay = panelData.getPanelString("day");
         if (panelData.containsKey("month"))
@@ -449,7 +504,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             remoteMin = panelData.getPanelString("min");
         if (panelData.containsKey("sec"))
             remoteSec = panelData.getPanelString("sec");
-            //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
     }
     public void modeEnable(RadioGroup main_mode) {
     }
@@ -525,25 +580,22 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         updateTime.append(remoteSec);
         return(updateTime);
     }
-    private void effPumpTestCallback() {
-        if(panelData.getPanelBool("bptest")) {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bptest", "false");
-        }
-        else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bptest", "true");
-        }
+    private void dripOnTimerCallback() {
+
+    }
+    private void dripOffTimerCallback() {
+
     }
     private void alarmResetCallback() {
-            if(panelData.getPanelBool("balmrset")) {
-                alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                sendJson("balmrset", "false");
-            }
-            else {
-                alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-                sendJson("balmrset", "true");
-            }
+        if(panelData.getPanelBool("balmrset")) {
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("balmrset", "false");
+        }
+        else {
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("balmrset", "true");
+            mainLooper.postDelayed(resetAlarmClear, RESET_ALARM_MILLIS);
+        }
     }
     private void alarmHistoryCallback() {
         if(panelData.getPanelBool("alarmHistory")) {
@@ -553,46 +605,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         else {
             alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
             sendJson("ahist", "true");
-        }
-    }
-    private void ffTestCallback() {
-        if(panelData.getPanelBool("bfftest")) {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bfftest", "false");
-        }
-        else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bfftest", "true");
-        }
-    }
-    private void manualTestCallback() {
-        if(panelData.getPanelBool("bmantest")) {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bmantest", "false");
-        }
-        else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bmantest", "true");
-        }
-    }
-    private void peristalticTestCallback() {
-        if(panelData.getPanelBool("bpertest")) {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bpertest", "false");
-        }
-        else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bpertest", "true");
-        }
-    }
-    private void recirTestCallback() {
-        if(panelData.getPanelBool("brtest")) {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("brtest", "false");
-        }
-        else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("brtest", "true");
         }
     }
     private boolean sendJson(String cmd, String value) {
@@ -680,8 +692,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                             panelData.setPanel("VALUE", V);
                             //receiveText.append( K + ":" + V  + "\n");
                         }
-                        else
-                            Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
+                        //else
+                            //Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
                         keyString = "";
                         mainLooper.post(postMsg);       // Post Message to UI
                         break;

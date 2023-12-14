@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DemandLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="@dimen/StartMarginFrag"
+    android:theme="@style/AppTheme">
+    <!--Mode Radio Group-->
+
+    <!--Time-->
+
+    <!--Time,Gallons Labels Here -->
+
+    <!-- Receive Stuff -->
+
+    <Button
+        android:id="@+id/alarmLatch"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Alarm Latching"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toEndOf="@+id/airAlarm"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/alarmHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:background="@color/colorSendText"
+        android:text="Alarm History"
+        android:textColor="@color/design_default_color_on_secondary"
+        app:layout_constraintStart_toStartOf="@+id/alarmLatchStatus"
+        app:layout_constraintTop_toBottomOf="@+id/alarmLatchStatus" />
+
+    <!--comment out recieve text-->
+
+    <TextView
+        android:id="@+id/timeRemote"
+        android:layout_width="239dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:maxLines="2"
+        android:minLines="1"
+        android:paddingStart="10pt"
+        android:paddingTop="1dp"
+        android:paddingEnd="10pt"
+        android:paddingBottom="10pt"
+        android:text="00:00:00"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="24dp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/hootBug"
+        android:layout_width="80dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="28dp"
+        android:contentDescription="TODO"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/hoot_big" />
+
+    <TextView
+        android:id="@+id/textAnr"
+        android:layout_width="218dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="20dp"
+        android:text="Gravity Flow"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="?android:attr/colorFocusedHighlight"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/hootBug"
+        app:layout_constraintHorizontal_bias="0.28"
+        app:layout_constraintStart_toEndOf="@+id/timeRemote"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/systemOk"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="System OK"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/alarmReset"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="24dp"
+        android:text="High-Water Alarm Reset"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toStartOf="@+id/alarmLatch"
+        app:layout_constraintTop_toBottomOf="@+id/alarmLatch" />
+
+    <TextView
+        android:id="@+id/airPressure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="64dp"
+        android:text="Air Compressor Pressure WCI: 0"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+
+    <TextView
+        android:id="@+id/alarmLatchStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:text="Alarm Latching"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/airPressure"
+        app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+
+    <Button
+        android:id="@+id/alarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="System Alarm"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toEndOf="@+id/systemOk"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/lowProbe"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Water Level Probe"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toEndOf="@+id/alarm"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/airAlarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:text="Aeration Problem"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toEndOf="@+id/lowProbe"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

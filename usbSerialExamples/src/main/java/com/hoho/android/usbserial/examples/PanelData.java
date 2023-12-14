@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public class PanelData {
     private HashMap<String, String> hmap = new HashMap<String, String>();
+
     public HashMap<String, String> gethmap() {
         return hmap;
     }
@@ -12,8 +13,11 @@ public class PanelData {
         hmap = hmapin;
     }
 
-    public boolean getPanel(String k) {
+    public boolean getPanelBool(String k) {
         return Boolean.parseBoolean(hmap.get(k));
+    }
+    public String getPanelString(String k) {
+        return hmap.get(k);
     }
 
     public void setPanel(String k, String v) {

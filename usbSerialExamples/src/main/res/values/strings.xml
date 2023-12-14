@@ -20,7 +20,18 @@
         <item>1000</item>
         <item>1500</item>
     </string-array>
+
+    <string-array name="demandAlarmTime">
+        <item>2</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+
+    </string-array>
     <string name="alert_name">AlertDialog</string>
-    <string name="dialog_message">Not Tanks Set</string>
+    <string name="dialog_message">No Tanks Set</string>
     <string name="dialog_title">Javatpoint Alert Dialog</string>
 </resources>

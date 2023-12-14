@@ -5,7 +5,7 @@
     android:id="@+id/TerminalLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="50sp"
+    android:layout_marginStart="@dimen/StartMarginFrag"
     android:theme="@style/AppTheme">
     <!--Mode Radio Group-->
 
@@ -32,6 +32,7 @@
             android:minWidth="@dimen/minWidth"
             android:text="Factory"
             android:textSize="@dimen/RadioButtonTextSize"
+            android:textColor="@color/design_default_color_on_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -53,7 +54,8 @@
             android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="On Demmand Effluent Pumping"
+            android:textColor="@color/design_default_color_on_primary"
+            android:text="On Demand Effluent Pumping"
             android:textSize="@dimen/RadioButtonTextSize" />
 
         <RadioButton
@@ -65,6 +67,7 @@
             android:minWidth="@dimen/minWidth"
             android:text="Night Spray"
             android:textSize="@dimen/RadioButtonTextSize"
+            android:textColor="@color/design_default_color_on_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/bbnr" />
 
@@ -77,6 +80,7 @@
             android:minWidth="@dimen/minWidth"
             android:text="Micro Time Dose Pump Control"
             android:textSize="@dimen/RadioButtonTextSize"
+            android:textColor="@color/design_default_color_on_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/bbnr" />
 
@@ -88,6 +92,7 @@
             android:checked="false"
             android:minWidth="@dimen/minWidth"
             android:text="Drip"
+            android:textColor="@color/design_default_color_on_primary"
             android:textSize="@dimen/RadioButtonTextSize"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/bspy" />
@@ -101,6 +106,7 @@
             android:minWidth="@dimen/minWidth"
             android:text="BNR"
             android:textSize="@dimen/RadioButtonTextSize"
+            android:textColor="@color/design_default_color_on_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/banr" />
 
@@ -113,6 +119,7 @@
             android:minWidth="@dimen/minWidth"
             android:text="ANR"
             android:textSize="@dimen/RadioButtonTextSize"
+            android:textColor="@color/design_default_color_on_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -125,6 +132,7 @@
             android:minWidth="@dimen/minWidth"
             android:text="Manual Operation"
             android:textSize="@dimen/RadioButtonTextSize"
+            android:textColor="@color/design_default_color_on_primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -221,15 +229,15 @@
 
     <TextView
         android:id="@+id/receiveText"
-        android:layout_width="1220dp"
-        android:layout_height="412dp"
+        android:layout_width="700dp"
+        android:layout_height="208dp"
         android:clickable="false"
         android:enabled="true"
         android:freezesText="true"
         android:gravity="bottom"
-        android:maxLines="10"
+        android:maxLines="5"
         android:minLines="1"
-        android:paddingTop="100pt"
+        android:paddingTop="10pt"
         android:scrollbars="vertical"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:typeface="monospace"

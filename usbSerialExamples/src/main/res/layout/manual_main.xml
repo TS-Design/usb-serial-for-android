@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/manualCancel"
+    android:layout_marginStart="@dimen/StartMarginFrag"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -25,11 +26,11 @@
         app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
 
     <CheckBox
-        android:id="@+id/effpump2"
+        android:id="@+id/RY4"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:text="Effluent Pump (RY4)  "
+        android:layout_marginTop="36dp"
+        android:text=" Unassigned (RY4)  "
         app:layout_constraintStart_toStartOf="@+id/effpump"
         app:layout_constraintTop_toBottomOf="@+id/effpump" />
 
@@ -37,10 +38,10 @@
         android:id="@+id/effpump"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="40dp"
         android:text="Effluent Pump (RY3)  "
-        app:layout_constraintStart_toStartOf="@+id/RY2"
-        app:layout_constraintTop_toBottomOf="@+id/RY2" />
+        app:layout_constraintStart_toStartOf="@+id/effpump2"
+        app:layout_constraintTop_toBottomOf="@+id/effpump2" />
 
     <CheckBox
         android:id="@+id/filterFlush"
@@ -61,12 +62,12 @@
         app:layout_constraintTop_toBottomOf="@+id/filterFlush" />
 
     <CheckBox
-        android:id="@+id/RY2"
+        android:id="@+id/effpump2"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="32dp"
-        android:text="Unassigned (RY2)  "
+        android:text="Effluent Pump (RY2) "
         app:layout_constraintStart_toStartOf="@+id/RY1"
         app:layout_constraintTop_toBottomOf="@+id/RY1" />
 

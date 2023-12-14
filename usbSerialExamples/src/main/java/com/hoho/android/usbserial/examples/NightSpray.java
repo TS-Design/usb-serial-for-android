@@ -1,5 +1,6 @@
 package com.hoho.android.usbserial.examples;
 
+import static com.hoho.android.usbserial.examples.R.id.recirTest;
 import static java.util.List.of;
 
 import android.app.PendingIntent;
@@ -46,7 +47,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+public class NightSpray extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
@@ -80,6 +81,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private TextView airPressure;
     private TextView effPumpAlarmTime;
     private TextView numberZones;
+    private TextView waterFlowData;
+    private TextView effStartTime;
 
     public Button systemOk;
     public Button effPumpTest;
@@ -106,23 +109,22 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public boolean popUpDialogPosted = false;
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
-*   command index keeps trck of next command to send
-*   command lenght is length of commandList
-*/
+     *   command index keeps trck of next command to send
+     *   command lenght is length of commandList
+     */
     public List<String> updateCommandList = of(
-        "mode", "year", "month","day",
+            "mode", "year", "month","day",
             "hour", "min", "sec",
             "tank", "bok", "bptest","balmrset",
             "brtest", "bfftest", "bpertest",
-            "dosesday", "fdrun", "rrepeat",
-            "rrun", "effstat", "airpres",
-            "palmtime", "zone", "balrmltch",
+            "effstat", "airpres",
+            "palmtime", "balrmltch",
             "bmantest", "balarm", "bLow", "bairalrm"
     );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
 
-    public AnrFragment() {
+    public NightSpray() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -143,7 +145,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         public void run() {
             String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
             timeRemote.setText(time);
-        mainLooper.postDelayed(timeHandler,1000);
+            mainLooper.postDelayed(timeHandler,1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
@@ -199,7 +201,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-        Toast.makeText(getActivity(), "onResume", Toast.LENGTH_SHORT).show();
 
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
@@ -218,35 +219,30 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.anr_fragment, container, false);
+        View view = inflater.inflate(R.layout.nightspray, container, false);
         PopUpFragment popUpFragment;
-        systemOk = view.findViewById(R.id.systemOk);
-        numberZones = view.findViewById(R.id.numberZones);
-        alarmLatch = view.findViewById(R.id.alarmLatch);
-        FdRunTime = view.findViewById(R.id.FdRunTime);
-        recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
-        dosesDay = view.findViewById(R.id.dosesDay);
-        recirRunTime = view.findViewById(R.id.recirRunTime);
-        //receiveText = view.findViewById(R.id.receiveText);
         alarmHistory = view.findViewById(R.id.alarmHistory);
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
-        recirTest = view.findViewById(R.id.recirTest);
-        recirTest.setOnClickListener(v -> recirTestCallback());
-        ffTest = view.findViewById(R.id.ffTest);
-        ffTest.setOnClickListener(v -> ffTestCallback());
-        peristalticTest = view.findViewById(R.id.peristalticTest);
-        peristalticTest.setOnClickListener(v -> peristalticTestCallback());
-        effPumpTest = view.findViewById(R.id.effPumpTest);
-        effPumpTest.setOnClickListener(v -> effPumpTestCallback());
-        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
-        effStatus = view.findViewById(R.id.effStatus);
         timeRemote = view.findViewById(R.id.timeRemote);
-        airAlarm = view.findViewById(R.id.airAlarm );
-        alarm = view.findViewById(R.id.alarm);
+        systemOk = view.findViewById(R.id.systemOk);
+        effPumpTest = view.findViewById(R.id.effPumpTest);
+        ffTest = view.findViewById(R.id.ffTest);
+        peristalticTest = view.findViewById(R.id.peristalticTest);
         alarmReset = view.findViewById(R.id.alarmReset);
-        alarmReset.setOnClickListener(v -> alarmResetCallback());
+        recirTest = view.findViewById((R.id.recirTest));
+        waterFlowData = view.findViewById(R.id.waterFlowData);
+        recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
+        effStartTime = view.findViewById(R.id.effStartTime);
+        effStatus = view.findViewById(R.id.effStatus);
         airPressure = view.findViewById(R.id.airPressure);
+        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
+        alarmLatch = view.findViewById(R.id.alarmLatch);
+        alarm = view.findViewById(R.id.alarm);
         lowProbe = view.findViewById(R.id.lowProbe);
+        airAlarm = view.findViewById(R.id.airAlarm );
+
+
+        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        alarmReset.setOnClickListener(v -> alarmResetCallback());
 
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
@@ -414,7 +410,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             putTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
             putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
-       /* Variables */
+        /* Variables */
         if(panelData.containsKey("dosesday"))
             dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
         if(panelData.containsKey("fdrun"))
@@ -436,7 +432,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if(panelData.containsKey(""))
             dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"\")")));
         if (panelData.containsKey("dow"))
-                remoteDow = panelData.getPanelString("dow");
+            remoteDow = panelData.getPanelString("dow");
         if (panelData.containsKey("day"))
             remoteDay = panelData.getPanelString("day");
         if (panelData.containsKey("month"))
@@ -449,7 +445,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             remoteMin = panelData.getPanelString("min");
         if (panelData.containsKey("sec"))
             remoteSec = panelData.getPanelString("sec");
-            //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
     }
     public void modeEnable(RadioGroup main_mode) {
     }
@@ -536,14 +532,14 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
     }
     private void alarmResetCallback() {
-            if(panelData.getPanelBool("balmrset")) {
-                alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                sendJson("balmrset", "false");
-            }
-            else {
-                alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-                sendJson("balmrset", "true");
-            }
+        if(panelData.getPanelBool("balmrset")) {
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("balmrset", "false");
+        }
+        else {
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendJson("balmrset", "true");
+        }
     }
     private void alarmHistoryCallback() {
         if(panelData.getPanelBool("alarmHistory")) {

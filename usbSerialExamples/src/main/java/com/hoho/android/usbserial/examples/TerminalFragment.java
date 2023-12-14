@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -31,13 +32,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.ListFragment;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
@@ -54,7 +56,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 100;
+    private static final int UPDATE_INTERVAL_MILLIS = 200;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -63,18 +65,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
-/*    private TextView fieldFlush;
-    private TextView recirculate;
-    private TextView pumpRuntime;
-    private TextView mainEfficencyPump;
-    private TextView altEfficencyPump;
-    private TextView _peristalicPump;
-    private TextView airpressure;
-    private TextView highProbe;
-    private TextView lowProbe;
-    private TextView alarmExt;
-    private TextView chlorineIn;
-    private TextView waterMeterIn;*/
+    public PanelData panelData = new PanelData();
+
     private TextView timeRemote;
     private RadioGroup main_mode;
     private RadioButton binit;
@@ -82,6 +74,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton banr;
     private RadioButton bbnr;
     private RadioButton bspy;
+    private RadioButton bmicro;
     private RadioButton bdrip;
     private RadioButton bdmd;
     private RadioButton manual;
@@ -92,9 +85,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
-    public DataLayer dataLayer = new DataLayer();
     /* Hoot adds */
-    //static boolean cmd_busy = false;
     public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
@@ -143,14 +134,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     final Runnable timeHandler = new Runnable() {
         @Override
         public void run() {
-        timeRemote.setText(dataLayer.getTime());
+            String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
+            timeRemote.setText(time);
         mainLooper.postDelayed(timeHandler,1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
         @Override
         public void run() {
-            if(dataLayer.getTank().equals("0")) {
+            if(panelData.getPanelString("tank").equals("0")) {
                 if(!popUpDialogPosted) {
                     showTankPopUp();
                     popUpDialogPosted = true;
@@ -169,20 +161,33 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
             //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
            // tankDropDown.setSelection(item);
-            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
+            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(panelData.getPanelString("tank")));
         }
     };
     final Runnable updateTank = new Runnable() {
         @Override
         public void run() {
-            Toast.makeText(getActivity(), "Send Tank " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-            sendJson("tank", dataLayer.getTank());
+            Toast.makeText(getActivity(), "Send Tank " + panelData.getPanelString("tank"), Toast.LENGTH_SHORT).show();
+            sendJson("tank", panelData.getPanelString("tank"));
         }
     };
-    final Runnable update = new Runnable() {
+    final Runnable update = new Runnable() { // Send next command to Panel
         public void run() {
             //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
-            getPanelStatus();
+            //getPanelStatus();
+            mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+            //mainLooper.postDelayed(clearAck, 200);
+            if (connected) {
+                if(panelData.containsKey("bmantest")) {
+                    if (panelData.getPanelString("bmantest").equals("true")) {                    // inset manual in this timeslot {
+                        sendJson("bmantest", "false");                // resume current panel mode
+                        //break;
+                    }
+                }
+                sendJson(updateCommandList.get(commandListIndex++), "Query");
+                if (commandListIndex == commandLength)
+                    commandListIndex = 0;
+            }
         }
     };
     final Runnable postMsg = new Runnable() {
@@ -204,14 +209,13 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
         mainLooper.postDelayed(timeHandler,1000);
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-
+        Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
     }
@@ -236,6 +240,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         binit = view.findViewById(R.id.binit);
         banr = view.findViewById(R.id.banr);
         bbnr = view.findViewById(R.id.bbnr);
+        bmicro = view.findViewById(R.id.bmicro);
         bspy = view.findViewById(R.id.bspy);
         bdmd = view.findViewById(R.id.bdmd);
         bdrip = view.findViewById(R.id.bdrip);
@@ -243,9 +248,10 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         receiveText = view.findViewById(R.id.receiveText);
         timeRemote = view.findViewById(R.id.timeRemote);
         bgrav.setOnClickListener(v -> gravCallback());  // something is always true
-        banr.setOnClickListener(v -> banrCallback());
+        banr.setOnClickListener(v -> anrCallback());
         bbnr.setOnClickListener(v -> bbnrCallback());
         bspy.setOnClickListener(v -> bspyCallback());
+        bmicro.setOnClickListener(v -> bmicroCallback());
         bdmd.setOnClickListener(v -> bdmdCallback());
         bdrip.setOnClickListener(v -> bdripCallback());
         binit.setOnClickListener(v -> binitCallback());
@@ -261,7 +267,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 long tankIndex = parent.getItemIdAtPosition(position);
-                dataLayer.setTank(tankDropDown.getSelectedItem().toString());
+                panelData.setPanel("tank", tankDropDown.getSelectedItem().toString());
                 if(tankIndex != 0)                                              // prevent from reseting Panel tank size on default
                     mainLooper.post(updateTank);
             }
@@ -406,89 +412,68 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         usbSerialPort = null;
     }
     public void postDataLayer() {
-        boolean enableMode;
+        boolean enableMode = false;
 
-/*        if ((dataLayer.getKEY()).equals("bCL"))
-            dataLayer.setbCL(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bAlarm"))
-            dataLayer.setbAlarm(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bLow"))
-            dataLayer.setbLow(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bHigh"))
-            dataLayer.setbHigh(Boolean.parseBoolean(dataLayer.getVALUE()));
-        else if ((dataLayer.getKEY()).equals("bWM"))
-            dataLayer.setbWM(Boolean.parseBoolean(dataLayer.getVALUE()));*/
-        if ((dataLayer.getKEY()).equals("mode")) {          // Set Mode Radio Button
-            if(dataLayer.getMode().equals("bANR"))
+        if (panelData.containsKey("mode")) {          // Set Mode Radio Button
+            if (panelData.getPanelString("mode").equals("bANR"))
                 main_mode.check(R.id.banr);
-            else if (dataLayer.getMode().equals("bBNR"))
+            else if (panelData.getPanelString("mode").equals("bBNR"))
                 main_mode.check(R.id.bbnr);
-            else if (dataLayer.getMode().equals("bDMD"))
+            else if (panelData.getPanelString("mode").equals("bDMD"))
                 main_mode.check(R.id.bdmd);
-            else if (dataLayer.getMode().equals("bSPY"))
+            else if (panelData.getPanelString("mode").equals("bSPY"))
                 main_mode.check(R.id.bspy);
-            else if (dataLayer.getMode().equals("bDRIP"))
+            else if (panelData.getPanelString("mode").equals("bDRIP"))
                 main_mode.check(R.id.bdrip);
-            else if (dataLayer.getMode().equals("bGRAV"))
+            else if (panelData.getPanelString("mode").equals("bMICRO"))
+                main_mode.check(R.id.bmicro);
+            else if (panelData.getPanelString("mode").equals("bGRAV"))
                 main_mode.check(R.id.grav);
-            else if (dataLayer.getMode().equals("binit")) {
+            else if (panelData.getPanelString("mode").equals("bmantest"))
+                main_mode.check(R.id.manual);
+            else if (panelData.getPanelString("mode").equals("binit"))
                 main_mode.check(R.id.binit);
-                if (dataLayer.getTank().equals("0"))
-                    enableMode = false;
-                else
-                    enableMode = true;
-                for(int i = 0; i < main_mode.getChildCount(); i++){
-                    ((RadioButton)main_mode.getChildAt(i)).setEnabled(enableMode);
-                }
-                if(!popUpDialogPosted) {
-                    if(dataLayer.getTank().equals(0)) {
-                        //showTankPopUp();
-                        popUpDialogPosted = true;
-                    }
-                }
+        }
+        if (panelData.containsKey("tank")) {
+            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(panelData.getPanelString("tank")));
+            if (panelData.getPanelString("tank").equals("0"))
+                enableMode = false;
+            else
+                enableMode = true;
+        }
+        for(int i = 0; i < main_mode.getChildCount(); i++){
+            ((RadioButton)main_mode.getChildAt(i)).setEnabled(enableMode);
+        }
+        //main_mode.check(R.id.binit);
+        if(!popUpDialogPosted) {
+            if(panelData.getPanelString("tank").equals("0")) {
+                //showTankPopUp();
+                popUpDialogPosted = true;
             }
         }
-//        else if ((dataLayer.getKEY()).equals("Tank")) {
-//            Toast.makeText(getActivity(), "Tank Size " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
-//        }
-        else if ((dataLayer.getKEY()).equals("bmantest")) { // check Manual Test  clear if on
-            dataLayer.bmantest = Boolean.parseBoolean(dataLayer.getVALUE());
-            if(dataLayer.bmantest)
-                sendJson("bmantest","false");
-        }
-        else if ((dataLayer.getKEY()).equals("bANR")) {     // kill cmd not found msg until   is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bBNR")) {     // kill cmd not found msg until   is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bDMD")) {     // kill cmd not found msg until   is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bSPY")) {     // kill cmd not found msg until   is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("bALARM")) {   // kill cmd not found msg until   is enabled
-        }
-        else if ((dataLayer.getKEY()).equals("tank")) {     // Tank pull down
-            if (dataLayer.getVALUE() != null) {
-                tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(dataLayer.getVALUE()));
+//        if (panelData.containsKey("tank")) {     // Tank pull down
+         //   if (panelData.getPanelString("tank") != "0") {
+      //          tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(panelData.getPanelString("tank")));
                 // mainLooper.post(waitOnTank);
-            }
-            else {
-                dataLayer.setTank(dataLayer.getVALUE());
-                mainLooper.post(modeSpinner);
-            }
-        }
-        /*        else if ((dataLayer.getKEY()).equals("dow"))
+ //           }
+//            else {
+  //              panelDatak(dataLayer.getVALUE());
+    //            mainLooper.post(modeSpinner);
+  //          }
+
+        /*        else if (panelData.getPanelBool("dow"))
             remoteDow = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("day"))
+        else if ((panelData.getPanelBool("day"))
             remoteDay = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("month"))
+        else if ((panelData.getPanelBool("month"))
             remoteMonth = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("year"))
+        else if ((panelData.getPanelBool("year"))
             remoteYear = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("hrs"))
+        else if ((panelData.getPanelBool("hrs"))
             remoteHr = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("min"))
+        else if ((panelData.getPanelBool("min"))
             remoteMin = dataLayer.getVALUE();
-        else if ((dataLayer.getKEY()).equals("sec")) {
+        else if ((panelData.getPanelBool("sec")) {
             remoteSec = dataLayer.getVALUE();
             timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
         }*/
@@ -497,7 +482,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     public void modeEnable(RadioGroup main_mode) {
     }
-    public void getPanelStatus() {
+    public void getPanelStatus() {  // depriciate TOOD delete me
  /*       if(check5lTime()) {
             Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
         }*/
@@ -505,9 +490,13 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         //mainLooper.postDelayed(clearAck, 200);
         if (connected) {
-            sendJson(updateCommandList.get(commandListIndex++), "Query");
-            if (commandListIndex == commandLength)
-                commandListIndex = 0;
+            if (panelData.getPanelString("bmantest").equals("true"))                     // inset manual in this timeslot
+                sendJson("bmantest", "false");                // resume current panel mode
+            else {
+                sendJson(updateCommandList.get(commandListIndex++), "Query");
+                if (commandListIndex == commandLength)
+                    commandListIndex = 0;
+            }
         }
     }
     public void showTankPopUp() {
@@ -517,7 +506,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(Color.GREEN);
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -589,7 +578,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
        else if (activeButton == bdmd)
            bdmd.setTextColor(Color.GREEN);
     }
-    private void cancelManualCallback(){
+    private void cancelManualCallback(){ // TODO need this?
         View TerminalLayout = getActivity().findViewById(R.id.TerminalLayout);
         ViewGroup parent = (ViewGroup) TerminalLayout.getParent();
         int index = parent.indexOfChild(TerminalLayout);
@@ -600,8 +589,16 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void gravCallback() {
         sendJson("bGRAV","true");
+        Bundle args = new Bundle();
+        args.putInt("device", deviceId);
+        args.putInt("port", portNum);
+        args.putInt("baud", baudRate);
+        args.putBoolean("withIoManager", withIoManager);
+        Fragment TerminalFragment = new GravFrag();
+        TerminalFragment.setArguments(args);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "gravity").addToBackStack(null).commit();
     }
-    private void banrCallback() {
+    private void anrCallback() {
         sendJson("bANR","true");
         Bundle args = new Bundle();
         args.putInt("device", deviceId);
@@ -626,7 +623,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         args.putInt("port", portNum);
         args.putInt("baud", baudRate);
         args.putBoolean("withIoManager", withIoManager);
-        Fragment TerminalFragment = new manualClass();
+        Fragment TerminalFragment = new Manual();
         TerminalFragment.setArguments(args);
         getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "manual").addToBackStack(null).commit();
     }
@@ -635,12 +632,47 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void bspyCallback() {
         sendJson("bSPY","true");
+        Bundle args = new Bundle();
+        args.putInt("device", deviceId);
+        args.putInt("port", portNum);
+        args.putInt("baud", baudRate);
+        args.putBoolean("withIoManager", withIoManager);
+        Fragment TerminalFragment = new NightSpray();
+        TerminalFragment.setArguments(args);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "nightspray").addToBackStack(null).commit();
+    }
+    private void bmicroCallback() {
+        sendJson("bMICRO","true");
+        Bundle args = new Bundle();
+        args.putInt("device", deviceId);
+        args.putInt("port", portNum);
+        args.putInt("baud", baudRate);
+        args.putBoolean("withIoManager", withIoManager);
+        Fragment TerminalFragment = new MicroDose();
+        TerminalFragment.setArguments(args);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "microdose").addToBackStack(null).commit();
     }
     private void bdmdCallback() {
         sendJson("bDMD", "true");
+        Bundle args = new Bundle();
+        args.putInt("device", deviceId);
+        args.putInt("port", portNum);
+        args.putInt("baud", baudRate);
+        args.putBoolean("withIoManager", withIoManager);
+        Fragment TerminalFragment = new Demand();
+        TerminalFragment.setArguments(args);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "demand").addToBackStack(null).commit();
     }
     private void bdripCallback() {
         sendJson("bDRIP", "true");
+        Bundle args = new Bundle();
+        args.putInt("device", deviceId);
+        args.putInt("port", portNum);
+        args.putInt("baud", baudRate);
+        args.putBoolean("withIoManager", withIoManager);
+        Fragment TerminalFragment = new Drip();
+        TerminalFragment.setArguments(args);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "drip").addToBackStack(null).commit();
     }
     private void binitCallback() {
 //        if(dataLayer.getTank().equals("0") && main_mode.isEnabled())
@@ -712,14 +744,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         SpannableStringBuilder spn = new SpannableStringBuilder();
         if(data.length > 0)
         {
-//            spn.append("receive " + data.length + " bytes\n");
-//            spn.append(HexDump.dumpHexString(data)).append("\n");
+        //    spn.append("receive " + data.length + " bytes\n");
+        //    spn.append(HexDump.dumpHexString(data)).append("\n");
             parse(data);
         }
     }
     public void parse(byte[] data) {
         String rx = new String(data);
-        //String valueString = null;
+        String K = null;
+        String V = null;
         boolean key = false;
         boolean value = false;
 
@@ -730,22 +763,22 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         key = true;
                         keyString = "";
                         break;
-                    case '}':                           // save value and exit
-                        key = false;
-                        value = false;
-                        dataLayer.setVALUE(keyString);
-                        dataLayer.setValuebyKey();
+                    case '}':                           // End Parse Save [key,Value] and exit
+                        V = keyString;
+                        if(V != null && K != null ) {
+                            panelData.setPanel(K, V);
+                            panelData.setPanel("KEY", K);
+                            panelData.setPanel("VALUE", V);
+                            receiveText.append( K + ":" + V  + "\n");
+                        }
+                        else
+                            //Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
+
                         keyString = "";
-                        receiveText.append(dataLayer.getKEY() + ":" + dataLayer.getVALUE()  + "\n");
-                        //Toast.makeText(getActivity(), "ACK", Toast.LENGTH_SHORT).show();
-                        //dataLayer.setMsgAck(true);
-                        mainLooper.post(postMsg);
-                        //mainLooper.post(() -> { postMsg; });
+                        mainLooper.post(postMsg);       // Post Message to UI
                         break;
-                    case ':':                           // save key move to value phase
-                        key = false;
-                        dataLayer.setKEY(keyString);
-                        value = true;
+                    case  ':':                           // save key move to value phase
+                        K = keyString;
                         keyString = "";
                         break;
                     case '"':                           // ignore these

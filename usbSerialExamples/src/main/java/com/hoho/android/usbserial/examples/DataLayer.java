@@ -213,7 +213,7 @@ public class DataLayer {
     /* Mode */
 
     public String getMode() {
-        return mode;
+        return this.mode;
     }
     public void setMode(String mode) {
         this.mode = mode;
