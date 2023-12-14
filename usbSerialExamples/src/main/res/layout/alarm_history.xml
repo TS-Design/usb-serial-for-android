@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EC6E9F">
+
+    <TextView
+        android:id="@+id/alarmPopText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="-- Alarm Log --"
+        android:textSize="@dimen/flowMenuHeaderTxtSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="55dp" />
+
+    <Button
+        android:id="@+id/closeAlarmBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:text="Close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/clearAlarm"
+        app:layout_constraintTop_toTopOf="@+id/clearAlarm" />
+
+    <Button
+        android:id="@+id/clearAlarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="92dp"
+        android:layout_marginBottom="36dp"
+        android:text="Clear Alarms!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/alarmTextWindow"
+        android:layout_width="590dp"
+        android:layout_height="514dp"
+        android:layout_below="@+id/alarmPopText"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="68dp"
+        android:layout_marginTop="88dp"
+        android:text="No Alarms\n"
+        android:textSize="@dimen/flowMeterTxtSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarmPopText" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

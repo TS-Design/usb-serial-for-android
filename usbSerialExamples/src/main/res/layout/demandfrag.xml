@@ -23,7 +23,7 @@
         android:layout_marginTop="100dp"
         android:background="@color/colorSendText"
         android:text="Alarm History"
-        android:textColor="@color/design_default_color_on_secondary"
+        android:textColor="@color/RectangleNotSelected"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/note" />
 
@@ -53,7 +53,7 @@
         android:layout_height="63dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="108dp"
-        android:contentDescription="TODO"
+        android:contentDescription="Hoot Logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/hoot_big" />
@@ -65,8 +65,8 @@
         android:layout_marginStart="35dp"
         android:text="On\nDemand"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="?android:attr/colorFocusedHighlight"
-        android:textSize="30sp"
+        android:textColor="@color/colorStatusText"
+        android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/timeRemote"
         app:layout_constraintTop_toTopOf="@+id/timeRemote" />
 
@@ -128,9 +128,9 @@
         android:layout_width="206dp"
         android:layout_height="41dp"
         android:layout_marginTop="44dp"
-        android:background="@color/material_dynamic_secondary90"
+        android:background="@color/light_blue_A200"
         android:text="Water Flow Data"
-        android:textColor="@color/design_default_color_on_secondary"
+        android:textColor="@color/RectangleNotSelected"
         android:textSize="25dp"
         app:layout_constraintStart_toStartOf="@+id/demandAlarmTime"
         app:layout_constraintTop_toBottomOf="@+id/demandAlarmTime" />

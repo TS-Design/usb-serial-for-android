@@ -106,7 +106,9 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private Button manual;
     private Button demandTimer;
     private Button closePopupBtn;
+    private Button closeAlarmBtn;
     private TextView gallontextwindow;
+    private TextView alarmTextWindow;
     public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
@@ -261,7 +263,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         alarmLatch = view.findViewById(R.id.alarmLatch);
         alarm = view.findViewById(R.id.alarm);
         alarmHistory = view.findViewById(R.id.alarmHistory);
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        //alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
         timeRemote = view.findViewById(R.id.timeRemote);
         airAlarm = view.findViewById(R.id.airAlarm );
         //alarmProbe = view.findViewById(R.id.alarmProbe);
@@ -320,6 +322,10 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 temp.append(panelData.getPanelString("hours1"));
                 temp.append("\n\n");
                 gallontextwindow.setText(temp);
+                temp = new StringBuilder("Hourly Average:");
+                temp.append(panelData.getPanelString("hourAvg"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
                 temp = new StringBuilder("Water Meter 24 Hour Daily Total:");
                 temp.append(panelData.getPanelString("hours24"));
                 temp.append("\n\n");
@@ -328,20 +334,20 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 temp.append(panelData.getPanelString("day30"));
                 temp.append("\n\n");
                 gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter Lifetime Total:");
-                temp.append(panelData.getPanelString("life"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Hourly Average:");
-                temp.append(panelData.getPanelString("hourAvg"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
                 temp = new StringBuilder("Water Meter 30 Day Average:");
                 temp.append(panelData.getPanelString("day30Avg"));
                 temp.append("\n\n");
                 gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter Lifetime Total:");
+                temp.append(panelData.getPanelString("life"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
                 temp = new StringBuilder("Water Meter Lifetime days:");
                 temp.append(panelData.getPanelString("lifedays"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter Lifetime Average days:");
+                temp.append(panelData.getPanelString("lifetimeAvg"));
                 temp.append("\n\n");
                 gallontextwindow.append(temp);
                 //close the popup window on button click
@@ -353,7 +359,35 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 });
             }
         });
-        /* Start Update timer to sync UI   */
+        alarmHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //instantiate the popup.xml layout file
+                LayoutInflater layoutInflater = (LayoutInflater) Demand.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View customView = layoutInflater.inflate(R.layout.alarm_history, null);
+
+                closeAlarmBtn = (Button) customView.findViewById(R.id.closeAlarmBtn);
+                alarmTextWindow = (TextView) customView.findViewById(R.id.alarmTextWindow);
+                //instantiate popup window
+                popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+                //display the popup window
+                popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+                alarmTextWindow.setText("");
+                StringBuilder temp;
+                temp = new StringBuilder("Alarm List");
+                //temp.append(panelData.getPanelString("hours1"));
+                temp.append("\n\n");
+                alarmTextWindow.setText(temp);
+                //close the popup window on button click
+                closeAlarmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+                    }
+                });
+            }
+        });        /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
     }

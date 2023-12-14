@@ -11,6 +11,6 @@
     <dimen name="ModeTextSize">12sp</dimen>
     <dimen name="anrTextSize">16sp</dimen>
     <dimen name="StartMarginFrag">1sp</dimen>
-    <dimen name="flowMeterTxtSize">30sp</dimen>
-    <dimen name="flowMenuHeaderTxtSize">40sp</dimen>
+    <dimen name="flowMeterTxtSize">20sp</dimen>
+    <dimen name="flowMenuHeaderTxtSize">30sp</dimen>
 </resources>
