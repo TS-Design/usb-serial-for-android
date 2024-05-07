@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/AnrLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="@dimen/StartMarginFrag"
+    android:theme="@style/AppTheme">
+    <!--Mode Radio Group-->
+
+    <!--Time-->
+
+    <!--Time,Gallons Labels Here -->
+
+    <!-- Receive Stuff -->
+
+    <Button
+        android:id="@+id/alarmHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="68dp"
+        android:layout_marginTop="44dp"
+        android:background="@color/colorSendText"
+        android:text="Alarm History"
+        android:textColor="@color/design_default_color_on_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+
+    <TextView
+        android:id="@+id/timeRemote"
+        android:layout_width="328dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:maxLines="2"
+        android:minLines="1"
+        android:paddingStart="10pt"
+        android:paddingTop="1dp"
+        android:paddingEnd="10pt"
+        android:paddingBottom="10pt"
+        android:text="00:00:00"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="18sp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!--comment out recieve text-->
+
+    <ImageView
+        android:id="@+id/hootBug"
+        android:layout_width="80dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="108dp"
+        android:contentDescription="TODO"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/hoot_big" />
+
+    <TextView
+        android:id="@+id/textAnr"
+        android:layout_width="130dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="16dp"
+        android:text="Drip"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="?android:attr/colorFocusedHighlight"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.622"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/systemOk"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="System OK"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/so1"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="48dp"
+        android:text="Field Flush"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/so2"
+        app:layout_constraintTop_toBottomOf="@+id/so2" />
+
+    <Button
+        android:id="@+id/so0"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="248dp"
+        android:layout_marginEnd="36dp"
+        android:text="Zone 1"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/alarmReset"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="72dp"
+        android:text="System Alarm Reset"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/alarmHistory"
+        app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
+
+    <Button
+        android:id="@+id/so2"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="36dp"
+        android:text="Zone 2"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/so0"
+        app:layout_constraintTop_toBottomOf="@+id/so0" />
+
+    <TextView
+        android:id="@+id/dosesDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        android:text="Dose Setting per Day (Drip): 0"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/numberZones" />
+
+    <TextView
+        android:id="@+id/dripOnTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:text="Drip On Timer: "
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dosesDay" />
+
+    <TextView
+        android:id="@+id/airPressure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:text="Air Compressor Pressure WCI: 0"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/dripOnTimer"
+        app:layout_constraintTop_toBottomOf="@+id/dripOnTimer" />
+
+    <TextView
+        android:id="@+id/numberZones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:text="Number of Zones 1"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+
+    <Button
+        android:id="@+id/alarmLatch"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Alarm Latching"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/airAlarm"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/alarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="System Alarm"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/systemOk"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/lowProbe"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Water Level Probe"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/alarm"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/airAlarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="100dp"
+        android:text="Aeration Problem"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/lowProbe"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

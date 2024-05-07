@@ -18,16 +18,18 @@ import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -49,22 +51,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-    }
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
+public class Demand extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 200;
+    private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -84,25 +77,23 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
-    private Spinner zoneCount;
-    private TextView numberZones;
-    private Spinner doseDayCount;
-    private Spinner recirRepeatCount;
-    private Spinner recirRunCount;
-    private TextView recirRepeatTime;
-    private TextView recirRunTime;
-    private Spinner effPumpAlarmTimeCount;
-    private Spinner FdRunTimeCount;
-    private TextView FdRunTime;
+    private Spinner demandAlarmTime;
     private TextView dosesDay;
     private TextView effStatus;
+    private TextView FdRunTime;
+    private TextView recirRepeatTime;
+    private TextView recirRunTime;
     private TextView airPressure;
     private TextView effPumpAlarmTime;
+    private TextView numberZones;
+    private TextView flowData;
+    private TextView alarmLatchStatus;
 
     public Button systemOk;
     public Button effPumpTest;
     public Button alarmLatch;
     public Button alarmHistory;
+    public Button alarmProbe;
     public Button ffTest;
     public Button recirTest;
     public Button alarmReset;
@@ -111,6 +102,13 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public Button lowProbe;
     public Button airAlarm;
     public Button peristalticTest;
+    private Button effstat;
+    private Button manual;
+    private Button demandTimer;
+    private Button closePopupBtn;
+    private Button closeAlarmBtn;
+    private TextView gallontextwindow;
+    private TextView alarmTextWindow;
     public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
@@ -122,25 +120,40 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public String remoteDay = "00";
     public String remoteMonth = "00";
     public boolean popUpDialogPosted = false;
+    PopupWindow popupWindow;
+    //LinearLayout linearLayout1;
+
+
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
      *   command lenght is length of commandList
      */
     public List<String> updateCommandList = of(
-            "mode", "year", "month","day",
-            "hour", "min", "sec",
-            "tank", "bok", "bptest","balmrset",
-            "brtest", "bfftest", "bpertest",
-            "dosesday", "fdrun", "rrepeat",
-            "rrun", "effstat", "airpres",
-            "palmtime", "zone", "balrmltch",
-            "bmantest", "balarm", "bLow", "bairalrm"
+            "mode",
+            "year", "month","day", "hour", "min", "sec",
+            "bok","balarm", "bLow", "bairalrm", "balrmltch",
+            "tank",
+            "airpres",
+            "palmtime",             // pump runtime alarm
+            "dalrmtime",            // demand runtime befor alarm
+            "bptest",
+            "balmrset",
+            "bmantest",
+            "so0",
+            "so1",
+            "so2",
+            "flow",                 // metering command get all
+            "dosesday",
+            "fdrun",
+            "rrepeat",
+            "rrun",
+            "effstat"
     );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
 
-    public AnrFragment() {
+    public Demand() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -180,11 +193,19 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
     };
-    final Runnable updateTank = new Runnable() {
+    final Runnable modeSpinner = new Runnable() {
         @Override
         public void run() {
-            Toast.makeText(getActivity(), "Send Tank " + panelData.getPanelString("tank"), Toast.LENGTH_SHORT).show();
-            sendJson("tank", panelData.getPanelString("tank"));
+
+            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
+            demandAlarmTime.setSelection(((ArrayAdapter)demandAlarmTime.getAdapter()).getPosition(panelData.getPanelString("dalrmtime")));
+        }
+    };
+    final Runnable update5L = new Runnable() {
+        @Override
+        public void run() {
+            Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
+            sendJson("dalrmtime", panelData.getPanelString("dalrmtime"));
         }
     };
     final Runnable update = new Runnable() {
@@ -200,21 +221,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
-    final Runnable update5L = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
-            sendJson("zone", panelData.getPanelString("zone"));
-        }
-    };
-/*    final Runnable modeSpinner = new Runnable() {
-        @Override
-        public void run() {
-
-            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-            zoneCount.setSelection(((ArrayAdapter)zoneCount.getAdapter()).getPosition(panelData.getPanelString("zone")));
-        }
-    }; */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -232,7 +238,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-        Toast.makeText(getActivity(), "onResume", Toast.LENGTH_SHORT).show();
 
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
@@ -251,150 +256,152 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
      */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.anr_fragment, container, false);
+        View view = inflater.inflate(R.layout.demandfrag, container, false);
         PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
         alarmLatch = view.findViewById(R.id.alarmLatch);
-        //receiveText = view.findViewById(R.id.receiveText);
-        alarmHistory = view.findViewById(R.id.alarmHistory);
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
-        recirTest = view.findViewById(R.id.recirTest);
-        recirTest.setOnClickListener(v -> recirTestCallback());
-        ffTest = view.findViewById(R.id.ffTest);
-        ffTest.setOnClickListener(v -> ffTestCallback());
-        peristalticTest = view.findViewById(R.id.peristalticTest);
-        peristalticTest.setOnClickListener(v -> peristalticTestCallback());
-        effPumpTest = view.findViewById(R.id.effPumpTest);
-        effPumpTest.setOnClickListener(v -> effPumpTestCallback());
-        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
-        effStatus = view.findViewById(R.id.effStatus);
-        timeRemote = view.findViewById(R.id.timeRemote);
-        airAlarm = view.findViewById(R.id.airAlarm);
         alarm = view.findViewById(R.id.alarm);
+        alarmHistory = view.findViewById(R.id.alarmHistory);
+        //alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        timeRemote = view.findViewById(R.id.timeRemote);
+        airAlarm = view.findViewById(R.id.airAlarm );
+        //alarmProbe = view.findViewById(R.id.alarmProbe);
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
-
-        FdRunTime = view.findViewById(R.id.FdRunTime);
-        dosesDay = view.findViewById(R.id.dosesDay);
-        doseDayCount = view.findViewById(R.id.doseDayCount);
         lowProbe = view.findViewById(R.id.lowProbe);
-        numberZones = view.findViewById(R.id.numberZones);
-        zoneCount = view.findViewById(R.id.zoneCount);
-        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
-        effPumpAlarmTimeCount = view.findViewById(R.id.effPumpAlarmTimeCount);
-        recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
-        recirRunCount = view.findViewById(R.id.recirRunCount);
-        recirRunTime = view.findViewById(R.id.recirRunTime);
-        recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
+        manual = view.findViewById(R.id.manual);
+        //alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
+        demandTimer = view.findViewById(R.id.demandTimer);
+        flowData = view.findViewById(R.id.flowData);
+        //flowData.setOnClickListener(v-> flowDataCallback());
+        //flowData.setOnClickListener(new R.id(flowData));
+        effstat = view.findViewById(R.id.effstat);  // button
+        effStatus = view.findViewById(R.id.effStatus);  // TextView
+        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         // dropdowns
-        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, android.R.layout.simple_spinner_item);
-        zoneCountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        zoneCount.setAdapter(zoneCountAdapter);
-        zoneCount.setOnItemSelectedListener(new OnItemSelectedListener() {
+        demandAlarmTime = view.findViewById(R.id.demandAlarmTime);
+        final ArrayAdapter<CharSequence> demandAlarmAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.demandAlarmTime, R.layout.mode_spinner);
+        demandAlarmAdapter.setDropDownViewResource(R.layout.mode_spinner);
+        demandAlarmTime.setAdapter(demandAlarmAdapter);
+        demandAlarmTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long zoneIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("zone", zoneCount.getSelectedItem().toString());
-                if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
+                long demandAlarmIndex = parent.getItemIdAtPosition(position);
+                panelData.setPanel("dalrmtime", demandAlarmTime.getSelectedItem().toString());
+                if(demandAlarmIndex != 0)                                              // prevent from reseting Panel tank size on default
                     mainLooper.post(update5L);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Zone Spinner is NUL", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Spinner Nothing", Toast.LENGTH_SHORT).show();
+        }
+        });
+        //linearLayout1 = (LinearLayout) findViewById(R.id.linearLayout1);
+
+        flowData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //instantiate the popup.xml layout file
+                LayoutInflater layoutInflater = (LayoutInflater) Demand.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View customView = layoutInflater.inflate(R.layout.gallons_popup, null);
+
+                closePopupBtn = (Button) customView.findViewById(R.id.closePopupBtn);
+                gallontextwindow = (TextView) customView.findViewById(R.id.gallontextwindow);
+                //instantiate popup window
+                popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+                //display the popup window
+                popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+                gallontextwindow.setText("");
+                StringBuilder temp;
+                temp = new StringBuilder("Water Hourly Total:");
+                temp.append(panelData.getPanelString("hours1"));
+                temp.append("\n\n");
+                gallontextwindow.setText(temp);
+                temp = new StringBuilder("Hourly Average:");
+                temp.append(panelData.getPanelString("hourAvg"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter 24 Hour Daily Total:");
+                temp.append(panelData.getPanelString("hours24"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter 30 Day Total:");
+                temp.append(panelData.getPanelString("day30"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter 30 Day Average:");
+                temp.append(panelData.getPanelString("day30Avg"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter Lifetime Total:");
+                temp.append(panelData.getPanelString("life"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter Lifetime days:");
+                temp.append(panelData.getPanelString("lifedays"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                temp = new StringBuilder("Water Meter Lifetime Average days:");
+                temp.append(panelData.getPanelString("lifetimeAvg"));
+                temp.append("\n\n");
+                gallontextwindow.append(temp);
+                //close the popup window on button click
+                closePopupBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+                    }
+                });
             }
         });
-
-        final ArrayAdapter<CharSequence> doseDayAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.doseDayArray, android.R.layout.simple_spinner_item);
-        doseDayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        doseDayCount.setAdapter(zoneCountAdapter);
-        doseDayCount.setOnItemSelectedListener(new OnItemSelectedListener() {
+        alarmHistory.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long zoneIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("dosesday", doseDayCount.getSelectedItem().toString());
-                if (zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    sendJson("dosesday", panelData.getPanelString("dosesday"));
-            }
+            public void onClick(View v) {
+                //instantiate the popup.xml layout file
+                LayoutInflater layoutInflater = (LayoutInflater) Demand.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View customView = layoutInflater.inflate(R.layout.alarm_history, null);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Dose Day Spinner is NUL", Toast.LENGTH_SHORT).show();
+                closeAlarmBtn = (Button) customView.findViewById(R.id.closeAlarmBtn);
+                alarmTextWindow = (TextView) customView.findViewById(R.id.alarmTextWindow);
+                //instantiate popup window
+                popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+                //display the popup window
+                popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+                alarmTextWindow.setText("");
+                StringBuilder temp;
+                temp = new StringBuilder("Alarm List");
+                //temp.append(panelData.getPanelString("hours1"));
+                temp.append("\n\n");
+                alarmTextWindow.setText(temp);
+                //close the popup window on button click
+                closeAlarmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+                    }
+                });
             }
         });
-
-        final ArrayAdapter<CharSequence> FdRunTimeAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.FdRunTimeArray, android.R.layout.simple_spinner_item);
-        FdRunTimeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        FdRunTimeCount.setAdapter(FdRunTimeAdapter);
-        FdRunTimeCount.setOnItemSelectedListener(new OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    long zoneIndex = parent.getItemIdAtPosition(position);
-                    panelData.setPanel("fdrun", FdRunTimeCount.getSelectedItem().toString());
-                    if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
-                        sendJson("fdrun", panelData.getPanelString("fdrun"));
-                }
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                    Toast.makeText(getActivity(), "Field Dose Run Spinner is NUL", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        final ArrayAdapter<CharSequence> recirRepeatAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.recirRepeatCountArray, android.R.layout.simple_spinner_item);
-        recirRepeatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        recirRepeatCount.setAdapter(recirRepeatAdapter);
-        recirRepeatCount.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long zoneIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("rrepeat", recirRepeatCount.getSelectedItem().toString());
-                if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    sendJson("rrepeat", panelData.getPanelString("rrepeat"));
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Recirculate Repeat Spinner is NUL", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        final ArrayAdapter<CharSequence> recirRunAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.recirRunCountArray, android.R.layout.simple_spinner_item);
-        recirRunAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        recirRunCount.setAdapter(recirRunAdapter);
-        recirRunCount.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long zoneIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("rrun", recirRunCount.getSelectedItem().toString());
-                if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    sendJson("rrun", panelData.getPanelString("rrun"));
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Recirculate Run Spinner is NUL", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        final ArrayAdapter<CharSequence> effPumpAlarmTimeAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.effPumpAlarmTimeCountArray, android.R.layout.simple_spinner_item);
-        effPumpAlarmTimeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        effPumpAlarmTimeCount.setAdapter(effPumpAlarmTimeAdapter);
-        effPumpAlarmTimeCount.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long zoneIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("rrun", effPumpAlarmTimeCount.getSelectedItem().toString());
-                if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    sendJson("rrun", panelData.getPanelString("rrun"));
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(getActivity(), "Effluent Pump Alarm Timeout Spinner is NUL", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
     }
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        long demandAlarmIndex = parent.getItemIdAtPosition(pos);
+        panelData.setPanel("dalrmtime", demandAlarmTime.getSelectedItem().toString());
+        if(demandAlarmIndex != 0)                                              // prevent from reseting Panel tank size on default
+            mainLooper.post(update5L);
+    }
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+        Toast.makeText(getActivity(), "Spinner Outside Nothing", Toast.LENGTH_SHORT).show();
+    }
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
@@ -404,8 +411,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if (id == R.id.clear) {
             receiveText.setText("");
             return true;
-        } else if (id == R.id.send_break) {
-            if (!connected) {
+        } else if( id == R.id.send_break) {
+            if(!connected) {
                 Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             } else {
                 try {
@@ -416,9 +423,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     spn.append("send <break>\n");
                     spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     //receiveText.append(spn);
-                } catch (UnsupportedOperationException ignored) {
+                } catch(UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
+                } catch(Exception e) {
                     Toast.makeText(getActivity(), "BREAK failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -427,16 +434,25 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             return super.onOptionsItemSelected(item);
         }
     }
+    /*
+     * Serial
+     */
+    @Override
     public void onNewData(byte[] data) {
         mainLooper.post(() -> {
             receive(data); });
     }
+    @Override
     public void onRunError(Exception e) {
         mainLooper.post(() -> {
             status("connection lost: " + e.getMessage());
             disconnect();
         });
     }
+
+    /*
+     * Serial + UI
+     */
     private void connect() {
         UsbDevice device = null;
         UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
@@ -542,42 +558,23 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         boolean enableMode;
         /* Status Banner */
         if(panelData.containsKey("bok"))
-            putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-        if(panelData.containsKey("bptest"))
-            putTextColor(effPumpTest, panelData.getPanelBool("bptest"));
+            putYellowAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
-        if(panelData.containsKey("brtest"))
-            putTextColor(recirTest, panelData.getPanelBool("brtest"));
-        if(panelData.containsKey("bfftest"))
-            putTextColor(ffTest, panelData.getPanelBool("bfftest"));
-        if(panelData.containsKey("bpertest"))
-            putTextColor(peristalticTest, panelData.getPanelBool("bpertest"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("balarm"))
+        if(panelData.containsKey("balarm")) {
             putRedAlarmTextColor(alarm, !panelData.getPanelBool("balarm"));
+            }
         if(panelData.containsKey("bLow"))
             putWaterLevelTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
-            putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
+            putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
-        if(panelData.containsKey("dosesday"))
-            dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
-        if(panelData.containsKey("fdrun"))
-            FdRunTime.setText(String.format("Pump Run Time (Field Dose):%s", panelData.getPanelString("fdrun")));
-        if(panelData.containsKey("rrepeat"))
-            recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %s", panelData.getPanelString("rrepeat")));
-        if(panelData.containsKey("rrun"))
-            recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
-        if(panelData.containsKey("effstat"))
-            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime"))
-            effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %s", panelData.getPanelString("palmtime")));
-        if(panelData.containsKey("zone"))
-            numberZones.setText(String.format("Number of Zones %s", panelData.getPanelString("zone")));
+            effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer"));
         if(panelData.containsKey("dow"))
             dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"dow\")")));
         if(panelData.containsKey(""))
@@ -596,6 +593,14 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             remoteMin = panelData.getPanelString("min");
         if (panelData.containsKey("sec"))
             remoteSec = panelData.getPanelString("sec");
+        if(panelData.containsKey("effstat")) {
+            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
+            putTextColor(effstat, panelData.getPanelBool("effstat"));
+
+        }
+        if (panelData.containsKey("dalrmtime")) {
+            demandAlarmTime.setSelection(((ArrayAdapter) demandAlarmTime.getAdapter()).getPosition(panelData.getPanelString("dalrmtime")));
+        }
         //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
     }
     public void modeEnable(RadioGroup main_mode) {
@@ -615,8 +620,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     public void showTankPopUp() {
         DialogFragment newFragment = new PopUpFragment();
-        assert getFragmentManager() != null;
-        newFragment.show(getFragmentManager(), "tank");
+        assert getParentFragmentManager() != null;
+        newFragment.show(getParentFragmentManager(), "tank");
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
@@ -671,6 +676,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         updateTime.append(":");
         updateTime.append(remoteSec);
         return(updateTime);
+    }
+    private void flowDataCallback() {
+
     }
     private void effPumpTestCallback() {
         if(panelData.getPanelBool("bptest")) {
@@ -813,7 +821,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         boolean key = false;
         boolean value = false;
 
-        if(!rx.isEmpty()){
+        if(rx.length() > 0){
             for(int k = 0; k < rx.length(); k++){
                 switch(rx.charAt(k)) {
                     case '{':                           // start case start key phase
@@ -828,7 +836,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                             //receiveText.append( K + ":" + V  + "\n");
                         }
                         else
-                            Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
                         keyString = "";
                         mainLooper.post(postMsg);       // Post Message to UI
                         break;

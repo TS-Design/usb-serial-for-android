@@ -23,5 +23,13 @@ public class PanelData {
     public boolean containsKey(String k) {
         return hmap.containsKey(k);
     }
+
+    public boolean getPanelBool(String k) {
+        return Boolean.parseBoolean(hmap.get(k));
+    }
+
+    public String getPanelString(String k) {
+        return hmap.get(k);
+    }
 }
 

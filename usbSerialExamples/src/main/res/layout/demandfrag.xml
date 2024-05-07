@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/demandLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginStart="@dimen/StartMarginFrag"
+    android:theme="@style/AppTheme">
+    <!--Mode Radio Group-->
+
+    <!--Time-->
+
+    <!--Time,Gallons Labels Here -->
+
+    <!-- Receive Stuff -->
+
+    <Button
+        android:id="@+id/alarmHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="144dp"
+        android:layout_marginTop="100dp"
+        android:background="@color/colorSendText"
+        android:text="Alarm History"
+        android:textColor="@color/RectangleNotSelected"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/note" />
+
+    <TextView
+        android:id="@+id/timeRemote"
+        android:layout_width="226dp"
+        android:layout_height="76dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:maxLines="2"
+        android:minLines="1"
+        android:paddingStart="10pt"
+        android:paddingTop="1dp"
+        android:paddingEnd="10pt"
+        android:paddingBottom="10pt"
+        android:text="00:00:00"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!--comment out recieve text-->
+
+    <ImageView
+        android:id="@+id/hootBug"
+        android:layout_width="80dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="108dp"
+        android:contentDescription="Hoot Logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/hoot_big" />
+
+    <TextView
+        android:id="@+id/textDemand"
+        android:layout_width="181dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="35dp"
+        android:text="On\nDemand"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/colorStatusText"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/timeRemote"
+        app:layout_constraintTop_toTopOf="@+id/timeRemote" />
+
+    <Button
+        android:id="@+id/systemOk"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="System OK"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/effstat"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="Effluent Pump"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/alarmReset"
+        app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
+
+    <Button
+        android:id="@+id/manual"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="28dp"
+        android:text="Manual (Blue)"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/effstat"
+        app:layout_constraintTop_toBottomOf="@+id/effstat" />
+
+    <Button
+        android:id="@+id/demandTimer"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="48dp"
+        android:text="Timer (YELLOW)"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/manual"
+        app:layout_constraintTop_toBottomOf="@+id/manual" />
+
+    <Button
+        android:id="@+id/alarmReset"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="48dp"
+        android:text="System Alarm Reset"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/alarmLatch"
+        app:layout_constraintTop_toBottomOf="@+id/alarmLatch" />
+
+    <TextView
+        android:id="@+id/flowData"
+        android:layout_width="206dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="44dp"
+        android:background="@color/light_blue_A200"
+        android:text="Water Flow Data"
+        android:textColor="@color/RectangleNotSelected"
+        android:textSize="25dp"
+        app:layout_constraintStart_toStartOf="@+id/demandAlarmTime"
+        app:layout_constraintTop_toBottomOf="@+id/demandAlarmTime" />
+
+    <TextView
+        android:id="@+id/note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="20dp"
+        android:text="Note: If RED View Alarm History Before Resetting."
+        android:textSize="12dp"
+        app:layout_constraintStart_toStartOf="@+id/flowData"
+        app:layout_constraintTop_toBottomOf="@+id/flowData" />
+
+    <TextView
+        android:id="@+id/effStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="128dp"
+        android:text="Effuent Pump Status"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/systemOk"
+        app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+
+    <TextView
+        android:id="@+id/airPressure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="Air Compressor Pressure WCI: 0"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/effStatus"
+        app:layout_constraintTop_toBottomOf="@+id/effStatus" />
+
+    <TextView
+        android:id="@+id/effPumpAlarmTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Effluent Pump Runtime Alarm Timer"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/airPressure"
+        app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+
+    <Button
+        android:id="@+id/alarmLatch"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Alarm Latching"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/airAlarm"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/alarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="System Alarm"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/systemOk"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/lowProbe"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Water Level Probe"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/alarm"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/airAlarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="100dp"
+        android:text="Aeration Problem"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/lowProbe"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/demandAlarmTime"
+        android:layout_width="170dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:entries="@array/demandAlarmTime"
+        app:layout_constraintStart_toStartOf="@+id/effPumpAlarmTime"
+        app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
