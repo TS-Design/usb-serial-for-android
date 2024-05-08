@@ -2,20 +2,22 @@
 <resources>
     <dimen name="ModeText">20sp</dimen>
     <dimen name="minWidth">50sp</dimen>
-    <dimen name="RadioHight">100dp</dimen>
+    <dimen name="RadioHeight">100dp</dimen>
     <dimen name="GallonTextSize">15sp</dimen>
     <dimen name="RadioButtonTextSize">20sp</dimen>
     <dimen name="ModeButtonMinWidth">50sp</dimen>
     <dimen name="RadioButtonMarginTop">20sp</dimen>
     <dimen name="RadioButtonBottomMargin">20sp</dimen>
     <dimen name="ModeTextSize">12sp</dimen>
-    <dimen name="anrTextSize">16sp</dimen>
+    <dimen name="anrTextSize">20sp</dimen>
     <dimen name="StartMarginFrag">1sp</dimen>
     <dimen name="flowMeterTxtSize">20sp</dimen>
     <dimen name="flowMenuHeaderTxtSize">30sp</dimen>
     <dimen name="spinnerWidth">50dp</dimen>
-    <dimen name="spinnerHeight">20dp</dimen>
+    <dimen name="spinnerHeight">50dp</dimen>
     <dimen name="spinnerMarginStart">16dp</dimen>
     <dimen name="AnrButtonTextSize">12sp</dimen>
     <dimen name="timeTextSize">16sp</dimen>
+    <dimen name="TestButtonWidth">50dp</dimen>
+    <dimen name="TestButtonHeight">50dp</dimen>
 </resources>
