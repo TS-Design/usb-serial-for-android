@@ -18,12 +18,15 @@ import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -32,7 +35,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.widget.PopupWindow;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -98,8 +101,11 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private TextView effStatus;
     private TextView airPressure;
     private TextView effPumpAlarmTime;
-
-    public Button systemOk;
+    private Button closePopupBtn;
+    private Button closeAlarmBtn;
+    private TextView gallontextwindow;
+    private TextView alarmTextWindow;
+    private Button systemOk;
     public Button effPumpTest;
     public Button alarmLatch;
     public Button alarmHistory;
@@ -122,6 +128,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public String remoteDay = "00";
     public String remoteMonth = "00";
     public boolean popUpDialogPosted = false;
+    PopupWindow popupWindow;
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
@@ -257,7 +264,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         alarmLatch = view.findViewById(R.id.alarmLatch);
         //receiveText = view.findViewById(R.id.receiveText);
         alarmHistory = view.findViewById(R.id.alarmHistory);
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
         recirTest = view.findViewById(R.id.recirTest);
         recirTest.setOnClickListener(v -> recirTestCallback());
         ffTest = view.findViewById(R.id.ffTest);
@@ -381,13 +387,44 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 long zoneIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("rrun", effPumpAlarmTimeCount.getSelectedItem().toString());
+                panelData.setPanel("effstat", effPumpAlarmTimeCount.getSelectedItem().toString());
                 if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    sendJson("rrun", panelData.getPanelString("rrun"));
+                    sendJson("effstat", panelData.getPanelString("effstat"));
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Effluent Pump Alarm Timeout Spinner is NUL", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Alarms
+        alarmHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //instantiate the popup.xml layout file
+                LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View customView = layoutInflater.inflate(R.layout.alarm_history, null);
+
+                closeAlarmBtn = (Button) customView.findViewById(R.id.closeAlarmBtn);
+                alarmTextWindow = (TextView) customView.findViewById(R.id.alarmTextWindow);
+                //instantiate popup window
+                popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+                //display the popup window
+                popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+                alarmTextWindow.setText("");
+                StringBuilder temp;
+                temp = new StringBuilder("Alarm List");
+                //temp.append(panelData.getPanelString("hours1"));
+                temp.append("\n\n");
+                alarmTextWindow.setText(temp);
+                //close the popup window on button click
+                closeAlarmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+                    }
+                });
             }
         });
 

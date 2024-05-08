@@ -262,7 +262,6 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         alarmLatch = view.findViewById(R.id.alarmLatch);
         alarm = view.findViewById(R.id.alarm);
         alarmHistory = view.findViewById(R.id.alarmHistory);
-        //alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
         timeRemote = view.findViewById(R.id.timeRemote);
         airAlarm = view.findViewById(R.id.airAlarm );
         //alarmProbe = view.findViewById(R.id.alarmProbe);
