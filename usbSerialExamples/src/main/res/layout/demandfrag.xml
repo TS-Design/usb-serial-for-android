@@ -65,7 +65,7 @@
         android:layout_marginStart="35dp"
         android:text="On\nDemand"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/colorStatusText"
+        android:textColor="@color/yellow"
         android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/timeRemote"
         app:layout_constraintTop_toTopOf="@+id/timeRemote" />

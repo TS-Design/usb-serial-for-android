@@ -1,5 +1,6 @@
 package com.hoho.android.usbserial.examples;
 
+import static com.hoho.android.usbserial.examples.R.layout.mode_spinner;
 import static java.util.List.of;
 
 import android.app.PendingIntent;
@@ -201,25 +202,18 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             demandAlarmTime.setSelection(((ArrayAdapter)demandAlarmTime.getAdapter()).getPosition(panelData.getPanelString("dalrmtime")));
         }
     };
-    final Runnable update5L = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
-            sendJson("dalrmtime", panelData.getPanelString("dalrmtime"));
-        }
+    final Runnable update5L = () -> {
+        Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
+        sendJson("dalrmtime", panelData.getPanelString("dalrmtime"));
     };
-    final Runnable update = new Runnable() {
-        public void run() {
-            //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
-            getPanelStatus();
-        }
+    final Runnable update = () -> {
+        //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
+        getPanelStatus();
     };
-    final Runnable postMsg = new Runnable() {
-        public void run() {
-            postDataLayer();
+    final Runnable postMsg = () -> {
+        postDataLayer();
 
-            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
-        }
+        //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
     };
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -280,8 +274,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         // dropdowns
         demandAlarmTime = view.findViewById(R.id.demandAlarmTime);
-        final ArrayAdapter<CharSequence> demandAlarmAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.demandAlarmTime, R.layout.mode_spinner);
-        demandAlarmAdapter.setDropDownViewResource(R.layout.mode_spinner);
+        final ArrayAdapter<CharSequence> demandAlarmAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.demandAlarmTime, mode_spinner);
+        demandAlarmAdapter.setDropDownViewResource(mode_spinner);
         demandAlarmTime.setAdapter(demandAlarmAdapter);
         demandAlarmTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -573,7 +567,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime"))
-            effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer"));
+            effPumpAlarmTime.setText("Effluent Pump Runtime Alarm Timer");
         if(panelData.containsKey("dow"))
             dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"dow\")")));
         if(panelData.containsKey(""))
@@ -857,7 +851,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

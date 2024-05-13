@@ -2,6 +2,7 @@
 <resources>
     <style name="MySpinnerLook"
         parent="@android:style/Widget.TextView.SpinnerItem">
-        <item name="android:textSize">@dimen/GallonTextSize</item>
+        <item name="android:textSize">@dimen/SpinnerTextSize</item>
+        <item name="android:gravity">right</item>
     </style>
 </resources>

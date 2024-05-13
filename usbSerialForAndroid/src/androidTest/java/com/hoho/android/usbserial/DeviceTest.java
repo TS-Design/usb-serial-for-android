@@ -80,7 +80,7 @@ public class DeviceTest {
 
     // testInstrumentationRunnerArguments configuration
     private static String  rfc2217_server_host;
-    private static int     rfc2217_server_port = 2217;
+    private static final int     rfc2217_server_port = 2217;
     private static boolean rfc2217_server_nonstandard_baudrates;
     private static String  test_device_driver;
     private static int     test_device_port;
@@ -330,7 +330,7 @@ public class DeviceTest {
             // silent fallback to 9600 for unsupported baud rates
             telnet.setParameters(9600, 8, 1, UsbSerialPort.PARITY_NONE);
             usb.setParameters(baudRate + 1 + (1<<29), 8, 1, UsbSerialPort.PARITY_NONE);
-            doReadWrite(String.valueOf(baudRate + 1) + " + 1<<29", readWait);
+            doReadWrite(baudRate + 1 + " + 1<<29", readWait);
         }
 
         // some PL2303... data sheets mention additional standard baud rates, others don't
@@ -347,7 +347,7 @@ public class DeviceTest {
             // silent fallback to 9600 for unsupported baud rates
             telnet.setParameters(9600, 8, 1, UsbSerialPort.PARITY_NONE);
             usb.setParameters(baudRate + (1<<29), 8, 1, UsbSerialPort.PARITY_NONE);
-            doReadWrite(String.valueOf(baudRate) + " + 1<<29", readWait);
+            doReadWrite(baudRate + " + 1<<29", readWait);
         }
     }
 

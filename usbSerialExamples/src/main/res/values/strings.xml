@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_title">Hoot HID Android App Rev 1.0</string>
+    <string name="app_title">Hoot HID Android App Rev 0.11</string>
     <string name="app_name">Hoot Systems Profile Selection</string>
     <string name="devices">USB Devices</string>
     <string name="buttonTextSize">20sp</string>
@@ -21,6 +21,7 @@
         <item>1500</item>
     </string-array>
     <string name="alert_name">AlertDialog</string>
-    <string name="dialog_message">Not Tanks Set</string>
+    <string name="dialog_message">No Tanks Set</string>
     <string name="dialog_title">Javatpoint Alert Dialog</string>
+    <string name="UiRevision">Rev 0.11</string>
 </resources>

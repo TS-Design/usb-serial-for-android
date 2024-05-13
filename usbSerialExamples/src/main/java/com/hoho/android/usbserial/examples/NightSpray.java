@@ -1,6 +1,5 @@
 package com.hoho.android.usbserial.examples;
 
-import static com.hoho.android.usbserial.examples.R.id.recirTest;
 import static java.util.List.of;
 
 import android.app.PendingIntent;
@@ -699,7 +698,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

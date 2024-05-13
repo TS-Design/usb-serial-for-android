@@ -34,7 +34,7 @@ public class TelnetWrapper {
     private TelnetClient telnetClient;
     private InputStream readStream;
     private OutputStream writeStream;
-    private ArrayList<int[]> commandResponse = new ArrayList<>();
+    private final ArrayList<int[]> commandResponse = new ArrayList<>();
     public int writeDelay = 0;
 
     public TelnetWrapper(String host, int port) {

@@ -3,7 +3,7 @@
     android:id="@+id/mode"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:maxLines="1"
+    android:maxLines="10"
     android:textColor="@android:color/secondary_text_dark"
 
     style="@style/MySpinnerLook">

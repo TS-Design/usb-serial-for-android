@@ -1,8 +1,6 @@
 package com.hoho.android.usbserial.examples;
 import static java.util.List.of;
 
-import java.util.HashMap;
-import java.util.*;
 import java.util.List;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -41,7 +39,6 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
-import java.util.Map;
 
 import android.graphics.Color;
 
@@ -694,7 +691,7 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

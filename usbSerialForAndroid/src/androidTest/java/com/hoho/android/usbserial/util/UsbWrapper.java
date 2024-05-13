@@ -38,7 +38,7 @@ public class UsbWrapper implements SerialInputOutputManager.Listener {
     public final static int     USB_WRITE_WAIT = 500;
     private static final String TAG = UsbWrapper.class.getSimpleName();
 
-    public enum OpenCloseFlags { NO_IOMANAGER_THREAD, NO_IOMANAGER_START, NO_CONTROL_LINE_INIT, NO_DEVICE_CONNECTION };
+    public enum OpenCloseFlags { NO_IOMANAGER_THREAD, NO_IOMANAGER_START, NO_CONTROL_LINE_INIT, NO_DEVICE_CONNECTION }
 
     // constructor
     final Context context;
@@ -125,7 +125,7 @@ public class UsbWrapper implements SerialInputOutputManager.Listener {
         if (serialDriver instanceof Cp21xxSerialDriver) {
             if (serialDriver.getPorts().size() == 1) { writePacketSize = 64; writeBufferSize = 576; }
             else if (serialPort.getPortNumber() == 0) { writePacketSize = 64; writeBufferSize = 320; }
-            else { writePacketSize = 32; writeBufferSize = 128; }; //, 160}; // write buffer size detection is unreliable
+            else { writePacketSize = 32; writeBufferSize = 128; }//, 160}; // write buffer size detection is unreliable
         } else if (serialDriver instanceof Ch34xSerialDriver) {
             writePacketSize = 32; writeBufferSize = 64;
         } else if (serialDriver instanceof ProlificSerialDriver) {

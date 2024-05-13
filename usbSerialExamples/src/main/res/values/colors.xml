@@ -5,7 +5,8 @@
     <color name="colorAccent">#D8E33B</color>
     <color name="colorRecieveText">#00FF00</color>
     <color name="colorSendText">#82CAFF</color>
-    <color name="colorStatusText">#FFDB58</color>
+    <color name="yellow">#FFDB58</color>
+    <color name="red">#E91E63</color>
     <color name="RectangleNotSelected">#575843</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>

@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
@@ -61,6 +62,10 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    private void onClick(View v1) {
+        popupWindow.dismiss();
     }
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
@@ -87,6 +92,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
+    private Button flowdata;
     private Spinner zoneCount;
     private TextView numberZones;
     private Spinner doseDayCount;
@@ -103,6 +109,11 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private TextView effPumpAlarmTime;
     // private Button closePopupBtn;
     private Button closeAlarmBtn;
+    private Button yellowInput;
+    private Button closeManualInputBtn;
+    private Button redInput;
+    private Button blueInput;
+    private Button manualInputTest;
     private TextView gallontextwindow;
     private TextView alarmTextWindow;
     private Button systemOk;
@@ -112,7 +123,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public Button ffTest;
     public Button recirTest;
     public Button alarmReset;
-    public Button manualTest;
     public Button alarm;
     public Button lowProbe;
     public Button airAlarm;
@@ -129,6 +139,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public String remoteMonth = "00";
     public boolean popUpDialogPosted = false;
     PopupWindow popupWindow;
+    PopupWindow manualInput;
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
@@ -142,7 +153,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             "dosesday", "fdrun", "rrepeat",
             "rrun", "effstat", "airpres",
             "palmtime", "zone", "balrmltch",
-            "bmantest", "balarm", "bLow", "bairalrm"
+            "bmantest", "bAlarm", "bLow", "bHigh", "bairalrm"
     );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
@@ -247,6 +258,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         View view = inflater.inflate(R.layout.anr_fragment, container, false);
         PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
+        flowdata = view.findViewById((R.id.flowData));
+        // flowdata.setOnClickListener(v -> flowData());
         alarmLatch = view.findViewById(R.id.alarmLatch);
        // receiveText = view.findViewById(R.id.receiveText);
         alarmHistory = view.findViewById(R.id.alarmHistory);
@@ -266,7 +279,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
-
         FdRunTime = view.findViewById(R.id.FdRunTime);
         dosesDay = view.findViewById(R.id.dosesDay);
         doseDayCount = view.findViewById(R.id.doseDayCount);
@@ -279,9 +291,10 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         recirRunCount = view.findViewById(R.id.recirRunCount);
         recirRunTime = view.findViewById(R.id.recirRunTime);
         recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
+        manualInputTest = view.findViewById(R.id.manualTest);
         // dropdowns
-        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, android.R.layout.simple_spinner_item);
-        zoneCountAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, R.layout.mode_spinner);
+        zoneCountAdapter.setDropDownViewResource(R.layout.mode_spinner);
         zoneCount.setAdapter(zoneCountAdapter);
         zoneCount.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -290,15 +303,15 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 panelData.setPanel("zone", zoneCount.getSelectedItem().toString());
                 if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
                     mainLooper.post(update5L);
+                ((TextView)view).setText(null);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Zone Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
         });
-
-        final ArrayAdapter<CharSequence> doseDayAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.doseDayArray, android.R.layout.simple_spinner_item);
-        doseDayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> doseDayAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.doseDayArray, R.layout.mode_spinner);
+        doseDayAdapter.setDropDownViewResource(R.layout.mode_spinner);
         doseDayCount.setAdapter(zoneCountAdapter);
         doseDayCount.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -307,6 +320,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 panelData.setPanel("dosesday", doseDayCount.getSelectedItem().toString());
                 if (zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
                     sendJson("dosesday", panelData.getPanelString("dosesday"));
+                ((TextView)view).setText(null);
             }
 
             @Override
@@ -314,9 +328,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 Toast.makeText(getActivity(), "Dose Day Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
         });
-
-        final ArrayAdapter<CharSequence> FdRunTimeAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.FdRunTimeArray, android.R.layout.simple_spinner_item);
-        FdRunTimeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> FdRunTimeAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.FdRunTimeArray, R.layout.mode_spinner);
+        FdRunTimeAdapter.setDropDownViewResource(R.layout.mode_spinner);
         FdRunTimeCount.setAdapter(FdRunTimeAdapter);
         FdRunTimeCount.setOnItemSelectedListener(new OnItemSelectedListener() {
                 @Override
@@ -325,15 +338,15 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     panelData.setPanel("fdrun", FdRunTimeCount.getSelectedItem().toString());
                     if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
                         sendJson("fdrun", panelData.getPanelString("fdrun"));
+                    ((TextView)view).setText(null);
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     Toast.makeText(getActivity(), "Field Dose Run Spinner is NUL", Toast.LENGTH_SHORT).show();
                 }
             });
-
-        final ArrayAdapter<CharSequence> recirRepeatAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.recirRepeatCountArray, android.R.layout.simple_spinner_item);
-        recirRepeatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> recirRepeatAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.recirRepeatCountArray, R.layout.mode_spinner);
+        recirRepeatAdapter.setDropDownViewResource(R.layout.mode_spinner);
         recirRepeatCount.setAdapter(recirRepeatAdapter);
         recirRepeatCount.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -342,15 +355,15 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 panelData.setPanel("rrepeat", recirRepeatCount.getSelectedItem().toString());
                 if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
                     sendJson("rrepeat", panelData.getPanelString("rrepeat"));
+                ((TextView)view).setText(null);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Recirculate Repeat Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
         });
-
-        final ArrayAdapter<CharSequence> recirRunAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.recirRunCountArray, android.R.layout.simple_spinner_item);
-        recirRunAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> recirRunAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.recirRunCountArray, R.layout.mode_spinner);
+        recirRunAdapter.setDropDownViewResource(R.layout.mode_spinner);
         recirRunCount.setAdapter(recirRunAdapter);
         recirRunCount.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -359,15 +372,15 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 panelData.setPanel("rrun", recirRunCount.getSelectedItem().toString());
                 if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
                     sendJson("rrun", panelData.getPanelString("rrun"));
+                ((TextView)view).setText(null);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Recirculate Run Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
         });
-
-        final ArrayAdapter<CharSequence> effPumpAlarmTimeAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.effPumpAlarmTimeCountArray, android.R.layout.simple_spinner_item);
-        effPumpAlarmTimeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> effPumpAlarmTimeAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.effPumpAlarmTimeCountArray, R.layout.mode_spinner);
+        effPumpAlarmTimeAdapter.setDropDownViewResource(R.layout.mode_spinner);
         effPumpAlarmTimeCount.setAdapter(effPumpAlarmTimeAdapter);
         effPumpAlarmTimeCount.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
@@ -376,21 +389,21 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 panelData.setPanel("palmtime", effPumpAlarmTimeCount.getSelectedItem().toString());
                 if(zoneIndex != 0)                                              // prevent from reseting Panel tank size on default
                     sendJson("palmtime", panelData.getPanelString("palmtime"));
+                ((TextView)view).setText(null);
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Effluent Pump Alarm Timeout Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
         });
-
         // Alarms
         alarmHistory.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
             LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View customView = layoutInflater.inflate(R.layout.alarm_history, null);
 
-            closeAlarmBtn = (Button) customView.findViewById(R.id.closeAlarmBtn);
-            alarmTextWindow = (TextView) customView.findViewById(R.id.alarmTextWindow);
+            closeAlarmBtn = customView.findViewById(R.id.closeAlarmBtn);
+            alarmTextWindow = customView.findViewById(R.id.alarmTextWindow);
             //instantiate popup window
             popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
@@ -405,7 +418,70 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             //close the popup window on button click
             closeAlarmBtn.setOnClickListener(v1 -> popupWindow.dismiss());
         });
+        manualInputTest.setOnClickListener(v -> {
+            //instantiate the popup.xml layout file
+            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
+            closeManualInputBtn = (Button) customView.findViewById(R.id.closeManualInputBtn);
+            yellowInput = (Button) customView.findViewById(R.id.yellowInput);
+            redInput = (Button) customView.findViewById(R.id.redInput);
+            blueInput = (Button) customView.findViewById(R.id.blueInput);
+            //instantiate popup window
+            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            //display the popup window
+            popupWindow.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
+            if(panelData.getPanelBool("bLow"))
+                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            else
+                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+            if(panelData.getPanelBool("bHigh"))
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+            else
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            if(panelData.getPanelBool("bAlarm"))
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+            else
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            sendJson("bENA", "true");
+            //close the popup window on button click
+            closeManualInputBtn.setOnClickListener(v12 -> {
+                sendJson("bENA", "false");
+                popupWindow.dismiss();
+            });
+
+            yellowInput.setOnClickListener(v13 -> {
+                if(panelData.getPanelBool("bLow")) {
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+                    sendJson("bLow", "false");
+                }
+                else {
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                    sendJson("bLow", "true");
+                }
+            });
+            blueInput.setOnClickListener(v14 -> { // Alarm probe
+                if(panelData.getPanelBool("bAlarm")) {
+                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                    sendJson("bAlarm", "false");
+                }
+                else {
+                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+                    sendJson("bAlarm", "true");
+                }
+            });
+            redInput.setOnClickListener(v15 -> {  //High Probe
+                if(panelData.getPanelBool("bHigh")) {
+                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                    sendJson("bHigh", "false");
+                }
+                else {
+                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+                    sendJson("bHigh", "true");
+                }
+            });
+         });
         /* Start Update timer to sync UI   */
+        sendJson("zone", "1");
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
     }
@@ -451,6 +527,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             disconnect();
         });
     }
+
     private void connect() {
         UsbDevice device = null;
         UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
@@ -527,7 +604,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     private void putBlueAlarmTextColor(TextView tv, boolean value) {
         if (value) {
-            tv.setTextColor(Color.BLACK);
+             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
         } else {
             tv.setTextColor(Color.BLUE);
@@ -569,9 +646,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             putTextColor(peristalticTest, panelData.getPanelBool("bpertest"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("balarm"))
-            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("balarm"));
-        if(panelData.containsKey("bLow"))
+        if(panelData.containsKey("bAlarm"))  //System OK
+            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bAlarm"));
+        if(panelData.containsKey("bLow"))   //Water Level
             putWaterLevelTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
@@ -584,8 +661,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %s", panelData.getPanelString("rrepeat")));
         if(panelData.containsKey("rrun"))
             recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
-        if(panelData.containsKey("effstat"))
-            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
+        if(panelData.containsKey("effstat")) {
+            if(Objects.equals(panelData.getPanelString("effstat"), "true"))
+                    effStatus.setText(String.format("Effuent Pump Status :%s", "On"));
+            else
+                effStatus.setText(String.format("Effuent Pump Status :%s", "Off"));
+        }
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime"))
@@ -716,11 +797,11 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     private void manualTestCallback() {
         if(panelData.getPanelBool("bmantest")) {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             sendJson("bmantest", "false");
         }
         else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
             sendJson("bmantest", "true");
         }
     }
@@ -830,7 +911,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                             //receiveText.append( K + ":" + V  + "\n");
                         }
                         else
-                            Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
                         keyString = "";
                         mainLooper.post(postMsg);       // Post Message to UI
                         break;
@@ -852,7 +933,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorStatusText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }
