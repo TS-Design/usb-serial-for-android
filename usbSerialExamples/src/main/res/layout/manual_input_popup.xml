@@ -7,39 +7,39 @@
 
     <Button
         android:id="@+id/yellowInput"
-        android:layout_width="100sp"
-        android:layout_height="60sp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="@dimen/ManualPopUpWidth"
+        android:layout_height="@dimen/ManualButtonHeight"
+        android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
         android:text="YELLOW/Timer"
         app:layout_constraintBottom_toTopOf="@+id/blueInput"
         app:layout_constraintStart_toStartOf="@+id/blueInput" />
 
     <Button
         android:id="@+id/redInput"
-        android:layout_width="100sp"
-        android:layout_height="60sp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="@dimen/ManualPopUpWidth"
+        android:layout_height="@dimen/ManualButtonHeight"
+        android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
         android:text="RED/Alarm"
         app:layout_constraintBottom_toTopOf="@+id/closeManualInputBtn"
         app:layout_constraintStart_toStartOf="@+id/closeManualInputBtn" />
 
     <Button
         android:id="@+id/closeManualInputBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/ManualPopUpWidth"
+        android:layout_height="@dimen/ManualButtonHeight"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
         android:text="Close"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/blueInput"
-        android:layout_width="100sp"
-        android:layout_height="60sp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="@dimen/ManualPopUpWidth"
+        android:layout_height="@dimen/ManualButtonHeight"
+        android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
         android:text="BLUE/Manual"
         app:layout_constraintBottom_toTopOf="@+id/redInput"
         app:layout_constraintStart_toStartOf="@+id/redInput" />

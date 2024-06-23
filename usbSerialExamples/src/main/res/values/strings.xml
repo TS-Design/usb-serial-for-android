@@ -14,14 +14,12 @@
 
     <string-array name="tankArray">
         <item>0</item>
-        <item>250</item>
-        <item>500</item>
-        <item>750</item>
-        <item>1000</item>
-        <item>1500</item>
+        <item>500/600</item>
+        <item>750/900</item>
+        <item>1000/1200</item>
     </string-array>
     <string name="alert_name">AlertDialog</string>
     <string name="dialog_message">No Tanks Set</string>
     <string name="dialog_title">Javatpoint Alert Dialog</string>
-    <string name="UiRevision">Rev 0.11</string>
+    <string name="UiRevision">Rev 0.20</string>
 </resources>

@@ -2,8 +2,6 @@ package com.hoho.android.usbserial.examples;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import java.util.ArrayList;
-import java.util.List;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,13 +24,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -45,8 +44,13 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class TerminalFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
@@ -57,12 +61,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 200;
+    private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
     private final boolean UiMessageSent = false;
+    public String priorityCommandValue;
+    public String priorityCommand;
+    public boolean priorityCommandEnabled;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
@@ -87,6 +94,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
     /* Hoot adds */
+    public String tankSizeString = "";
     public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
@@ -105,19 +113,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
      */
     public List<String> updateCommandList;
     {
-        //        "bCL",
-        //        "bAlarm",
-        //        "bHigh",
-        //        "bLow",
-        //        "bWM",
         updateCommandList = new ArrayList<>();
         updateCommandList.add("mode");
-        updateCommandList.add("year");
-        updateCommandList.add("month");
-        updateCommandList.add("day");
-        updateCommandList.add("hour");
-        updateCommandList.add("min");
-        updateCommandList.add("sec");
+        updateCommandList.add("time");
         updateCommandList.add("tank");
         updateCommandList.add("bmantest");
     }
@@ -137,6 +135,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             }
         };
         mainLooper = new Handler(Looper.getMainLooper());
+        priorityCommandEnabled = false;
+        priorityCommandValue = null;
+        priorityCommandValue = null;
     }
     /*
      * Lifecycle
@@ -144,8 +145,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     final Runnable timeHandler = new Runnable() {
         @Override
         public void run() {
-            String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
-            timeRemote.setText(time);
+            //String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
+            timeRemote.setText(panelData.getPanelString("time"));
             mainLooper.postDelayed(timeHandler,1000);
         }
     };
@@ -183,10 +184,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     };
     final Runnable update = new Runnable() { // Send next command to Panel
         public void run() {
-            //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
-            //getPanelStatus();
             mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
-            //mainLooper.postDelayed(clearAck, 200);
             if (connected) {
                 if(panelData.containsKey("bmantest")) {
                     if (panelData.getPanelString("bmantest").equals("true")) {                    // inset manual in this timeslot {
@@ -194,15 +192,40 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                         //break;
                     }
                 }
-                sendJson(updateCommandList.get(commandListIndex++), "Query");
+
+                if(priorityCommandEnabled == true) {
+                    sendJson(priorityCommand, priorityCommandValue);
+                    priorityCommandEnabled = false;
+                }
+                else
+                    sendJson(updateCommandList.get(commandListIndex++), "Query");
                 if (commandListIndex == commandLength)
                     commandListIndex = 0;
             }
         }
     };
+
     final Runnable postMsg = new Runnable() {
         public void run() {
             postDataLayer();
+
+            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+        }
+    };
+    final Runnable setPanelTime = new Runnable() {
+        public void run() {
+            String currentDate = new SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(new Date());
+            String currentTime = new SimpleDateFormat("HH mm ss", Locale.getDefault()).format(new Date());
+            if (connected) {
+                String uiTime = currentTime + " " + currentDate;
+                priorityCommandEnabled = true;
+                priorityCommand = "time";
+                priorityCommandValue = uiTime;
+                //sendJson("time", uiTime);
+            }
+            else
+                mainLooper.postDelayed(setPanelTime,1000);
+
 
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
@@ -277,7 +300,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 long tankIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("tank", tankDropDown.getSelectedItem().toString());
+                if(tankIndex == 3)
+                    tankSizeString = "1000";
+                else if(tankIndex == 2)
+                    tankSizeString = "750";
+                else if(tankIndex == 1)
+                    tankSizeString = "500";
+                else
+                    tankSizeString = "0";
+                panelData.setPanel("tank", tankSizeString);
                 if(tankIndex != 0)                                              // prevent from reseting Panel tank size on default
                     mainLooper.post(updateTank);
             }
@@ -289,6 +320,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         });
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        mainLooper.postDelayed(setPanelTime, 1);
         return view;
     }
 
@@ -423,7 +455,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     public void postDataLayer() {
         boolean enableMode = false;
-
+        String tankItemIndex = "";
         if (panelData.containsKey("mode")) {          // Set Mode Radio Button
             if (panelData.getPanelString("mode").equals("bANR"))
                 main_mode.check(R.id.banr);
@@ -445,9 +477,19 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 main_mode.check(R.id.binit);
         }
         if (panelData.containsKey("tank")) {
-            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(panelData.getPanelString("tank")));
+            tankItemIndex = "0";
+            if (panelData.getPanelString("tank").equals( "500"))
+                tankItemIndex = "500/600";
+            if (panelData.getPanelString("tank").equals( "750"))
+                tankItemIndex = "750/900";
+            if (panelData.getPanelString("tank").equals("1000"))
+                tankItemIndex = "1000/1200";
+
+            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(tankItemIndex));
             enableMode = !panelData.getPanelString("tank").equals("0");
         }
+        if(panelData.containsKey("time"))
+
         for(int i = 0; i < main_mode.getChildCount(); i++){
             main_mode.getChildAt(i).setEnabled(enableMode);
         }
@@ -468,22 +510,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         //            mainLooper.post(modeSpinner);
         //          }
 
-        /*        else if (panelData.getPanelBool("dow"))
-            remoteDow = dataLayer.getVALUE();
-        else if ((panelData.getPanelBool("day"))
-            remoteDay = dataLayer.getVALUE();
-        else if ((panelData.getPanelBool("month"))
-            remoteMonth = dataLayer.getVALUE();
-        else if ((panelData.getPanelBool("year"))
-            remoteYear = dataLayer.getVALUE();
-        else if ((panelData.getPanelBool("hrs"))
-            remoteHr = dataLayer.getVALUE();
-        else if ((panelData.getPanelBool("min"))
-            remoteMin = dataLayer.getVALUE();
-        else if ((panelData.getPanelBool("sec")) {
-            remoteSec = dataLayer.getVALUE();
-            timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
-        }*/
+
         //       else
         //Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
     }
@@ -790,7 +817,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     case '"':                           // ignore these
                     case '\n':
                     case '\r':
-                    case ' ':
+                    //case ' ':
                         break;
                     default:
                         keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string

@@ -300,7 +300,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 View customView = layoutInflater.inflate(R.layout.gallons_popup, null);
 
                 closePopupBtn = (Button) customView.findViewById(R.id.closePopupBtn);
-                gallontextwindow = (TextView) customView.findViewById(R.id.gallontextwindow);
+                gallontextwindow = (TextView) customView.findViewById(R.id.gallonTextWindow);
                 //instantiate popup window
                 popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 

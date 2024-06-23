@@ -20,7 +20,7 @@
         android:textSize="@dimen/flowMenuHeaderTxtSize" />
 
     <Button
-        android:id="@+id/closePopupBtn"
+        android:id="@+id/closeGallonsBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -29,7 +29,7 @@
         android:text="Close" />
 
     <TextView
-        android:id="@+id/gallontextwindow"
+        android:id="@+id/gallonTextWindow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/gallonPopText"

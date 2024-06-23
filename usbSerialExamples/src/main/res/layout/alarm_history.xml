@@ -12,11 +12,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
         android:text="-- Alarm Log --"
         android:textSize="@dimen/flowMenuHeaderTxtSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="55dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/closeAlarmBtn"
@@ -43,15 +44,28 @@
 
     <TextView
         android:id="@+id/alarmTextWindow"
-        android:layout_width="590dp"
-        android:layout_height="514dp"
+        android:layout_width="503dp"
+        android:layout_height="738dp"
         android:layout_below="@+id/alarmPopText"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="68dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="24dp"
+        android:scrollbars="vertical"
         android:text="No Alarms\n"
         android:textSize="@dimen/flowMeterTxtSize"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/alarmPopText" />
+
+    <TextView
+        android:id="@+id/textAlarmTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toStartOf="@+id/alarmPopText"
+        app:layout_constraintHorizontal_bias="0.484"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
