@@ -1,12 +1,13 @@
 package com.hoho.android.usbserial.examples;
+
 import static java.util.List.of;
 
-import java.util.List;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -23,15 +24,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -39,10 +39,9 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
+import java.util.List;
 
-import android.graphics.Color;
-
-public class manualClass extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+public class manualClass extends TerminalFragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
     //public HashMap<String, String> panelData;
 
@@ -137,13 +136,13 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
     /*
      * Lifecycle
      */
-    final Runnable timeHandler = new Runnable() {  // Post Time not used
+/*    final Runnable timeHandler = new Runnable() {  // Post Time not used
         @Override
         public void run() {
             //timeRemote.setText(dataLayer.getTime());
             mainLooper.postDelayed(timeHandler,1000);
         }
-    };
+    };*/
     final Runnable update = new Runnable() { // Read Panel Status
         public void run() {
             //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
@@ -167,7 +166,7 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
-        mainLooper.postDelayed(timeHandler,1000);
+        //mainLooper.postDelayed(timeHandler,1000);
     }
     @Override
     public void onResume() {
@@ -313,8 +312,9 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
     @Override
     public void onRunError(Exception e) {
         mainLooper.post(() -> {
+
             status("connection lost: " + e.getMessage());
-            disconnect();
+            //disconnect();
         });
     }
 
@@ -654,6 +654,7 @@ public class manualClass extends Fragment implements SerialInputOutputManager.Li
             parse(data);
         }
     }
+
     public void parse(byte[] data) {
         String rx = new String(data);
         String K = null;

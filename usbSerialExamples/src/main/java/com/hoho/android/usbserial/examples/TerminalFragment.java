@@ -146,7 +146,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         @Override
         public void run() {
             //String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
-            timeRemote.setText(panelData.getPanelString("time"));
+            if(timeRemote != null)
+                timeRemote.setText(panelData.getPanelString("time"));
             mainLooper.postDelayed(timeHandler,1000);
         }
     };
@@ -651,6 +652,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         TerminalLayout = getLayoutInflater().inflate(R.layout.manual_main, parent, false);
         parent.addView(TerminalLayout, index);*/
         //sendJson("bANR","true");
+        disconnect();
         sendJson("bmantest","true");                // suspend current panel mode
         Bundle args = new Bundle();
         args.putInt("device", deviceId);

@@ -167,8 +167,8 @@
      android:id="@+id/dosesDay"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginStart="12dp"
+     android:layout_marginTop="20dp"
      android:text="Dose Setting per Day (Field Dose):"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
@@ -285,27 +285,6 @@
      app:layout_constraintStart_toEndOf="@+id/effPumpAlarmTime"
      app:layout_constraintTop_toTopOf="@+id/effPumpAlarmTime" />
 
- <TextView
-     android:id="@+id/numberZones"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
-     android:text="Number of Zones:"
-     android:textSize="@dimen/anrTextSize"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
-
- <Spinner
-     android:id="@+id/zoneCount"
-     android:layout_width="@dimen/spinnerWidth"
-     android:layout_height="@dimen/spinnerHeight"
-     android:entries="@array/zoneCountItems"
-     android:gravity="right"
-     app:layout_constraintStart_toEndOf="@+id/numberZones"
-     app:layout_constraintStart_toStartOf="@+id/doseDayCount"
-     app:layout_constraintTop_toTopOf="@+id/numberZones" />
-
  <Button
      android:id="@+id/alarmLatch"
      android:layout_width="100dp"
@@ -352,6 +331,32 @@
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/lowProbe"
      app:layout_constraintTop_toTopOf="parent" />
+
+ <TextView
+     android:id="@+id/numberZones"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="24dp"
+     android:text="Number of Zones:"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+
+
+ <EditText
+     android:id="@+id/zoneCount"
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="14dp"
+     android:clickable="true"
+     android:inputType="number"
+     android:text="1"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toEndOf="@+id/numberZones"
+     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.hoho.android.usbserial.examples;
 import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,10 +30,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -78,6 +83,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
+    private boolean keypadOn = false;
+
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
     //private final boolean UiMessageSent = false;
@@ -98,8 +105,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
-    private Spinner zoneCount;
-    private TextView numberZones;
+    //private Spinner zoneCount;
+    private EditText zoneCount;
     private Spinner doseDayCount;
     private Spinner recirRepeatCount;
     private Spinner recirRunCount;
@@ -304,8 +311,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         dosesDay = view.findViewById(R.id.dosesDay);
         doseDayCount = view.findViewById(R.id.doseDayCount);
         lowProbe = view.findViewById(R.id.lowProbe);
-        numberZones = view.findViewById(R.id.numberZones);
-        zoneCount = view.findViewById(R.id.zoneCount);
+       // numberZones = view.findViewById(R.id.numberZones);
         FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
         effPumpAlarmTimeCount = view.findViewById(R.id.effPumpAlarmTimeCount);
         recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
@@ -313,8 +319,23 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         recirRunTime = view.findViewById(R.id.recirRunTime);
         recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
         manualInputTest = view.findViewById(R.id.manualTest);
+
+        zoneCount = (EditText) view.findViewById(R.id.zoneCount);
+        zoneCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    sendPriorityCommand("zone",zoneCount.getText().toString());
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);                    zoneCount.clearFocus();
+                    keypadOn = false;
+                    handled = true;
+                }
+                return handled;
+            }
+        });
         // dropdowns
-        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, R.layout.mode_spinner);
+/*        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, R.layout.mode_spinner);
         zoneCountAdapter.setDropDownViewResource(R.layout.mode_spinner);
         zoneCount.setAdapter(zoneCountAdapter);
         zoneCount.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -330,7 +351,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Zone Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
-        });
+        }); */
 
         final ArrayAdapter<CharSequence> doseDayAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.doseDayArray, R.layout.mode_spinner);
         doseDayAdapter.setDropDownViewResource(R.layout.mode_spinner);
@@ -803,7 +824,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
         if(panelData.containsKey("zone"))
-            numberZones.setText(String.format("Number of Zones %s", panelData.getPanelString("zone")));
+            if(!zoneCount.hasFocus())
+                zoneCount.setText(String.format(panelData.getPanelString("zone")));
         if (panelData.containsKey("dow"))
             remoteDow = panelData.getPanelString("dow");
         if (panelData.containsKey("day"))
