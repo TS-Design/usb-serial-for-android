@@ -19,10 +19,11 @@
     <dimen name="AnrButtonTextSize">12sp</dimen>
     <dimen name="timeTextSize">16sp</dimen>
     <dimen name="TestButtonWidth">110sp</dimen>
-    <dimen name="TestButtonHeight">60sp</dimen>
+    <dimen name="TestButtonHeight">50sp</dimen>
     <dimen name="SpinnerRightMargin">100sp</dimen>
     <dimen name="SpinnerTextSize">20sp</dimen>
     <dimen name="ManualPopUpWidth">150sp</dimen>
     <dimen name="ManualButtonHeight">50sp</dimen>
     <dimen name="ManualButtonBottomMargin">8dp</dimen>
+    <dimen name="ANR_Top_Margin">24dp</dimen>
 </resources>

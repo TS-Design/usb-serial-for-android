@@ -5,71 +5,63 @@
     android:id="@+id/manualCancel"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+    <CheckBox
+        android:id="@+id/maintSO0"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="SO0 J5-5/6 "
+        app:layout_constraintStart_toStartOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
+    <CheckBox
+        android:id="@+id/maintSO1"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="28dp"
+        android:text="SO1 J5-2/3  "
+        app:layout_constraintStart_toStartOf="@+id/maintSO0"
+        app:layout_constraintTop_toBottomOf="@+id/maintSO0" />
+    <CheckBox
+        android:id="@+id/maintSO2"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="SO2 J5-1/2 "
+        app:layout_constraintStart_toStartOf="@+id/maintSO1"
+        app:layout_constraintTop_toBottomOf="@+id/maintSO1" />
     <CheckBox
         android:id="@+id/RY1"
         android:layout_width="wrap_content"
         android:layout_height="59dp"
         android:layout_marginTop="28dp"
-        android:text="Unassigned (RY1)  "
-        app:layout_constraintStart_toStartOf="@+id/peristolic"
-        app:layout_constraintTop_toBottomOf="@+id/peristolic" />
-
-    <CheckBox
-        android:id="@+id/recirculate"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:text="Recirculate(SO1)  "
-        app:layout_constraintStart_toStartOf="@+id/manualOutHeader"
-        app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
-
-    <CheckBox
-        android:id="@+id/effpump2"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:text="Effluent Pump (RY4)  "
-        app:layout_constraintStart_toStartOf="@+id/effpump"
-        app:layout_constraintTop_toBottomOf="@+id/effpump" />
-
-    <CheckBox
-        android:id="@+id/effpump"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:text="Effluent Pump (RY3)  "
-        app:layout_constraintStart_toStartOf="@+id/RY2"
-        app:layout_constraintTop_toBottomOf="@+id/RY2" />
-
-    <CheckBox
-        android:id="@+id/filterFlush"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:text="Filter Flush (SO2)  "
-        app:layout_constraintStart_toStartOf="@+id/recirculate"
-        app:layout_constraintTop_toBottomOf="@+id/recirculate" />
-
-    <CheckBox
-        android:id="@+id/peristolic"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_marginTop="32dp"
-        android:text="Peristolic Pump (SO3 DPump)  "
-        app:layout_constraintStart_toStartOf="@+id/filterFlush"
-        app:layout_constraintTop_toBottomOf="@+id/filterFlush" />
-
+        android:text="RY1 J1-1"
+        app:layout_constraintStart_toStartOf="@+id/maintSO2"
+        app:layout_constraintTop_toBottomOf="@+id/maintSO2" />
     <CheckBox
         android:id="@+id/RY2"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="32dp"
-        android:text="Unassigned (RY2)  "
+        android:text="RY2 J1-2 "
         app:layout_constraintStart_toStartOf="@+id/RY1"
         app:layout_constraintTop_toBottomOf="@+id/RY1" />
-
+    <CheckBox
+        android:id="@+id/RY3"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="RY3 J1-3 "
+        app:layout_constraintStart_toStartOf="@+id/RY2"
+        app:layout_constraintTop_toBottomOf="@+id/RY2" />
+    <CheckBox
+        android:id="@+id/RY4"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="32dp"
+        android:text="RY4 J1-4"
+        app:layout_constraintStart_toStartOf="@+id/RY3"
+        app:layout_constraintTop_toBottomOf="@+id/RY3" />
     <TextView
         android:id="@+id/manualOutHeader"
         android:layout_width="137dp"
@@ -83,7 +75,6 @@
         android:textSize="34sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/manualInHeader"
         android:layout_width="137dp"
@@ -97,7 +88,6 @@
         android:textSize="34sp"
         app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
         app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/maintLowProbe"
         android:layout_width="100dp"
@@ -117,7 +107,6 @@
         android:text="High Probe"
         app:layout_constraintStart_toStartOf="@+id/maintLowProbe"
         app:layout_constraintTop_toBottomOf="@+id/maintLowProbe" />
-
     <TextView
         android:id="@+id/maintAlarmProbe"
         android:layout_width="100dp"
@@ -127,5 +116,4 @@
         android:text="Alarm Probe"
         app:layout_constraintStart_toStartOf="@+id/maintHiProbe"
         app:layout_constraintTop_toBottomOf="@+id/maintHiProbe" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

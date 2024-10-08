@@ -1,14 +1,18 @@
 package com.hoho.android.usbserial.examples;
-
+/*
+* Hoot Android APP
+*
+* Version 2.12  Change ANR Pump OFF on start up
+*               Manual Screen has new output labels but some outputs turn off immediately
+*  Version 2.12
+* */
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
-import android.os.Handler;
-import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;/**/
+import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
 

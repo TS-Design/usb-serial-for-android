@@ -19,7 +19,7 @@
  <Button
      android:id="@+id/alarmHistory"
      android:layout_width="100sp"
-     android:layout_height="50sp"
+     android:layout_height="@dimen/TestButtonHeight"
      android:layout_marginStart="8dp"
      android:layout_marginTop="20dp"
      android:background="@color/colorSendText"
@@ -32,7 +32,7 @@
  <Button
      android:id="@+id/flowData"
      android:layout_width="100sp"
-     android:layout_height="50sp"
+     android:layout_height="@dimen/TestButtonHeight"
      android:layout_marginStart="16sp"
      android:background="@color/light_blue_A200"
      android:text="Water Flow Data"
@@ -45,7 +45,7 @@
  <Button
      android:id="@+id/manualTest"
      android:layout_width="100sp"
-     android:layout_height="50sp"
+     android:layout_height="@dimen/TestButtonHeight"
      android:layout_marginStart="32dp"
      android:background="@color/light_blue_A200"
      android:text="Manual Inputs"
@@ -116,8 +116,8 @@
      android:id="@+id/effPumpTest"
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="8dp"
-     android:layout_marginTop="36dp"
+     android:layout_marginStart="12dp"
+     android:layout_marginTop="76dp"
      android:text=" Effluent Pump"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toStartOf="parent"
@@ -127,7 +127,8 @@
      android:id="@+id/ffTest"
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginTop="16dp"
+     android:layout_marginStart="4dp"
+     android:layout_marginTop="8dp"
      android:text="Field Flush"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toStartOf="@+id/effPumpTest"
@@ -163,92 +164,140 @@
      app:layout_constraintStart_toEndOf="@+id/alarmReset"
      app:layout_constraintTop_toTopOf="@+id/alarmReset" />
 
+ <!--Variable List Start -->
+
+ <TextView
+     android:id="@+id/numberZones"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="12dp"
+     android:layout_marginTop="8dp"
+     android:text="Number of Zones:"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+
+ <EditText
+     android:id="@+id/zoneCount"
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="364dp"
+     android:layout_marginTop="160dp"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toTopOf="parent" />
+
  <TextView
      android:id="@+id/dosesDay"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
-     android:layout_marginStart="12dp"
-     android:layout_marginTop="20dp"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="@dimen/ANR_Top_Margin"
      android:text="Dose Setting per Day (Field Dose):"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/numberZones" />
 
- <Spinner
+ <EditText
      android:id="@+id/doseDayCount"
-     android:layout_width="@dimen/spinnerWidth"
-     android:layout_height="@dimen/spinnerHeight"
-     android:entries="@array/doseDayArray"
-     app:layout_constraintStart_toEndOf="@+id/dosesDay"
-     app:layout_constraintStart_toStartOf="@+id/FdRunTimeCount"
-     app:layout_constraintTop_toTopOf="@+id/dosesDay" />
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:layout_marginTop="8dp"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="@+id/zoneCount"
+     app:layout_constraintTop_toBottomOf="@+id/zoneCount" />
 
  <TextView
      android:id="@+id/FdRunTime"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginTop="24dp"
      android:text="Pump Run Time (Field Dose):"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/dosesDay" />
 
- <Spinner
+
+ <EditText
      android:id="@+id/FdRunTimeCount"
-     android:layout_width="@dimen/spinnerWidth"
-     android:layout_height="@dimen/spinnerHeight"
-     android:entries="@array/FdRunTimeArray"
-     app:layout_constraintStart_toEndOf="@+id/FdRunTime"
-     app:layout_constraintStart_toStartOf="@+id/recirRepeatCount"
-     app:layout_constraintTop_toTopOf="@+id/FdRunTime" />
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:layout_marginTop="4dp"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="@+id/doseDayCount"
+     app:layout_constraintTop_toBottomOf="@+id/doseDayCount" />
 
  <TextView
      android:id="@+id/recirRepeatTime"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginStart="12dp"
+     android:layout_marginTop="24dp"
      android:text="Water Pump Recir Repeat Cycle Timer:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/FdRunTime" />
 
- <Spinner
+ <EditText
      android:id="@+id/recirRepeatCount"
-     android:layout_width="@dimen/spinnerWidth"
-     android:layout_height="@dimen/spinnerHeight"
-     android:entries="@array/recirRepeatCountArray"
-     app:layout_constraintStart_toEndOf="@+id/recirRepeatTime"
-     app:layout_constraintStart_toStartOf="@+id/recirRunCount"
-     app:layout_constraintTop_toTopOf="@+id/recirRepeatTime" />
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="@+id/FdRunTimeCount"
+     app:layout_constraintTop_toBottomOf="@+id/FdRunTimeCount" />
 
  <TextView
      android:id="@+id/recirRunTime"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginTop="24dp"
      android:text="Water Pump Recirc Run Timer:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/recirRepeatTime" />
 
- <Spinner
+ <EditText
      android:id="@+id/recirRunCount"
-     android:layout_width="@dimen/spinnerWidth"
-     android:layout_height="@dimen/spinnerHeight"
-     android:entries="@array/recirRunCountArray"
-     app:layout_constraintStart_toEndOf="@+id/recirRunTime"
-     app:layout_constraintStart_toStartOf="@+id/effPumpAlarmTimeCount"
-     app:layout_constraintTop_toTopOf="@+id/recirRunTime" />
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:layout_marginTop="1dp"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="@+id/recirRepeatCount"
+     app:layout_constraintTop_toBottomOf="@+id/recirRepeatCount" />
 
  <TextView
      android:id="@+id/effStatus"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginTop="24dp"
      android:text="Effuent Pump Status"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
@@ -259,7 +308,7 @@
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginTop="24dp"
      android:text="Air Compressor Pressure WCI:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
@@ -270,20 +319,49 @@
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
-     android:layout_marginTop="7dp"
+     android:layout_marginTop="24dp"
      android:text="Effluent Pump Runtime Alarm Timer:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/airPressure" />
 
- <Spinner
+ <EditText
      android:id="@+id/effPumpAlarmTimeCount"
-     android:layout_width="@dimen/spinnerWidth"
-     android:layout_height="@dimen/spinnerHeight"
-     android:entries="@array/effPumpAlarmTimeCountArray"
-     app:layout_constraintEnd_toEndOf="parent"
-     app:layout_constraintStart_toEndOf="@+id/effPumpAlarmTime"
-     app:layout_constraintTop_toTopOf="@+id/effPumpAlarmTime" />
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:layout_marginTop="104dp"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="@+id/recirRunCount"
+     app:layout_constraintTop_toBottomOf="@+id/recirRunCount" />
+
+ <TextView
+     android:id="@+id/peristolticDoseText"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_marginStart="16dp"
+     android:layout_marginTop="76dp"
+     android:text="Peristoltic Pump dose Setting:3"
+     android:textSize="@dimen/anrTextSize"
+     app:layout_constraintStart_toStartOf="parent"
+     app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+
+ <EditText
+     android:id="@+id/peristolticCount"
+     android:layout_width="50dp"
+     android:layout_height="wrap_content"
+     android:clickable="true"
+     android:imeOptions="actionDone"
+     android:inputType="number"
+     android:text="0"
+     android:textAlignment="viewStart"
+     android:textSize="20sp"
+     app:layout_constraintStart_toStartOf="@+id/effPumpAlarmTimeCount"
+     app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTimeCount" />
 
  <Button
      android:id="@+id/alarmLatch"
@@ -331,32 +409,6 @@
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/lowProbe"
      app:layout_constraintTop_toTopOf="parent" />
-
- <TextView
-     android:id="@+id/numberZones"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="24dp"
-     android:text="Number of Zones:"
-     android:textSize="@dimen/anrTextSize"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
-
-
- <EditText
-     android:id="@+id/zoneCount"
-     android:layout_width="50dp"
-     android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="14dp"
-     android:clickable="true"
-     android:inputType="number"
-     android:text="1"
-     android:textAlignment="viewStart"
-     android:textSize="20sp"
-     app:layout_constraintStart_toEndOf="@+id/numberZones"
-     app:layout_constraintTop_toBottomOf="@+id/systemOk" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

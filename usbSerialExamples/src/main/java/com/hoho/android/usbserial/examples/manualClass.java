@@ -74,13 +74,13 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     private TextView maintLowProbe;
     private TextView maintHiProbe;
     private TextView maintAlarmProbe;
-    private CheckBox recirculate;
-    private CheckBox effpump2;
-    private CheckBox effpump;
-    private CheckBox filterFlush;
-    private CheckBox peristolic;
     private CheckBox RY1;
     private CheckBox RY2;
+    private CheckBox RY3;
+    private CheckBox RY4;
+    private CheckBox maintSO1;
+    private CheckBox maintSO2;
+    private CheckBox maintSO0;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
@@ -102,23 +102,20 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
      */
     //public List<String, String> panelData;
     public static List<String> updateCommandList = of(
-        "balarm",
+        "bAlarm",
         "bHigh",
         "bLow",
+        "so0",
+        "so1",
+        "so2",
         "bry1",
         "bry2",
-        "bptest",
-        "bptest2",
-        "bpertest",
-        "bfftest",
-        "brtest",
-        "airpres"
-        //"bmantest"                  // UI manual mode
+        "bry3",
+        "bry4"
     );
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
-   // public HashMap panelData;
-            // Creating an empty HashMap
+   // public HashMap panelData;            // Creating an empty HashMap
 
     public manualClass() {
         broadcastReceiver = new BroadcastReceiver() {
@@ -194,24 +191,42 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         maintLowProbe = view.findViewById(R.id.maintLowProbe);
         maintAlarmProbe = view.findViewById(R.id.maintAlarmProbe);
         maintHiProbe = view.findViewById(R.id.maintHiProbe);
+        maintSO0 = view.findViewById(R.id.maintSO0);
+        maintSO1 = view.findViewById(R.id.maintSO1);
+        maintSO2 = view.findViewById(R.id.maintSO2);
+        maintSO0.setOnClickListener(v -> so0Callback());
+        maintSO1.setOnClickListener(v -> so1Callback());
+        maintSO2.setOnClickListener(v -> so2Callback());
         RY1 = view.findViewById(R.id.RY1);
         RY2 = view.findViewById(R.id.RY2);
-        recirculate = view.findViewById(R.id.recirculate);
-        effpump = view.findViewById(R.id.effpump);
-        effpump2 = view.findViewById(R.id.effpump2);
-        filterFlush = view.findViewById(R.id.filterFlush);
-        peristolic = view.findViewById(R.id.peristolic);
+        RY3 = view.findViewById(R.id.RY3);
+        RY4 = view.findViewById(R.id.RY4);
         /* CallBacks */
         RY1.setOnClickListener(v -> RY1Callback());  // something is always true
         RY2.setOnClickListener(v -> RY2Callback());
-        recirculate.setOnClickListener(v -> recirculateCallback());
-        effpump.setOnClickListener(v -> effpumpCallback());
-        effpump2.setOnClickListener(v -> effpump2Callback());
-        filterFlush.setOnClickListener(v -> filterFlushCallback());
-        peristolic.setOnClickListener(v -> peristolicCallback());
+        RY3.setOnClickListener(v -> RY3Callback());
+        RY4.setOnClickListener(v -> Ry4Callbacks());
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
+    }
+    private void so0Callback() {
+        if(maintSO0.isChecked())
+            sendJson("so0","true");
+        else
+            sendJson("so0","false");
+    }
+    private void so1Callback()  {
+        if(maintSO1.isChecked())
+            sendJson("so1","true");
+        else
+            sendJson("so1","false");
+    }
+    private void so2Callback() {
+        if(maintSO2.isChecked())
+            sendJson("so2","true");
+        else
+            sendJson("so2","false");
     }
     private void RY1Callback() {
         if(RY1.isChecked())
@@ -225,35 +240,17 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         else
             sendJson("bry2","false");
     }
-    private void peristolicCallback() {
-        if(peristolic.isChecked())
-            sendJson("bpertest","true");
+    private void RY3Callback() {
+        if(RY3.isChecked())
+            sendJson("bry3","true");
         else
-            sendJson("bpertest","false");
+            sendJson("bry3","false");
     }
-    private void filterFlushCallback() {
-        if(filterFlush.isChecked())
-            sendJson("bfftest","true");
+    private void Ry4Callbacks() {
+        if(RY4.isChecked())
+            sendJson("bry4","true");
         else
-            sendJson("bfftest","false");
-    }
-    private void effpump2Callback() {
-        if(effpump2.isChecked())
-            sendJson("bptest2","true");
-        else
-            sendJson("bptest2","false");
-    }
-    private void effpumpCallback() {
-        if(effpump.isChecked())
-            sendJson("bptest","true");
-        else
-            sendJson("bptest","false");
-    }
-    private void recirculateCallback()  {
-        if(recirculate.isChecked())
-            sendJson("brtest","true");
-        else
-            sendJson("brtest","false");
+            sendJson("bry4","false");
     }
 
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -313,7 +310,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     public void onRunError(Exception e) {
         mainLooper.post(() -> {
 
-            status("connection lost: " + e.getMessage());
+                status("connection lost: " + e.getMessage());
             //disconnect();
         });
     }
@@ -402,24 +399,23 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
             putTextColor(maintLowProbe, panelData.getPanel("bLow"));
         if(panelData.containsKey("bHigh"))
             putTextColor(maintHiProbe, panelData.getPanel("bHigh"));
-        if(panelData.containsKey("balarm"))
-            putTextColor(maintAlarmProbe, panelData.getPanel("balarm"));
-        if(panelData.containsKey("bptest"))
-            putTextColor(effpump, panelData.getPanel("bptest"));
-        if(panelData.containsKey("bLow"))
-            if(panelData.containsKey("bptest2"))
-            putTextColor(effpump2, panelData.getPanel("bptest2"));
-        if(panelData.containsKey("brtest"))
-            putTextColor(recirculate, panelData.getPanel("brtest"));
-        if(panelData.containsKey("bfftest"))
-            putTextColor(filterFlush, panelData.getPanel("bfftest"));
-        if(panelData.containsKey("bpertest"))
-            putTextColor(peristolic, panelData.getPanel("bpertest"));
+        if(panelData.containsKey("bAlarm"))
+            putTextColor(maintAlarmProbe, panelData.getPanel("bAlarm"));
+
+        if(panelData.containsKey("so0"))
+            putTextColor(maintSO0, panelData.getPanel("so0"));
+        if(panelData.containsKey("so1"))
+            putTextColor(maintSO1, panelData.getPanel("so1"));
+        if(panelData.containsKey("so2"))
+            putTextColor(maintSO2, panelData.getPanel("so2"));
         if(panelData.containsKey("bry1"))
             putTextColor(RY1, panelData.getPanel("bry1"));
         if(panelData.containsKey("bry2"))
             putTextColor(RY2, panelData.getPanel("bry2"));
-
+        if(panelData.containsKey("bry3"))
+            putTextColor(RY3, panelData.getPanel("bry3"));
+        if(panelData.containsKey("bry4"))
+            putTextColor(RY4, panelData.getPanel("bry4"));
        }
     /*        if ((dataLayer.getKEY()).equals("mode")) {
             //dataLayer.setMode(dataLayer.getVALUE());
@@ -557,38 +553,6 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         else if (activeButton == bdmd)
             bdmd.setTextColor(Color.GREEN);
     }*/
-       private void gravCallback () {
-           sendJson("bGRAV", "true");
-       }
-    /*  private void banrCallback() {
-        sendJson("bANR","true");
-        Bundle args = new Bundle();
-        args.putInt("device", deviceId);
-        args.putInt("port", portNum);
-        args.putInt("baud", baudRate);
-        args.putBoolean("withIoManager", withIoManager);
-        Fragment TerminalFragment = new AnrFragment();
-        TerminalFragment.setArguments(args);
-        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "anr").addToBackStack(null).commit();
-    }*/
-       private void bbnrCallback() {
-           sendJson("bBNR", "true");
-       }
-       private void bspyCallback () {
-           sendJson("bSPY", "true");
-       }
-       private void bdmdCallback () {
-           sendJson("bDMD", "true");
-       }
-       private void bdripCallback () {
-           sendJson("bDRIP", "true");
-       }
-       private void binitCallback () {
-//        if(dataLayer.getTank().equals("0") && main_mode.isEnabled())
-//            main_mode.setEnabled(false);
-//        else
-//            main_mode.setEnabled(true);
-       }
        private boolean sendJson (String cmd, String value){
            int j = 0;
            SpannableStringBuilder json = new SpannableStringBuilder();

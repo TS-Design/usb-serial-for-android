@@ -61,7 +61,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
-    private static final int UPDATE_INTERVAL_MILLIS = 100;
+    private static final int UPDATE_INTERVAL_MILLIS = 200;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -136,7 +136,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         };
         mainLooper = new Handler(Looper.getMainLooper());
         priorityCommandEnabled = false;
-        priorityCommandValue = null;
+        //priorityCommandValue = null;
         priorityCommandValue = null;
     }
     /*
@@ -188,13 +188,14 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
             if (connected) {
                 if(panelData.containsKey("bmantest")) {
-                    if (panelData.getPanelString("bmantest").equals("true")) {                    // inset manual in this timeslot {
-                        sendJson("bmantest", "false");                // resume current panel mode
-                        //break;
+                    if (panelData.getPanelString("bmantest").equals("true")) {                    // Clear Manual Test if true
+                        priorityCommandEnabled = true;
+                        priorityCommandValue = "false";
+                        priorityCommand = "bmantest";
                     }
                 }
 
-                if(priorityCommandEnabled == true) {
+                if(priorityCommandEnabled == true) {                                // Prempt command loop if priority command
                     sendJson(priorityCommand, priorityCommandValue);
                     priorityCommandEnabled = false;
                 }
@@ -652,8 +653,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         TerminalLayout = getLayoutInflater().inflate(R.layout.manual_main, parent, false);
         parent.addView(TerminalLayout, index);*/
         //sendJson("bANR","true");
-        disconnect();
         sendJson("bmantest","true");                // suspend current panel mode
+        disconnect();
         Bundle args = new Bundle();
         args.putInt("device", deviceId);
         args.putInt("port", portNum);

@@ -33,12 +33,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -107,18 +104,17 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     //static boolean cmd_busy = false;
     //private Spinner zoneCount;
     private EditText zoneCount;
-    private Spinner doseDayCount;
-    private Spinner recirRepeatCount;
-    private Spinner recirRunCount;
-    private TextView recirRepeatTime;
-    private TextView recirRunTime;
-    private Spinner effPumpAlarmTimeCount;
-    private Spinner FdRunTimeCount;
-    private TextView FdRunTime;
-    private TextView dosesDay;
+    private EditText doseDayCount;
+    private EditText recirRepeatCount;
+    private EditText recirRunCount;
+    private EditText effPumpAlarmTimeCount;
+    private EditText FdRunTimeCount;
+    private EditText peristolticCount;
+    //private TextView FdRunTime;
+    //private TextView dosesDay;
     private TextView effStatus;
     private TextView airPressure;
-    private TextView effPumpAlarmTime;
+    //private TextView effPumpAlarmTime;
     // private Button closePopupBtn;
     private Button closeAlarmBtn;
     private Button clearAlarm;
@@ -299,7 +295,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         peristalticTest.setOnClickListener(v -> peristalticTestCallback());
         effPumpTest = view.findViewById(R.id.effPumpTest);
         effPumpTest.setOnClickListener(v -> effPumpTestCallback());
-        effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
+        //effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         effStatus = view.findViewById(R.id.effStatus);
         timeRemote = view.findViewById(R.id.timeRemote);
         airAlarm = view.findViewById(R.id.airAlarm);
@@ -307,17 +303,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
-        FdRunTime = view.findViewById(R.id.FdRunTime);
-        dosesDay = view.findViewById(R.id.dosesDay);
-        doseDayCount = view.findViewById(R.id.doseDayCount);
         lowProbe = view.findViewById(R.id.lowProbe);
-       // numberZones = view.findViewById(R.id.numberZones);
-        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
-        effPumpAlarmTimeCount = view.findViewById(R.id.effPumpAlarmTimeCount);
-        recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
-        recirRunCount = view.findViewById(R.id.recirRunCount);
-        recirRunTime = view.findViewById(R.id.recirRunTime);
-        recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
         manualInputTest = view.findViewById(R.id.manualTest);
 
         zoneCount = (EditText) view.findViewById(R.id.zoneCount);
@@ -327,8 +313,99 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     sendPriorityCommand("zone",zoneCount.getText().toString());
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);                    zoneCount.clearFocus();
-                    keypadOn = false;
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    zoneCount.clearFocus();
+                    //keypadOn = false;
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+        doseDayCount = view.findViewById(R.id.doseDayCount);
+        doseDayCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    sendPriorityCommand("dosesday",doseDayCount.getText().toString());
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    doseDayCount.clearFocus();
+                    handled = true;
+                }
+
+                return handled;
+            }
+        });
+        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
+        FdRunTimeCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int fdrun = parseInt(FdRunTimeCount.getText().toString())*60;
+                    sendPriorityCommand("fdrun",Integer.toString(fdrun));
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    FdRunTimeCount.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+        recirRunCount = view.findViewById(R.id.recirRunCount);
+        recirRunCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int rrun = parseInt(recirRunCount.getText().toString())*60;
+                    sendPriorityCommand("rrun",Integer.toString(rrun));
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    recirRunCount.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+        recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
+        recirRepeatCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                     int rrepeat = parseInt(recirRepeatCount.getText().toString())*60;
+                    sendPriorityCommand("rrepeat",Integer.toString(rrepeat));
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    recirRepeatCount.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+        effPumpAlarmTimeCount = view.findViewById(R.id.effPumpAlarmTimeCount);
+        effPumpAlarmTimeCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int palmtime = parseInt(effPumpAlarmTimeCount.getText().toString())*60;
+                    sendPriorityCommand("palmtime",Integer.toString(palmtime));
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    effPumpAlarmTimeCount.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+        peristolticCount = view.findViewById(R.id.peristolticCount);
+        peristolticCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int perdur = parseInt(peristolticCount.getText().toString());
+                    sendPriorityCommand("perdur",Integer.toString(perdur));
+                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    peristolticCount.clearFocus();
                     handled = true;
                 }
                 return handled;
@@ -353,7 +430,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }); */
 
-        final ArrayAdapter<CharSequence> doseDayAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.doseDayArray, R.layout.mode_spinner);
+/*        final ArrayAdapter<CharSequence> doseDayAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.doseDayArray, R.layout.mode_spinner);
         doseDayAdapter.setDropDownViewResource(R.layout.mode_spinner);
         doseDayCount.setAdapter(doseDayAdapter);
         doseDayCount.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -450,7 +527,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             public void onNothingSelected(AdapterView<?> parent) {
                 Toast.makeText(getActivity(), "Effluent Pump Alarm Timeout Spinner is NUL", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
         // Alarms manual input and flow data Listeners
         flowData.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
@@ -782,29 +859,36 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if(panelData.containsKey("bairalrm"))
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         // Variables
-        if(panelData.containsKey("dosesday"))
-            dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
-        if(panelData.containsKey("fdrun")) {
+        if(panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
+            doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));
+        if(panelData.containsKey("fdrun") && !FdRunTimeCount.hasFocus()) {
             if(panelData.getPanelString("fdrun").contentEquals("")) {
-                int fdrun = 0;
-                FdRunTime.setText(String.format("Pump Run Time (Field Dose):%d", fdrun));
+                int fdrun = 100;
+                FdRunTimeCount.setText(String.format("%d", fdrun));
             }
             else {
-                int fdrun = parseInt(panelData.getPanelString("fdrun"));
-                FdRunTime.setText(String.format("Pump Run Time (Field Dose):%d", fdrun /60));
+                int fdrun = parseInt(panelData.getPanelString("fdrun"))/60;
+                FdRunTimeCount.setText(String.format("%d",fdrun));
             }
         }
-        if(panelData.containsKey("rrepeat"))
-            if(panelData.getPanelString("rrepeat").contentEquals("")) {
+        if(panelData.containsKey("rrepeat") && !recirRepeatCount.hasFocus()) {
+            if (panelData.getPanelString("rrepeat").contentEquals("")) {
                 int rrepeat = 0;
-                recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %d", rrepeat));
+                recirRepeatCount.setText(String.format("%d", rrepeat));
+            } else {
+                int rrepeat = parseInt(panelData.getPanelString("rrepeat"))/60;
+                recirRepeatCount.setText(String.format("%d", rrepeat));
             }
-            else {
-                int rrepeat = parseInt(panelData.getPanelString("rrepeat"));
-                recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %d", rrepeat /60));
+        }
+        if(panelData.containsKey("rrun") && !recirRunCount.hasFocus()) {
+            if (panelData.getPanelString("rrun").contentEquals("")) {
+                int rrun = 0;
+                recirRunCount.setText(String.format("%d", rrun));
+            } else {
+                int rrun = parseInt(panelData.getPanelString("rrun"));
+                recirRunCount.setText(String.format("%d", rrun / 60));
             }
-        if(panelData.containsKey("rrun"))
-            recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
+        }
         if(panelData.containsKey("effstat")) {
             if(Objects.equals(panelData.getPanelString("effstat"), "true"))
                     effStatus.setText(String.format("Effuent Pump Status :%s", "On"));
@@ -813,19 +897,21 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
-        if(panelData.containsKey("palmtime")) {
+        if(panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
             if(panelData.getPanelString("palmtime").contentEquals("")) {
                 int palmtime = 0;
-                effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %d", palmtime / 60));
+                effPumpAlarmTimeCount.setText(String.format("%d", palmtime / 60));
             }
             else {
                 int palmtime = parseInt(panelData.getPanelString("palmtime"));
-                effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %d", palmtime /60));
+                effPumpAlarmTimeCount.setText(String.format("%d", palmtime /60));
             }
         }
-        if(panelData.containsKey("zone"))
-            if(!zoneCount.hasFocus())
-                zoneCount.setText(String.format(panelData.getPanelString("zone")));
+        if(panelData.containsKey("zone") && !zoneCount.hasFocus())
+            zoneCount.setText(String.format(panelData.getPanelString("zone")));
+        if(panelData.containsKey("perdur") && !peristolticCount.hasFocus())
+            peristolticCount.setText(String.format(panelData.getPanelString("perdur")));
+        // end Variables
         if (panelData.containsKey("dow"))
             remoteDow = panelData.getPanelString("dow");
         if (panelData.containsKey("day"))
