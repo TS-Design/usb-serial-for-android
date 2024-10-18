@@ -119,14 +119,21 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private Button closeAlarmBtn;
     private Button clearAlarm;
     private TextView textAlarmTime;
+    private TextView alarmTextWindow;
     private Button closeGallonsBtn;
     private Button yellowInput;
     private Button closeManualInputBtn;
     private Button redInput;
     private Button blueInput;
     private Button manualInputTest;
-    private TextView gallonTextWindow;
-    private TextView alarmTextWindow;
+    private TextView hourTotalValue;
+    private TextView hourlyAverageValue;
+    private TextView dailyTotalValue;
+    private TextView thirtyDayTotalValue;
+    private TextView thirtyDayTotalAverageValue;
+    private TextView lifetimeDaysValue;
+    private TextView lifetimeValue;
+    private TextView lifetimeDaysAverageValue;
     private Button systemOk;
     public Button effPumpTest;
     public Button alarmLatch;
@@ -184,7 +191,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     "bairalrm",
                     "flow",
                     "log",
-                    "time"
+                    "time",
+                    "perdur"
             )
     );
     public int commandLength = updateCommandList.size();
@@ -282,7 +290,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.anr_fragment, container, false);
-        PopUpFragment popUpFragment;
+        // PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
         flowData = view.findViewById((R.id.flowData));
         alarmLatch = view.findViewById(R.id.alarmLatch);
@@ -533,50 +541,35 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             //instantiate the popup.xml layout file
             LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View customView = layoutInflater.inflate(R.layout.gallons_popup, null);
-
+            manualInputTest.setEnabled(false);
             closeGallonsBtn = customView.findViewById(R.id.closeGallonsBtn);
-            gallonTextWindow = customView.findViewById(R.id.gallonTextWindow);
+            hourTotalValue = customView.findViewById(R.id.hourTotalValue);
+            hourlyAverageValue = customView.findViewById(R.id.hourlyAverageValue);
+            dailyTotalValue = customView.findViewById(R.id.dailyTotalValue);
+            thirtyDayTotalValue = customView.findViewById(R.id.thirtyDayTotalValue);
+            thirtyDayTotalAverageValue = customView.findViewById(R.id.thirtyDayTotalAverageValue);
+            lifetimeValue = customView.findViewById(R.id.lifetimeValue);
+            lifetimeDaysAverageValue = customView.findViewById(R.id.lifetimeDaysAverageValue);
+            lifetimeDaysValue = customView.findViewById(R.id.lifetimeDaysValue);
             //instantiate popup window
             popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
             //display the popup window
             popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-            gallonTextWindow.setText("");
-            StringBuilder temp;
-            temp = new StringBuilder("Water Hourly Total:");
-            temp.append(panelData.getPanelString("hours1"));
-            temp.append("\n\n");
-            gallonTextWindow.setText(temp);
-            temp = new StringBuilder("Hourly Average:");
-            temp.append(panelData.getPanelString("hourAvg"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
-            temp = new StringBuilder("Water Meter 24 Hour Daily Total:");
-            temp.append(panelData.getPanelString("hours24"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
-            temp = new StringBuilder("Water Meter 30 Day Total:");
-            temp.append(panelData.getPanelString("day30"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
-            temp = new StringBuilder("Water Meter 30 Day Average:");
-            temp.append(panelData.getPanelString("day30Avg"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
-            temp = new StringBuilder("Water Meter Lifetime Total:");
-            temp.append(panelData.getPanelString("life"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
-            temp = new StringBuilder("Water Meter Lifetime days:");
-            temp.append(panelData.getPanelString("lifedays"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
-            temp = new StringBuilder("Water Meter Lifetime Average days:");
-            temp.append(panelData.getPanelString("lifetimeAvg"));
-            temp.append("\n\n");
-            gallonTextWindow.append(temp);
+
+            hourTotalValue.setText(panelData.getPanelString("hours1"));
+            hourlyAverageValue.setText(panelData.getPanelString("hourAvg"));
+            dailyTotalValue.setText(panelData.getPanelString("day1"));
+            thirtyDayTotalValue.setText(panelData.getPanelString("day30"));
+            thirtyDayTotalAverageValue.setText(panelData.getPanelString("day30Avg"));
+            lifetimeDaysValue.setText(panelData.getPanelString("lifedays"));
+            lifetimeValue.setText(panelData.getPanelString("life"));
+            lifetimeDaysAverageValue.setText(panelData.getPanelString("lifetimeAvg"));
             //close the popup window on button click
-            closeGallonsBtn.setOnClickListener(v16 -> popupWindow.dismiss());
+            closeGallonsBtn.setOnClickListener(v16 -> {
+                manualInputTest.setEnabled(true);
+                popupWindow.dismiss();
+            });
         });
         alarmHistory.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
@@ -898,10 +891,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
-            if(panelData.getPanelString("palmtime").contentEquals("")) {
-                int palmtime = 0;
-                effPumpAlarmTimeCount.setText(String.format("%d", palmtime / 60));
-            }
+            if(panelData.getPanelString("palmtime").contentEquals(""))
+                effPumpAlarmTimeCount.setText(String.format("%d", 0));
             else {
                 int palmtime = parseInt(panelData.getPanelString("palmtime"));
                 effPumpAlarmTimeCount.setText(String.format("%d", palmtime /60));
@@ -909,8 +900,19 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
         if(panelData.containsKey("zone") && !zoneCount.hasFocus())
             zoneCount.setText(String.format(panelData.getPanelString("zone")));
-        if(panelData.containsKey("perdur") && !peristolticCount.hasFocus())
-            peristolticCount.setText(String.format(panelData.getPanelString("perdur")));
+
+        //if(panelData.containsKey("perdur") && !peristolticCount.hasFocus())
+        //    peristolticCount.setText(String.format(panelData.getPanelString("perdur")));
+
+        if(panelData.containsKey("perdur") && !peristolticCount.hasFocus()) {
+            if(panelData.getPanelString("perdur").contentEquals(""))
+                peristolticCount.setText(String.format("%d", 0));
+            else {
+                int perdur = parseInt(panelData.getPanelString("perdur"));
+                peristolticCount.setText(String.format("%d", perdur));
+            }
+        }
+
         // end Variables
         if (panelData.containsKey("dow"))
             remoteDow = panelData.getPanelString("dow");
@@ -1111,12 +1113,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         try {
             byte[] data = (str + '\n').getBytes();
             SpannableStringBuilder spn = new SpannableStringBuilder();
-            /* spn.append("send " + data.length + " bytes\n");
-            spn.append(HexDump.dumpHexString(data)).append("\n");
-            spn.append(data + "\n");*/
             spn.append(str);
             spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            //receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             onRunError(e);

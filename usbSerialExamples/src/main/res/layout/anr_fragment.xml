@@ -343,12 +343,12 @@
      android:id="@+id/peristolticDoseText"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="76dp"
-     android:text="Peristoltic Pump dose Setting:3"
+     android:layout_marginStart="24dp"
+     android:layout_marginTop="30dp"
+     android:text="Carbon Pump dose Setting: "
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+     app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
 
  <EditText
      android:id="@+id/peristolticCount"

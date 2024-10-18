@@ -16,8 +16,179 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
-        android:text="-- Water Flow Data --"
+        android:text="-- GPD Flow Data --"
         android:textSize="@dimen/flowMenuHeaderTxtSize" />
+
+    <TextView
+        android:id="@+id/HourTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="85dp"
+        android:text="Water Hourly Total "
+        android:textSize="@dimen/flowMeterTxtSize" />
+    <TextView
+        android:id="@+id/hourTotalValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/HourTotal"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="0dp"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/hourlyAverage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/HourTotal"
+        android:layout_alignStart="@+id/HourTotal"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Hourly Average "
+        android:textSize="@dimen/flowMeterTxtSize" />
+    <TextView
+        android:id="@+id/hourlyAverageValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/hourlyAverage"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="0dp"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/dailyTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/hourlyAverage"
+        android:layout_alignStart="@+id/hourlyAverage"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Water Meter 24 Hour Daily Total "
+        android:textSize="@dimen/flowMeterTxtSize" />
+    <TextView
+        android:id="@+id/dailyTotalValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/hourlyAverage"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/thirtyDayTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dailyTotal"
+        android:layout_alignStart="@+id/hourlyAverage"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Water Meter 30 Day Total "
+        android:textSize="@dimen/flowMeterTxtSize" />
+    <TextView
+        android:id="@+id/thirtyDayTotalValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dailyTotalValue"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/thirtyDayAverageTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/thirtyDayTotal"
+        android:layout_alignStart="@+id/thirtyDayTotal"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Water Meter 30 Day Average "
+        android:textSize="@dimen/flowMeterTxtSize" />
+    <TextView
+        android:id="@+id/thirtyDayTotalAverageValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/thirtyDayTotalValue"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/lifetimeTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/thirtyDayAverageTotal"
+        android:layout_alignStart="@+id/thirtyDayAverageTotal"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Water Meter Lifetime Total "
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/lifetimeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/thirtyDayTotalAverageValue"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/lifetimeDays"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lifetimeTotal"
+        android:layout_alignStart="@+id/lifetimeTotal"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Water Meter Lifetime Days "
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/lifetimeDaysValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lifetimeValue"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/lifetimeDaysAverage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lifetimeDays"
+        android:layout_alignStart="@+id/lifetimeTotal"
+        android:layout_marginStart="-4dp"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="Water Meter Lifetime Days Average "
+        android:textSize="@dimen/flowMeterTxtSize" />
+
+    <TextView
+        android:id="@+id/lifetimeDaysAverageValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lifetimeDaysValue"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/flowValueOffset"
+        android:layout_marginTop="@dimen/flowVerticalSpacing"
+        android:text="0"
+        android:textSize="@dimen/flowMeterTxtSize" />
 
     <Button
         android:id="@+id/closeGallonsBtn"
@@ -28,15 +199,4 @@
         android:layout_marginBottom="10dp"
         android:text="Close" />
 
-    <TextView
-        android:id="@+id/gallonTextWindow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/gallonPopText"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="10dp"
-        android:textSize="@dimen/flowMeterTxtSize"
-        android:text="Water Hourly Total 00" />
-
- </RelativeLayout>
+</RelativeLayout>

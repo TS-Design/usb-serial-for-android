@@ -26,4 +26,6 @@
     <dimen name="ManualButtonHeight">50sp</dimen>
     <dimen name="ManualButtonBottomMargin">8dp</dimen>
     <dimen name="ANR_Top_Margin">24dp</dimen>
+    <dimen name="flowValueOffset">400dp</dimen>
+    <dimen name="flowVerticalSpacing">30dp</dimen>
 </resources>

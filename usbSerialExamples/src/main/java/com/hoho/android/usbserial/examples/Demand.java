@@ -89,6 +89,14 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private TextView numberZones;
     private TextView flowData;
     private TextView alarmLatchStatus;
+    private TextView hourTotalValue;
+    private TextView hourlyAverageValue;
+    private TextView dailyTotalValue;
+    private TextView thirtyDayTotalValue;
+    private TextView thirtyDayTotalAverageValue;
+    private TextView lifetimeDaysValue;
+    private TextView lifetimeValue;
+    private TextView lifetimeDaysAverageValue;
 
     public Button systemOk;
     public Button effPumpTest;
@@ -108,6 +116,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private Button demandTimer;
     private Button closePopupBtn;
     private Button closeAlarmBtn;
+    private Button closeGallonsBtn;
     private TextView gallontextwindow;
     private TextView alarmTextWindow;
     public String keyString = "";
@@ -299,47 +308,29 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 LayoutInflater layoutInflater = (LayoutInflater) Demand.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View customView = layoutInflater.inflate(R.layout.gallons_popup, null);
 
-                closePopupBtn = (Button) customView.findViewById(R.id.closePopupBtn);
-                gallontextwindow = (TextView) customView.findViewById(R.id.gallonTextWindow);
+                closeGallonsBtn = customView.findViewById(R.id.closeGallonsBtn);
+                hourTotalValue = customView.findViewById(R.id.hourTotalValue);
+                hourlyAverageValue = customView.findViewById(R.id.hourlyAverageValue);
+                dailyTotalValue = customView.findViewById(R.id.dailyTotalValue);
+                thirtyDayTotalValue = customView.findViewById(R.id.thirtyDayTotalValue);
+                thirtyDayTotalAverageValue = customView.findViewById(R.id.thirtyDayTotalAverageValue);
+                lifetimeValue = customView.findViewById(R.id.lifetimeValue);
+                lifetimeDaysAverageValue = customView.findViewById(R.id.lifetimeDaysAverageValue);
+                lifetimeDaysValue = customView.findViewById(R.id.lifetimeDaysValue);
                 //instantiate popup window
                 popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
                 //display the popup window
                 popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-                gallontextwindow.setText("");
-                StringBuilder temp;
-                temp = new StringBuilder("Water Hourly Total:");
-                temp.append(panelData.getPanelString("hours1"));
-                temp.append("\n\n");
-                gallontextwindow.setText(temp);
-                temp = new StringBuilder("Hourly Average:");
-                temp.append(panelData.getPanelString("hourAvg"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter 24 Hour Daily Total:");
-                temp.append(panelData.getPanelString("hours24"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter 30 Day Total:");
-                temp.append(panelData.getPanelString("day30"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter 30 Day Average:");
-                temp.append(panelData.getPanelString("day30Avg"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter Lifetime Total:");
-                temp.append(panelData.getPanelString("life"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter Lifetime days:");
-                temp.append(panelData.getPanelString("lifedays"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
-                temp = new StringBuilder("Water Meter Lifetime Average days:");
-                temp.append(panelData.getPanelString("lifetimeAvg"));
-                temp.append("\n\n");
-                gallontextwindow.append(temp);
+
+                hourTotalValue.setText(panelData.getPanelString("hours1"));
+                hourlyAverageValue.setText(panelData.getPanelString("hours24"));
+                dailyTotalValue.setText(panelData.getPanelString("day30"));
+                thirtyDayTotalValue.setText(panelData.getPanelString("day30Avg"));
+                thirtyDayTotalAverageValue.setText(panelData.getPanelString("hours1"));
+                lifetimeDaysValue.setText(panelData.getPanelString("lifetimeValue"));
+                lifetimeValue.setText(panelData.getPanelString("lifeTime"));
+                lifetimeDaysAverageValue.setText(panelData.getPanelString("lifetimeAvg"));
                 //close the popup window on button click
                 closePopupBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
