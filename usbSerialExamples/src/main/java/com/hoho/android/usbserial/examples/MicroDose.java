@@ -115,7 +115,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             "mode", "year", "month","day",
             "hour", "min", "sec",
             "tank", "bok", "bptest","balmrset",
-            "brtest", "bfftest", "bpertest",
+            "so1", "so0", "so2",
             "effstat", "airpres",
             "palmtime", "balrmltch",
             "bmantest", "balarm", "bLow", "bairalrm"
@@ -396,12 +396,12 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             putTextColor(effPumpTest, panelData.getPanelBool("bptest"));
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
-        if(panelData.containsKey("brtest"))
-            putTextColor(recirTest, panelData.getPanelBool("brtest"));
-        if(panelData.containsKey("bfftest"))
-            putTextColor(ffTest, panelData.getPanelBool("bfftest"));
-        if(panelData.containsKey("bpertest"))
-            putTextColor(peristalticTest, panelData.getPanelBool("bpertest"));
+        if(panelData.containsKey("so1"))
+            putTextColor(recirTest, panelData.getPanelBool("so1"));
+        if(panelData.containsKey("so0"))
+            putTextColor(ffTest, panelData.getPanelBool("so0"));
+        if(panelData.containsKey("so2"))
+            putTextColor(peristalticTest, panelData.getPanelBool("so2"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
         if(panelData.containsKey("balarm"))
@@ -552,13 +552,13 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         }
     }
     private void ffTestCallback() {
-        if(panelData.getPanelBool("bfftest")) {
+        if(panelData.getPanelBool("so0")) {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bfftest", "false");
+            sendJson("so0", "false");
         }
         else {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bfftest", "true");
+            sendJson("so0", "true");
         }
     }
     private void manualTestCallback() {
@@ -572,23 +572,23 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         }
     }
     private void peristalticTestCallback() {
-        if(panelData.getPanelBool("bpertest")) {
+        if(panelData.getPanelBool("so2")) {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bpertest", "false");
+            sendJson("so2", "false");
         }
         else {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bpertest", "true");
+            sendJson("so2", "true");
         }
     }
     private void recirTestCallback() {
-        if(panelData.getPanelBool("brtest")) {
+        if(panelData.getPanelBool("so1")) {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("brtest", "false");
+            sendJson("so1", "false");
         }
         else {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("brtest", "true");
+            sendJson("so1", "true");
         }
     }
     private boolean sendJson(String cmd, String value) {

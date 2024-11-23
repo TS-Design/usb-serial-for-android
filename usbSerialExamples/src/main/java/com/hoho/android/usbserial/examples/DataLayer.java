@@ -16,9 +16,9 @@ public class DataLayer {
     public boolean bptest2 = false;
     public boolean balmrset = false;
     public boolean alarmHistory = false;
-    public boolean brtest = false;
-    public boolean bfftest = false;
-    public boolean bpertest = false;
+    public boolean so1 = false;
+    public boolean so0 = false;
+    public boolean so2 = false;
     public boolean balrmltch = false;
     public boolean bmantest = false;
     public boolean bairalrm = false;
@@ -60,23 +60,23 @@ public class DataLayer {
     public void setBalmrset(boolean balmrset) {
         this.balmrset = balmrset;
     }
-    public boolean isBrtest() {
-        return brtest;
+    public boolean isso1() {
+        return so1;
     }
-    public void setBrtest(boolean brtest) {
-        this.brtest = brtest;
+    public void setso1(boolean so1) {
+        this.so1 = so1;
     }
-    public boolean isBfftest() {
-        return bfftest;
+    public boolean isso0() {
+        return so0;
     }
-    public void setBfftest(boolean bfftest) {
-        this.bfftest = bfftest;
+    public void setso0(boolean so0) {
+        this.so0 = so0;
     }
-    public boolean isBpertest() {
-        return bpertest;
+    public boolean isso2() {
+        return so2;
     }
-    public void setBpertest(boolean bpertest) {
-        this.bpertest = bpertest;
+    public void setso2(boolean so2) {
+        this.so2 = so2;
     }
     public boolean isBalrmltch() {
         return balrmltch;

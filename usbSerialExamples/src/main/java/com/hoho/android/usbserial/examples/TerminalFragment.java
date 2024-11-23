@@ -74,7 +74,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
     public PanelData panelData = new PanelData();
-
+    public boolean duplex = false;
     private TextView timeRemote;
     private RadioGroup main_mode;
     private RadioButton binit;
@@ -223,13 +223,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 priorityCommandEnabled = true;
                 priorityCommand = "time";
                 priorityCommandValue = uiTime;
-                //sendJson("time", uiTime);
+                Toast.makeText(getActivity(), "Panel Time Updated", Toast.LENGTH_SHORT).show();
             }
             else
-                mainLooper.postDelayed(setPanelTime,1000);
-
-
-            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+                mainLooper.postDelayed(setPanelTime,1000); // Keep Trying if disconnected
+                //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -322,7 +320,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         });
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
-        mainLooper.postDelayed(setPanelTime, 1);
         return view;
     }
 
@@ -346,8 +343,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         if (id == R.id.clear) {
             receiveText.setText("");
             return true;
-        } else if( id == R.id.send_break) {
-            if(!connected) {
+        } else if (id == R.id.send_break) {
+            if (!connected) {
                 Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             } else {
                 try {
@@ -358,11 +355,25 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     spn.append("send <break>\n");
                     spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     receiveText.append(spn);
-                } catch(UnsupportedOperationException ignored) {
+                } catch (UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     Toast.makeText(getActivity(), "BREAK failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+            }
+            return true;
+        } else if (id == R.id.update_time) {
+            mainLooper.post(setPanelTime);
+            return true;
+        } else if (id == R.id.duplex) {
+            duplex = !duplex;
+            if(duplex) {
+                item.setTitle("Duplex");
+                sendPriorityCommand("bALT", String.valueOf(true));
+            }
+            else {
+                item.setTitle("Simplex");
+                sendPriorityCommand("bALT", String.valueOf("false"));
             }
             return true;
         } else {
@@ -390,6 +401,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     /*
      * Serial + UI
      */
+    public void sendPriorityCommand(String pCmd, String pValue) {
+        priorityCommandEnabled = true;
+        priorityCommand = pCmd;
+        priorityCommandValue = pValue;
+    }
     private void connect() {
         UsbDevice device = null;
         UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);

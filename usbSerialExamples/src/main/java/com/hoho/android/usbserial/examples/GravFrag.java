@@ -115,7 +115,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             "mode", "year", "month","day",
             "hour", "min", "sec",
             "tank", "bok", "bptest","balmrset",
-            "brtest", "bfftest", "bpertest",
+            "so1", "so0", "so2",
             "dosesday", "fdrun", "rrepeat",
             "rrun", "effstat", "airpres",
             "palmtime", "zone", "balrmltch",
@@ -521,13 +521,13 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         }
     }
     private void ffTestCallback() {
-        if(panelData.getPanelBool("bfftest")) {
+        if(panelData.getPanelBool("so0")) {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bfftest", "false");
+            sendJson("so0", "false");
         }
         else {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bfftest", "true");
+            sendJson("so0", "true");
         }
     }
     private void manualTestCallback() {
@@ -541,23 +541,23 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         }
     }
     private void peristalticTestCallback() {
-        if(panelData.getPanelBool("bpertest")) {
+        if(panelData.getPanelBool("so2")) {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bpertest", "false");
+            sendJson("so2", "false");
         }
         else {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("bpertest", "true");
+            sendJson("so2", "true");
         }
     }
     private void recirTestCallback() {
-        if(panelData.getPanelBool("brtest")) {
+        if(panelData.getPanelBool("so1")) {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("brtest", "false");
+            sendJson("so1", "false");
         }
         else {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendJson("brtest", "true");
+            sendJson("so1", "true");
         }
     }
     private boolean sendJson(String cmd, String value) {

@@ -52,10 +52,8 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
@@ -173,14 +171,14 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     "bok",
                     "bptest",
                     "balmrset",
-                    "brtest",
-                    "bfftest",
-                    "bpertest",
+                    "so0",
+                    "so1",
+                    "so2",
                     "dosesday",
                     "fdrun",
                     "rrepeat",
                     "rrun",
-                    "effstat",
+                    "effstat", 
                     "airpres",
                     "palmtime",
                     "zone",
@@ -195,7 +193,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     "perdur"
             )
     );
-    public int commandLength = updateCommandList.size();
+    // public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
 
     public AnrFragment() {
@@ -236,16 +234,16 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
     };
-    final Runnable updateTank = () -> {
+    /*final Runnable updateTank = () -> {
         Toast.makeText(getActivity(), "Send Tank " + panelData.getPanelString("tank"), Toast.LENGTH_SHORT).show();
         sendPriorityCommand("tank", panelData.getPanelString("tank"));
-    };
+    };*/
     final Runnable update = this::getPanelStatus;
     final Runnable postMsg = this::postDataLayer;
-    final Runnable update5L = () -> {
+    /*final Runnable update5L = () -> {
         Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
         sendPriorityCommand("zone", panelData.getPanelString("zone"));
-    };
+    };*/
     /*    final Runnable modeSpinner = new Runnable() {
         @Override
         public void run() {
@@ -837,12 +835,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             putTextColor(effPumpTest, panelData.getPanelBool("bptest"));
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
-        if(panelData.containsKey("brtest"))
-            putTextColor(recirTest, panelData.getPanelBool("brtest"));
-        if(panelData.containsKey("bfftest"))
-            putTextColor(ffTest, panelData.getPanelBool("bfftest"));
-        if(panelData.containsKey("bpertest"))
-            putTextColor(peristalticTest, panelData.getPanelBool("bpertest"));
+        if(panelData.containsKey("so1"))
+            putTextColor(recirTest, panelData.getPanelBool("so1"));
+        if(panelData.containsKey("so0"))
+            putTextColor(ffTest, panelData.getPanelBool("so0"));
+        if(panelData.containsKey("so2"))
+            putTextColor(peristalticTest, panelData.getPanelBool("so2"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
         if(panelData.containsKey("bAlarm"))  //System OK
@@ -882,14 +880,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 recirRunCount.setText(String.format("%d", rrun / 60));
             }
         }
-        if(panelData.containsKey("effstat")) {
-            if(Objects.equals(panelData.getPanelString("effstat"), "true"))
-                    effStatus.setText(String.format("Effuent Pump Status :%s", "On"));
-            else
-                effStatus.setText(String.format("Effuent Pump Status :%s", "Off"));
-        }
         if(panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
+            airPressure.setText(String.format("Air Compressor Pressure WCI:           %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
             if(panelData.getPanelString("palmtime").contentEquals(""))
                 effPumpAlarmTimeCount.setText(String.format("%d", 0));
@@ -1050,16 +1042,16 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
     }
     private void ffTestCallback() {
-        if(panelData.getPanelBool("bfftest")) {
+        if(panelData.getPanelBool("so0")) {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendPriorityCommand("bfftest", "false");
+            sendPriorityCommand("so0", "false");
         }
         else {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendPriorityCommand("bfftest", "true");
+            sendPriorityCommand("so0", "true");
         }
     }
-    private void manualTestCallback() {
+    /*private void manualTestCallback() {
         if(panelData.getPanelBool("bmantest")) {
             manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             sendPriorityCommand("bmantest", "false");
@@ -1068,25 +1060,25 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
             sendPriorityCommand("bmantest", "true");
         }
-    }
+    }*/
     private void peristalticTestCallback() {
-        if(panelData.getPanelBool("bpertest")) {
+        if(panelData.getPanelBool("so2")) {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendPriorityCommand("bpertest", "false");
+            sendPriorityCommand("so2", "false");
         }
         else {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendPriorityCommand("bpertest", "true");
+            sendPriorityCommand("so2", "true");
         }
     }
     private void recirTestCallback() {
-        if(panelData.getPanelBool("brtest")) {
+        if(panelData.getPanelBool("so1")) {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendPriorityCommand("brtest", "false");
+            sendPriorityCommand("so1", "false");
         }
         else {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendPriorityCommand("brtest", "true");
+            sendPriorityCommand("so1", "true");
         }
     }
     private boolean sendJson(String cmd, String value) {
@@ -1120,26 +1112,26 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             onRunError(e);
         }
     }
-    private void read() {
+    /*private void read() {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
             byte[] buffer = new byte[8192];
-            int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);
-/*            if(len == -1)
+            int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);*/
+    /*            if(len == -1)
                 msgAck = false;
             else
                 msgAck = true;*/
-            receive(Arrays.copyOf(buffer, len));
+    /*    receive(Arrays.copyOf(buffer, len));
         } catch (IOException e) {
             // when using read with timeout, USB bulkTransfer returns -1 on timeout _and_ errors
             // like connection loss, so there is typically no exception thrown here on error
             status("connection lost: " + e.getMessage());
             disconnect();
         }
-    }
+    }*/
     public void receive(@NonNull byte[] data) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
         if(data.length > 0)

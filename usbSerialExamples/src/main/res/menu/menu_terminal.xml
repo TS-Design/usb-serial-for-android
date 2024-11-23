@@ -10,4 +10,13 @@
         android:id="@+id/send_break"
         android:title="Send BREAK"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/update_time"
+        android:title="Update Panel Time"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/duplex"
+        android:title="Simplex Mode"
+        app:showAsAction="never" />
 </menu>

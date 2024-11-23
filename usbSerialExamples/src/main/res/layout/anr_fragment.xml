@@ -35,7 +35,7 @@
      android:layout_height="@dimen/TestButtonHeight"
      android:layout_marginStart="16sp"
      android:background="@color/light_blue_A200"
-     android:text="Water Flow Data"
+     android:text="GPD Flow Data"
      android:textAlignment="center"
      android:textColor="@color/design_default_color_on_secondary"
      android:textSize="@dimen/AnrButtonTextSize"
@@ -223,7 +223,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
      android:layout_marginTop="24dp"
-     android:text="Pump Run Time (Field Dose):"
+     android:text="Pump Run Time Minutes (Field Dose):"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/dosesDay" />
@@ -249,7 +249,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="12dp"
      android:layout_marginTop="24dp"
-     android:text="Water Pump Recir Repeat Cycle Timer:"
+     android:text="Recir Repeat Cycle Minutes:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/FdRunTime" />
@@ -273,7 +273,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
      android:layout_marginTop="24dp"
-     android:text="Water Pump Recirc Run Timer:"
+     android:text="Recirc Run Minutes:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/recirRepeatTime" />
@@ -292,16 +292,6 @@
      app:layout_constraintStart_toStartOf="@+id/recirRepeatCount"
      app:layout_constraintTop_toBottomOf="@+id/recirRepeatCount" />
 
- <TextView
-     android:id="@+id/effStatus"
-     android:layout_width="wrap_content"
-     android:layout_height="wrap_content"
-     android:layout_marginStart="16dp"
-     android:layout_marginTop="24dp"
-     android:text="Effuent Pump Status"
-     android:textSize="@dimen/anrTextSize"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/recirRunTime" />
 
  <TextView
      android:id="@+id/airPressure"
@@ -312,7 +302,7 @@
      android:text="Air Compressor Pressure WCI:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/effStatus" />
+     app:layout_constraintTop_toBottomOf="@+id/recirRunTime" />
 
  <TextView
      android:id="@+id/effPumpAlarmTime"
@@ -329,7 +319,8 @@
      android:id="@+id/effPumpAlarmTimeCount"
      android:layout_width="50dp"
      android:layout_height="wrap_content"
-     android:layout_marginTop="104dp"
+     android:layout_marginStart="4dp"
+     android:layout_marginTop="60dp"
      android:clickable="true"
      android:imeOptions="actionDone"
      android:inputType="number"
