@@ -149,7 +149,7 @@
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
      android:layout_marginStart="4dp"
-     android:text="System Alarm Latching Reset"
+     android:text="Alarm Reset"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/effPumpTest"
      app:layout_constraintTop_toTopOf="@+id/effPumpTest" />
@@ -310,7 +310,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
      android:layout_marginTop="24dp"
-     android:text="Effluent Pump Runtime Alarm Timer:"
+     android:text="Pump Runtime Alarm Minutes:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/airPressure" />
@@ -336,7 +336,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="24dp"
      android:layout_marginTop="30dp"
-     android:text="Carbon Pump dose Setting: "
+     android:text="Carbon Pump Dose Minutes: "
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />

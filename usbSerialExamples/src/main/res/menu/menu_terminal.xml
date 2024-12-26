@@ -15,8 +15,4 @@
         android:title="Update Panel Time"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/duplex"
-        android:title="Simplex Mode"
-        app:showAsAction="never" />
 </menu>

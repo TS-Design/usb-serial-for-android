@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -87,6 +88,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton bdmd;
     private RadioButton manual;
     private RadioButton cancelManual;
+    private Button altButton;
     private Spinner tankDropDown;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
@@ -106,6 +108,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     public String remoteDay = "00";
     public String remoteMonth = "00";
     public boolean popUpDialogPosted = false;
+    //public Menu menu;
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
@@ -117,6 +120,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         updateCommandList.add("mode");
         updateCommandList.add("time");
         updateCommandList.add("tank");
+        updateCommandList.add("bALT");
         updateCommandList.add("bmantest");
     }
 
@@ -280,6 +284,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         manual = view.findViewById(R.id.manual);
         receiveText = view.findViewById(R.id.receiveText);
         timeRemote = view.findViewById(R.id.timeRemote);
+        altButton = view.findViewById(R.id.altButton);
         bgrav.setOnClickListener(v -> gravCallback());  // something is always true
         banr.setOnClickListener(v -> anrCallback());
         bbnr.setOnClickListener(v -> bbnrCallback());
@@ -289,6 +294,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bdrip.setOnClickListener(v -> bdripCallback());
         binit.setOnClickListener(v -> binitCallback());
         manual.setOnClickListener(v -> manualCallback());
+        altButton.setOnClickListener(v -> altButtonCallback());
         //cancelManual.setOnClickListener(v -> cancelManualCallback());
 
         /* Spinner Tank Size */
@@ -364,17 +370,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             return true;
         } else if (id == R.id.update_time) {
             mainLooper.post(setPanelTime);
-            return true;
-        } else if (id == R.id.duplex) {
-            duplex = !duplex;
-            if(duplex) {
-                item.setTitle("Duplex");
-                sendPriorityCommand("bALT", String.valueOf(true));
-            }
-            else {
-                item.setTitle("Simplex");
-                sendPriorityCommand("bALT", String.valueOf("false"));
-            }
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -506,8 +501,12 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(tankItemIndex));
             enableMode = !panelData.getPanelString("tank").equals("0");
         }
-        if(panelData.containsKey("time"))
-
+        if (panelData.containsKey("bALT")) {
+            if (panelData.getPanelBool("bALT"))
+                altButton.setText("Duplex");
+            else
+                altButton.setText(("Simplex"));
+        }
         for(int i = 0; i < main_mode.getChildCount(); i++){
             main_mode.getChildAt(i).setEnabled(enableMode);
         }
@@ -533,6 +532,17 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         //Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
     }
     public void modeEnable(RadioGroup main_mode) {
+    }       // TODO modeEnable() No code
+    public void altButtonCallback() {
+        if(panelData.containsKey("bALT")){
+            if(panelData.getPanelBool("bALT")) {
+                altButton.setText("Simplex");
+                sendPriorityCommand("bALT", "false");
+            } else {
+                altButton.setText("Duplex");
+                sendPriorityCommand("bALT", "true");
+            }
+        }
     }
     public void getPanelStatus() {  // depriciate TOOD delete me
  /*       if(check5lTime()) {
@@ -652,6 +662,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void anrCallback() {
         sendJson("bANR","true");
+//        sendPriorityCommand("bANR","true");
         Bundle args = new Bundle();
         args.putInt("device", deviceId);
         args.putInt("port", portNum);

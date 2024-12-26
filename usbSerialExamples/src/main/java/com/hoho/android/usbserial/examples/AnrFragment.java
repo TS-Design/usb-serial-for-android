@@ -79,7 +79,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private boolean keypadOn = false;
-
+    private boolean bALT = false;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
     //private final boolean UiMessageSent = false;
@@ -210,7 +210,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         mainLooper = new Handler(Looper.getMainLooper());
     }
     /* Runnable */
-    final Runnable timeHandler = new Runnable() {
+    final Runnable timeHandler = new Runnable() { // TODO no longer used?
         @Override
         public void run() {
             //String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
@@ -263,7 +263,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
-        mainLooper.postDelayed(timeHandler,1000);
+       //  mainLooper.postDelayed(timeHandler,1000);
 
     }
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -292,6 +292,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         systemOk = view.findViewById(R.id.systemOk);
         flowData = view.findViewById((R.id.flowData));
         alarmLatch = view.findViewById(R.id.alarmLatch);
+        alarmLatch.setOnClickListener(v-> alarmLatchCallback());
         alarmHistory = view.findViewById(R.id.alarmHistory);
         recirTest = view.findViewById(R.id.recirTest);
         recirTest.setOnClickListener(v -> recirTestCallback());
@@ -670,6 +671,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -830,9 +832,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void postDataLayer() {                           // Take action on all Panel Data
         /* Status Banner */
         if(panelData.containsKey("bok"))
-            putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
+            putRedAlarmTextColor(systemOk, !panelData.getPanelBool("bok"));
         if(panelData.containsKey("bptest"))
-            putTextColor(effPumpTest, panelData.getPanelBool("bptest"));
+            putTextColor(effPumpTest, panelData.getPanelBool("effstat"));
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("so1"))
@@ -846,7 +848,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if(panelData.containsKey("bAlarm"))  //System OK
             putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bAlarm"));
         if(panelData.containsKey("bLow"))   //Water Level
-            putWaterLevelTextColor(lowProbe, panelData.getPanelBool("bLow"));
+            putWaterLevelTextColor(lowProbe, !panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         // Variables
@@ -854,8 +856,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));
         if(panelData.containsKey("fdrun") && !FdRunTimeCount.hasFocus()) {
             if(panelData.getPanelString("fdrun").contentEquals("")) {
-                int fdrun = 100;
-                FdRunTimeCount.setText(String.format("%d", fdrun));
+                FdRunTimeCount.setText(String.format("%d", 100));
             }
             else {
                 int fdrun = parseInt(panelData.getPanelString("fdrun"))/60;
@@ -881,7 +882,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
         if(panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI:           %s", panelData.getPanelString ("airpres")));
+            airPressure.setText(String.format("Air Compressor Pressure WCI:             %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
             if(panelData.getPanelString("palmtime").contentEquals(""))
                 effPumpAlarmTimeCount.setText(String.format("%d", 0));
@@ -892,34 +893,17 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
         if(panelData.containsKey("zone") && !zoneCount.hasFocus())
             zoneCount.setText(String.format(panelData.getPanelString("zone")));
-
-        //if(panelData.containsKey("perdur") && !peristolticCount.hasFocus())
-        //    peristolticCount.setText(String.format(panelData.getPanelString("perdur")));
-
         if(panelData.containsKey("perdur") && !peristolticCount.hasFocus()) {
             if(panelData.getPanelString("perdur").contentEquals(""))
                 peristolticCount.setText(String.format("%d", 0));
             else {
-                int perdur = parseInt(panelData.getPanelString("perdur"));
+                int perdur = parseInt(panelData.getPanelString("perdur"))/60;
                 peristolticCount.setText(String.format("%d", perdur));
             }
         }
-
         // end Variables
-        if (panelData.containsKey("dow"))
-            remoteDow = panelData.getPanelString("dow");
-        if (panelData.containsKey("day"))
-            remoteDay = panelData.getPanelString("day");
-        if (panelData.containsKey("month"))
-            remoteMonth = panelData.getPanelString("month");
-        if (panelData.containsKey("year"))
-            remoteYear = panelData.getPanelString("year");
-        if (panelData.containsKey("hrs"))
-            remoteHr = panelData.getPanelString("hrs");
-        if (panelData.containsKey("min"))
-            remoteMin = panelData.getPanelString("min");
-        if (panelData.containsKey("sec"))
-            remoteSec = panelData.getPanelString("sec");
+        if(panelData.containsKey("time"))
+            timeRemote.setText(panelData.getPanelString("time"));
         if (panelData.containsKey("life"))
             remoteSec = panelData.getPanelString("life");
         if (panelData.containsKey("lifedays"))
@@ -1032,14 +1016,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
     }
     private void alarmResetCallback() {
-        if(panelData.getPanelBool("balmrset")) {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendPriorityCommand("balmrset", "false");
-        }
-        else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
             sendPriorityCommand("balmrset", "true");
-        }
     }
     private void ffTestCallback() {
         if(panelData.getPanelBool("so0")) {
@@ -1061,6 +1038,16 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             sendPriorityCommand("bmantest", "true");
         }
     }*/
+    private  void alarmLatchCallback() {
+        if(panelData.getPanelBool("balrmltch")) {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendPriorityCommand("balrmltch", "false");
+        }
+        else {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendPriorityCommand("balrmltch", "true");
+        }
+    }
     private void peristalticTestCallback() {
         if(panelData.getPanelBool("so2")) {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
