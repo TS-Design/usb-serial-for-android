@@ -198,7 +198,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
      android:layout_marginTop="@dimen/ANR_Top_Margin"
-     android:text="Dose Setting per Day (Field Dose):"
+     android:text="Field Dose Setting per Day:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/numberZones" />
@@ -223,7 +223,7 @@
      android:layout_height="wrap_content"
      android:layout_marginStart="16dp"
      android:layout_marginTop="24dp"
-     android:text="Pump Run Time Minutes (Field Dose):"
+     android:text="Field Dose Run Time Minutes:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toBottomOf="@+id/dosesDay" />

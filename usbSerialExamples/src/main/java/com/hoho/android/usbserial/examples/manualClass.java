@@ -392,15 +392,43 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
           tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
        }
 }
+    private void putBlueAlarmTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+        } else {
+            tv.setTextColor(Color.BLUE);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
+        }
+    }
+    private void putRedAlarmTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+        } else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        }
+    }
+    private void putWaterLevelTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+        } else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+        }
+    }
+
 
     public void postDataLayer() {  // Update UI inputs and outputs
         /* Post these everytime */
         if(panelData.containsKey("bLow"))
-            putTextColor(maintLowProbe, panelData.getPanel("bLow"));
+            putWaterLevelTextColor(maintLowProbe, !panelData.getPanel("bLow"));
         if(panelData.containsKey("bHigh"))
-            putTextColor(maintHiProbe, panelData.getPanel("bHigh"));
+            putBlueAlarmTextColor(maintHiProbe, !panelData.getPanel("bHigh"));
         if(panelData.containsKey("bAlarm"))
-            putTextColor(maintAlarmProbe, panelData.getPanel("bAlarm"));
+            putRedAlarmTextColor(maintAlarmProbe, !panelData.getPanel("bAlarm"));
 
         if(panelData.containsKey("so0"))
             putTextColor(maintSO0, panelData.getPanel("so0"));

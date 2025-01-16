@@ -1,5 +1,6 @@
 package com.hoho.android.usbserial.examples;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
@@ -27,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -35,6 +37,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,13 +54,14 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
-
-
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
@@ -66,11 +70,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
-
     private void onClick(View v1) {
         popupWindow.dismiss();
     }
-
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 1000;
@@ -159,7 +161,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
     public boolean popUpDialogPosted = false;
     PopupWindow popupWindow;
-    PopupWindow manualInput;
+    PopupWindow popupManualTest;
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
@@ -210,6 +212,24 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         mainLooper = new Handler(Looper.getMainLooper());
     }
     /* Runnable */
+
+    final Runnable setPanelTime = new Runnable() {
+        @Override
+        public void run() {
+            String currentDate = new SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(new Date());
+            String currentTime = new SimpleDateFormat("HH mm ss", Locale.getDefault()).format(new Date());
+            if (connected) {
+                String uiTime = currentTime + " " + currentDate;
+                priorityCommandEnabled = true;
+                priorityCommand = "time";
+                priorityCommandValue = uiTime;
+                Toast.makeText(getActivity(), "Panel Time Updated", Toast.LENGTH_SHORT).show();
+            }
+            else
+                mainLooper.postDelayed(setPanelTime,1000); // Keep Trying if disconnected
+            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+        }
+    };
     final Runnable timeHandler = new Runnable() { // TODO no longer used?
         @Override
         public void run() {
@@ -538,7 +558,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         // Alarms manual input and flow data Listeners
         flowData.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             View customView = layoutInflater.inflate(R.layout.gallons_popup, null);
             manualInputTest.setEnabled(false);
             closeGallonsBtn = customView.findViewById(R.id.closeGallonsBtn);
@@ -572,7 +592,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         });
         alarmHistory.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             View customView = layoutInflater.inflate(R.layout.alarm_history, null);
 
             closeAlarmBtn = customView.findViewById(R.id.closeAlarmBtn);
@@ -603,21 +623,22 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             clearAlarm.setOnClickListener((v1 -> clearAlarmCallBack()));
         });
         manualInputTest.setOnClickListener(v -> {
+
             //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
             closeManualInputBtn = (Button) customView.findViewById(R.id.closeManualInputBtn);
             yellowInput = (Button) customView.findViewById(R.id.yellowInput);
             redInput = (Button) customView.findViewById(R.id.redInput);
             blueInput = (Button) customView.findViewById(R.id.blueInput);
             //instantiate popup window
-            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             //display the popup window
-            popupWindow.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
-            if(panelData.getPanelBool("bLow"))
-                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            popupManualTest.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
+/*            if(panelData.getPanelBool("bLow"))
+               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
             else
-                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
             if(panelData.getPanelBool("bHigh"))
                 blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
             else
@@ -626,41 +647,44 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
             else
                 redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+*/
+            manualInputTest.setVisibility(View.INVISIBLE);
             sendPriorityCommand("bENA", "true");
             //close the popup window on button click
             closeManualInputBtn.setOnClickListener(v12 -> {
                 sendPriorityCommand("bENA", "false");
-                popupWindow.dismiss();
+                manualInputTest.setVisibility(View.VISIBLE);
+                popupManualTest.dismiss();
             });
 
             yellowInput.setOnClickListener(v13 -> {
-                if(panelData.getPanelBool("bLow")) {
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("bLow", "false");
+                if(panelData.getPanelBool("bLow")) {  // Low Probe
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                     sendPriorityCommand("bLowUi", "true");
                 }
                 else {
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
-                    sendPriorityCommand("bLow", "true");
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+                    sendPriorityCommand("bLowUi", "false");
                 }
             });
             blueInput.setOnClickListener(v14 -> { // Alarm probe
-                if(panelData.getPanelBool("bAlarm")) {
+                if(panelData.getPanelBool("bHigh")) {
                     blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
-                    sendPriorityCommand("bAlarm", "false");
+                    sendPriorityCommand("bHighUi", "false");
                 }
                 else {
                     blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-                    sendPriorityCommand("bAlarm", "true");
+                    sendPriorityCommand("bHighUi", "true");
                 }
             });
             redInput.setOnClickListener(v15 -> {  //High Probe
-                if(panelData.getPanelBool("bHigh")) {
+                if(panelData.getPanelBool("bAlarm")) {
                     redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
-                    sendPriorityCommand("bHigh", "false");
+                    sendPriorityCommand("bAlarmUi", "false");
                 }
                 else {
                     redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-                    sendPriorityCommand("bHigh", "true");
+                    sendPriorityCommand("bAlarmUi", "true");
                 }
             });
          });
@@ -677,6 +701,38 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         int id = item.getItemId();
         if (id == R.id.clear) {
             receiveText.setText("");
+            return true;
+        } else if (id == R.id.matrix) {
+            Toast.makeText(getActivity(), "Matrix", Toast.LENGTH_SHORT).show();
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.matrix, null);
+            // create the popup window
+            int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            boolean focusable = true; // lets taps outside the popup also dismiss it
+            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+            // show the popup window
+            // which view you pass in doesn't matter, it is only used for the window tolken
+
+            popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            popupView.setBackgroundColor(Color.GRAY);
+
+
+
+
+            popupView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    popupWindow.dismiss();
+                    return true;
+                }
+            });
+
+            return true;
+            // dismiss the popup window when touched
+
+        } else if (id == R.id.update_time) {
+            mainLooper.post(setPanelTime);
             return true;
         } else if (id == R.id.send_break) {
             if (!connected) {
@@ -803,11 +859,11 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     private void putBlueAlarmTextColor(TextView tv, boolean value) {
         if (value) {
-             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
         } else {
             tv.setTextColor(Color.BLUE);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
         }
     }
     private void putRedAlarmTextColor(TextView tv, boolean value) {
@@ -828,11 +884,17 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
         }
     }
-
+    //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
         /* Status Banner */
         if(panelData.containsKey("bok"))
             putRedAlarmTextColor(systemOk, !panelData.getPanelBool("bok"));
+        if(panelData.containsKey("bHigh"))  //System Alarm
+            putBlueAlarmTextColor(alarm, panelData.getPanelBool("bHigh"));
+        if(panelData.containsKey("bLow"))   // Yellow Alarm
+            putWaterLevelTextColor(lowProbe, !panelData.getPanelBool("bLow"));
+        if(panelData.containsKey("bairalrm")) // Aeration Alarm
+            putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         if(panelData.containsKey("bptest"))
             putTextColor(effPumpTest, panelData.getPanelBool("effstat"));
         if(panelData.containsKey("balmrset"))
@@ -845,12 +907,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             putTextColor(peristalticTest, panelData.getPanelBool("so2"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("bAlarm"))  //System OK
-            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bAlarm"));
-        if(panelData.containsKey("bLow"))   //Water Level
-            putWaterLevelTextColor(lowProbe, !panelData.getPanelBool("bLow"));
-        if(panelData.containsKey("bairalrm"))
-            putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         // Variables
         if(panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
             doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));

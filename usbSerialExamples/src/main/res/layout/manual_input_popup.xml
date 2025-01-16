@@ -10,7 +10,7 @@
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
         android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
-        android:text="YELLOW/Timer"
+        android:text="YELLOW Alarm"
         app:layout_constraintBottom_toTopOf="@+id/blueInput"
         app:layout_constraintStart_toStartOf="@+id/blueInput" />
 
@@ -19,7 +19,7 @@
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
         android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
-        android:text="RED/Alarm"
+        android:text="RED Alarm"
         app:layout_constraintBottom_toTopOf="@+id/closeManualInputBtn"
         app:layout_constraintStart_toStartOf="@+id/closeManualInputBtn" />
 
@@ -40,7 +40,7 @@
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
         android:layout_marginBottom="@dimen/ManualButtonBottomMargin"
-        android:text="BLUE/Manual"
+        android:text="BLUE Alarm"
         app:layout_constraintBottom_toTopOf="@+id/redInput"
         app:layout_constraintStart_toStartOf="@+id/redInput" />
 

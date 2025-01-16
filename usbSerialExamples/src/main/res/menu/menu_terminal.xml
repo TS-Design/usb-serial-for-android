@@ -14,5 +14,9 @@
         android:id="@+id/update_time"
         android:title="Update Panel Time"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/matrix"
+        android:title="Show Table"
+        app:showAsAction="never" />
 
 </menu>
