@@ -108,6 +108,7 @@
      android:layout_marginTop="100dp"
      android:clickable="false"
      android:text="System OK"
+     android:textStyle="bold"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toTopOf="parent" />
@@ -149,7 +150,7 @@
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
      android:layout_marginStart="4dp"
-     android:text="Alarm Reset"
+     android:text="Beeper Silent"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/effPumpTest"
      app:layout_constraintTop_toTopOf="@+id/effPumpTest" />
@@ -236,7 +237,9 @@
      android:layout_marginTop="4dp"
      android:clickable="true"
      android:imeOptions="actionDone"
-     android:inputType="number"
+     android:inputType="none"
+     android:hint="mm:ss"
+     android:focusable="false"
      android:text="0"
      android:textAlignment="viewStart"
      android:textSize="20sp"
@@ -362,6 +365,7 @@
      android:layout_marginTop="100dp"
      android:clickable="false"
      android:text="Alarm Latching"
+     android:textStyle="bold"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/airAlarm"
      app:layout_constraintTop_toTopOf="parent" />
@@ -374,18 +378,20 @@
      android:layout_marginTop="100dp"
      android:clickable="false"
      android:text="System Alarm"
+     android:textStyle="bold"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/systemOk"
      app:layout_constraintTop_toTopOf="parent" />
 
  <Button
-     android:id="@+id/lowProbe"
+     android:id="@+id/waterAlarm"
      android:layout_width="100dp"
      android:layout_height="60dp"
      android:layout_marginStart="4dp"
      android:layout_marginTop="100dp"
      android:clickable="false"
-     android:text="Water Level Probe"
+     android:text="Water Level Good"
+     android:textStyle="bold"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/alarm"
      app:layout_constraintTop_toTopOf="parent" />
@@ -397,10 +403,17 @@
      android:layout_marginStart="4dp"
      android:layout_marginTop="100dp"
      android:text="Aeration Problem"
+     android:textStyle="bold"
      android:textSize="@dimen/AnrButtonTextSize"
-     app:layout_constraintStart_toEndOf="@+id/lowProbe"
+     app:layout_constraintStart_toEndOf="@+id/waterAlarm"
      app:layout_constraintTop_toTopOf="parent" />
 
-
+    <FrameLayout
+        android:id="@+id/keypad_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ffTest" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 

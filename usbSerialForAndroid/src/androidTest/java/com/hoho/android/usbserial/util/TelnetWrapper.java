@@ -1,8 +1,9 @@
 package com.hoho.android.usbserial.util;
 
+import static org.junit.Assert.assertEquals;
+
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.apache.commons.net.telnet.TelnetCommand;
 import org.apache.commons.net.telnet.TelnetOptionHandler;
@@ -12,8 +13,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-
-import static org.junit.Assert.assertEquals;
 
 public class TelnetWrapper {
     private final static String  TAG = TelnetWrapper.class.getSimpleName();
@@ -49,15 +48,25 @@ public class TelnetWrapper {
         telnetClient = new TelnetClient();
         telnetClient.addOptionHandler(new TelnetOptionHandler(RFC2217_COM_PORT_OPTION, false, false, false, false) {
             @Override
-            public int[] answerSubnegotiation(int[] suboptionData, int suboptionLength) {
-                int[] data = new int[suboptionLength];
-                System.arraycopy(suboptionData, 0, data, 0, suboptionLength);
-                commandResponse.add(data);
-                return super.answerSubnegotiation(suboptionData, suboptionLength);
+            public int[] startSubnegotiationRemote() {
+                // Add the implementation for the method here
+                // For example:
+                System.out.println("startSubnegotiationRemote called!");
+                return new int[0];
+            }
+
+            @Override
+            public int[] answerSubnegotiation(int[] ints, int i) {
+                return new int[0];
+            }
+
+            @Override
+            public int[] startSubnegotiationLocal() {
+                // Add implementation for any other abstract methods if required
+                return new int[0];
             }
         });
-
-        telnetClient.setConnectTimeout(2000);
+        telnetClient.setSoTimeout(2000);
         telnetClient.connect(host, port);
         telnetClient.setTcpNoDelay(true);
         writeStream = telnetClient.getOutputStream();
@@ -66,12 +75,12 @@ public class TelnetWrapper {
 
     private int[] doCommand(String name, byte[] command) throws IOException, InterruptedException {
         commandResponse.clear();
-        telnetClient.sendCommand((byte) TelnetCommand.SB);
+        telnetClient.sendAYT((byte) TelnetCommand.SB);
         writeStream.write(command);
-        telnetClient.sendCommand((byte)TelnetCommand.SE);
+        telnetClient.sendAYT((byte)TelnetCommand.SE);
 
         for(int i=0; i<TELNET_COMMAND_WAIT; i++) {
-            if(commandResponse.size() > 0) break;
+            if(!commandResponse.isEmpty()) break;
             Thread.sleep(1);
         }
         assertEquals("RFC2217 " + name+ " w/o response.", 1, commandResponse.size());
@@ -93,7 +102,7 @@ public class TelnetWrapper {
         }
     }
 
-    public void tearDownFixture() throws Exception {
+    public void tearDownFixture() {
         try {
             telnetClient.disconnect();
         } catch (Exception ignored) {}
@@ -142,7 +151,7 @@ public class TelnetWrapper {
         }
     }
 
-    public void setParameters(int baudRate, int dataBits, int stopBits, @UsbSerialPort.Parity int parity) throws IOException, InterruptedException, InvalidTelnetOptionException {
+    public void setParameters(int baudRate, int dataBits, int stopBits, @UsbSerialPort.Parity int parity) throws IOException, InterruptedException {
         doCommand("set-baudrate", new byte[] {RFC2217_COM_PORT_OPTION, RFC2217_SET_BAUDRATE, (byte)(baudRate>>24), (byte)(baudRate>>16), (byte)(baudRate>>8), (byte)baudRate});
         doCommand("set-datasize", new byte[] {RFC2217_COM_PORT_OPTION, RFC2217_SET_DATASIZE, (byte)dataBits});
         doCommand("set-stopsize", new byte[] {RFC2217_COM_PORT_OPTION, RFC2217_SET_STOPSIZE, (byte)stopBits});

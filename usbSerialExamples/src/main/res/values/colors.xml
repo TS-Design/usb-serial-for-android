@@ -16,8 +16,8 @@
     <color name="textOffBackground">#068383</color>
     <color name="textOnBackground">#4CAF50</color>
     <color name="textOff">#A19C9C</color>
-    <color name="textOn">#4CAF50</color>
+    <color name="textGoodBackground">#4CAF50</color>
     <color name="RedAlarmBackground">#EC1016</color>
-    <color name="WaterLevelBackground">#FFEB3B</color>
+    <color name="WaterLevelBackground">#EC1016</color>
 
 </resources>

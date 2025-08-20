@@ -45,7 +45,7 @@ public class ProbeTable {
      * @return
      */
     @SuppressWarnings("unchecked")
-    ProbeTable addDriver(Class<? extends UsbSerialDriver> driverClass) {
+    public ProbeTable addDriver(Class<? extends UsbSerialDriver> driverClass) {
         final Method method;
 
         try {

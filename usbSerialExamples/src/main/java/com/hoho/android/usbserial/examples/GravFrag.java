@@ -372,7 +372,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -438,7 +438,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -496,7 +496,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("bptest", "false");
         }
         else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bptest", "true");
         }
     }
@@ -506,7 +506,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("balmrset", "false");
         }
         else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
         }
     }
@@ -516,7 +516,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("ahist", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.textOn));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.textGoodBackground));
             sendJson("ahist", "true");
         }
     }
@@ -526,7 +526,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("so0", "false");
         }
         else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so0", "true");
         }
     }
@@ -536,7 +536,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("bmantest", "false");
         }
         else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bmantest", "true");
         }
     }
@@ -546,7 +546,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("so2", "false");
         }
         else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so2", "true");
         }
     }
@@ -556,7 +556,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("so1", "false");
         }
         else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so1", "true");
         }
     }

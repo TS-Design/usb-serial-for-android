@@ -381,7 +381,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -469,7 +469,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -527,7 +527,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("bptest", "false");
         }
         else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bptest", "true");
         }
     }
@@ -537,7 +537,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("balmrset", "false");
         }
         else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
         }
     }
@@ -547,7 +547,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("ahist", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("ahist", "true");
         }
     }
@@ -557,7 +557,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("so0", "false");
         }
         else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so0", "true");
         }
     }
@@ -567,7 +567,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("bmantest", "false");
         }
         else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bmantest", "true");
         }
     }
@@ -577,7 +577,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("so2", "false");
         }
         else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so2", "true");
         }
     }
@@ -587,7 +587,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             sendJson("so1", "false");
         }
         else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so1", "true");
         }
     }

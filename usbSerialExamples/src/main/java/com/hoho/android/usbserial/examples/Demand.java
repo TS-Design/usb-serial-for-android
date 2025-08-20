@@ -1,6 +1,5 @@
 package com.hoho.android.usbserial.examples;
 
-import static com.hoho.android.usbserial.examples.R.layout.mode_spinner;
 import static java.util.List.of;
 
 import android.app.PendingIntent;
@@ -42,6 +41,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.hoho.android.usbserial.BuildConfig;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -55,7 +55,7 @@ import java.util.List;
 public class Demand extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
     private enum UsbPermission { Unknown, Requested, Granted, Denied }
-    private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
+    private static final String INTENT_ACTION_GRANT_USB = BuildConfig.LIBRARY_PACKAGE_NAME  + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
     private static final int UPDATE_INTERVAL_MILLIS = 100;
@@ -240,8 +240,12 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
+        Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
     }
@@ -283,9 +287,9 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         // dropdowns
         demandAlarmTime = view.findViewById(R.id.demandAlarmTime);
-        final ArrayAdapter<CharSequence> demandAlarmAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.demandAlarmTime, mode_spinner);
-        demandAlarmAdapter.setDropDownViewResource(mode_spinner);
-        demandAlarmTime.setAdapter(demandAlarmAdapter);
+        //final ArrayAdapter<CharSequence> demandAlarmAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.demandAlarmTime, mode_spinner);
+        //demandAlarmAdapter.setDropDownViewResource(mode_spinner);
+        //demandAlarmTime.setAdapter(demandAlarmAdapter);
         demandAlarmTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -505,7 +509,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -514,7 +518,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void putYellowAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.YELLOW);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
@@ -523,7 +527,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
@@ -532,7 +536,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void putWaterLevelTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
@@ -609,7 +613,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -670,7 +674,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("bptest", "false");
         }
         else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bptest", "true");
         }
     }
@@ -680,7 +684,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("balmrset", "false");
         }
         else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
         }
     }
@@ -690,7 +694,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("ahist", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("ahist", "true");
         }
     }
@@ -700,7 +704,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("so0", "false");
         }
         else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so0", "true");
         }
     }
@@ -710,7 +714,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("bmantest", "false");
         }
         else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bmantest", "true");
         }
     }
@@ -720,7 +724,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("so2", "false");
         }
         else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so2", "true");
         }
     }
@@ -730,7 +734,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("so1", "false");
         }
         else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so1", "true");
         }
     }
@@ -801,7 +805,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     public void parse(byte[] data) {
         String rx = new String(data);
         String K = null;
-        String V = null;
+        String V =  null;
         boolean key = false;
         boolean value = false;
 

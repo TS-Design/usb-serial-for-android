@@ -9,6 +9,7 @@ package com.hoho.android.usbserial.examples;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;/**/
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             TerminalFragment terminal = (TerminalFragment)getSupportFragmentManager().findFragmentByTag("terminal");
             if (terminal != null)
                 terminal.status("USB device detected");
+                Toast.makeText(this, "USB device detected", Toast.LENGTH_SHORT).show();
         }
         super.onNewIntent(intent);
     }

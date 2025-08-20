@@ -11,9 +11,8 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.util.Log;
-
+//import com.hoho.android.usbserial.driver.BuildConfig;
 import com.hoho.android.usbserial.BuildConfig;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;

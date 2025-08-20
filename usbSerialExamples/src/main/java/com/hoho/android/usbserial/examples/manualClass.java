@@ -54,7 +54,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
-    private final boolean UiMessageSent = false;
+    // private final boolean UiMessageSent = false;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     //private TextView receiveText;
@@ -189,8 +189,11 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.manual_main, container, false);
         maintLowProbe = view.findViewById(R.id.maintLowProbe);
+        // maintLowProbe.setOnClickListener(v -> lowCallBack());
         maintAlarmProbe = view.findViewById(R.id.maintAlarmProbe);
+        // maintAlarmProbe.setOnClickListener(v -> alarmCallBack());
         maintHiProbe = view.findViewById(R.id.maintHiProbe);
+        // maintHiProbe.setOnClickListener(v -> highCallBack());
         maintSO0 = view.findViewById(R.id.maintSO0);
         maintSO1 = view.findViewById(R.id.maintSO1);
         maintSO2 = view.findViewById(R.id.maintSO2);
@@ -252,7 +255,24 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         else
             sendJson("bry4","false");
     }
-
+/*    private void lowCallBack() {
+        if(panelData.getPanelBool("blow"))
+            sendJson("bLowUi","true");
+        else
+            sendJson("bLowUi","false");
+    }
+    private void highCallBack() {
+        if(panelData.getPanelBool("bHigh"))
+            sendJson("bHighUi","true");
+        else
+            sendJson("bHighUi","false");
+    }
+    private void alarmCallBack() {
+        if(panelData.getPanelBool("balarm"))
+            sendJson("bAlarmUi","true");
+        else
+            sendJson("bAlarmUi","false");
+    } */
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         // An item was selected. You can retrieve the selected item using
         // parent.getItemAtPosition(pos)
@@ -383,10 +403,10 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         } catch (IOException ignored) {}
         usbSerialPort = null;
     }
-    private void putTextColor(TextView tv, boolean value) {
+    private void putYellowAlarmTextColor(TextView tv, boolean value) {
        if (value) {
           tv.setTextColor(Color.BLACK);
-          tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+          tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
        } else {
           tv.setTextColor(Color.BLACK);
           tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -395,28 +415,34 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     private void putBlueAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setText("High Open");
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLUE);
+            tv.setText("High Closed");
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
         }
     }
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setText("Alarm Open");
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
+            tv.setText("Alarm Closed");
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
     private void putWaterLevelTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setText("Low Closed");
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
+            tv.setText("Low Open");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
         }
     }
 
@@ -424,26 +450,26 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     public void postDataLayer() {  // Update UI inputs and outputs
         /* Post these everytime */
         if(panelData.containsKey("bLow"))
-            putWaterLevelTextColor(maintLowProbe, !panelData.getPanel("bLow"));
+            putWaterLevelTextColor(maintLowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bHigh"))
-            putBlueAlarmTextColor(maintHiProbe, !panelData.getPanel("bHigh"));
+            putBlueAlarmTextColor(maintHiProbe, !panelData.getPanelBool("bHigh"));
         if(panelData.containsKey("bAlarm"))
-            putRedAlarmTextColor(maintAlarmProbe, !panelData.getPanel("bAlarm"));
+            putRedAlarmTextColor(maintAlarmProbe, !panelData.getPanelBool("bAlarm"));
 
         if(panelData.containsKey("so0"))
-            putTextColor(maintSO0, panelData.getPanel("so0"));
+            putYellowAlarmTextColor(maintSO0, panelData.getPanelBool("so0"));
         if(panelData.containsKey("so1"))
-            putTextColor(maintSO1, panelData.getPanel("so1"));
+            putYellowAlarmTextColor(maintSO1, panelData.getPanelBool("so1"));
         if(panelData.containsKey("so2"))
-            putTextColor(maintSO2, panelData.getPanel("so2"));
+            putYellowAlarmTextColor(maintSO2, panelData.getPanelBool("so2"));
         if(panelData.containsKey("bry1"))
-            putTextColor(RY1, panelData.getPanel("bry1"));
+            putYellowAlarmTextColor(RY1, panelData.getPanelBool("bry1"));
         if(panelData.containsKey("bry2"))
-            putTextColor(RY2, panelData.getPanel("bry2"));
+            putYellowAlarmTextColor(RY2, panelData.getPanelBool("bry2"));
         if(panelData.containsKey("bry3"))
-            putTextColor(RY3, panelData.getPanel("bry3"));
+            putYellowAlarmTextColor(RY3, panelData.getPanelBool("bry3"));
         if(panelData.containsKey("bry4"))
-            putTextColor(RY4, panelData.getPanel("bry4"));
+            putYellowAlarmTextColor(RY4, panelData.getPanelBool("bry4"));
        }
     /*        if ((dataLayer.getKEY()).equals("mode")) {
             //dataLayer.setMode(dataLayer.getVALUE());

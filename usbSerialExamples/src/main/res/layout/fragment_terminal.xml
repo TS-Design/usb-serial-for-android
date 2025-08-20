@@ -57,7 +57,7 @@
             android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="On Demmand Effluent Pumping"
+            android:text="Effluent Pumping"
             android:textSize="@dimen/RadioButtonTextSize" />
 
         <RadioButton

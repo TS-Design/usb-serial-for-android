@@ -411,7 +411,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -420,7 +420,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     private void putYellowAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.YELLOW);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
@@ -429,7 +429,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
@@ -438,7 +438,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     private void putWaterLevelTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
@@ -528,7 +528,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -592,7 +592,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             sendJson("balmrset", "false");
         }
         else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
             mainLooper.postDelayed(resetAlarmClear, RESET_ALARM_MILLIS);
         }
@@ -603,7 +603,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             sendJson("ahist", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("ahist", "true");
         }
     }

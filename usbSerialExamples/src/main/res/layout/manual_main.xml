@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:text="SO0 J5-1 "
+        android:text="SO1 J5-1 "
         app:layout_constraintStart_toStartOf="@+id/manualOutHeader"
         app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
     <CheckBox
@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="28dp"
-        android:text="SO1 J5-3  "
+        android:text="SO2 J5-3  "
         app:layout_constraintStart_toStartOf="@+id/maintSO0"
         app:layout_constraintTop_toBottomOf="@+id/maintSO0" />
     <CheckBox
@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="SO2 J5-5 "
+        android:text="DPump J5-5 "
         app:layout_constraintStart_toStartOf="@+id/maintSO1"
         app:layout_constraintTop_toBottomOf="@+id/maintSO1" />
     <CheckBox

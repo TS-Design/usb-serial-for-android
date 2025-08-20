@@ -48,6 +48,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.hoho.android.usbserial.examples.BuildConfig;
+import com.hoho.android.usbserial.examples.R;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -62,6 +64,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+   // private Fragment anrFragment;
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
@@ -144,7 +147,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public Button recirTest;
     public Button alarmReset;
     public Button alarm;
-    public Button lowProbe;
+    public Button waterAlarm;
     public Button airAlarm;
     public Button peristalticTest;
     public String keyString = "";
@@ -171,6 +174,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             List.of("mode",
                     "tank",
                     "bok",
+                    "bwater",
                     "bptest",
                     "balmrset",
                     "so0",
@@ -290,13 +294,15 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     @Override
     public void onResume() {
         super.onResume();
-        requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-        Toast.makeText(getActivity(), "onResume", Toast.LENGTH_SHORT).show();
-
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
+        Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
-    }
-    @Override
+    }    @Override
     public void onPause() {
         if(connected) {
             status("disconnected");
@@ -307,7 +313,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.anr_fragment, container, false);
+        View view = inflater.inflate(com.hoho.android.usbserial.examples.R.layout.anr_fragment, container, false);
+        //anrFragment = getParentFragment();
         // PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
         flowData = view.findViewById((R.id.flowData));
@@ -330,7 +337,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
-        lowProbe = view.findViewById(R.id.lowProbe);
+        waterAlarm = view.findViewById(R.id.waterAlarm);
         manualInputTest = view.findViewById(R.id.manualTest);
 
         zoneCount = (EditText) view.findViewById(R.id.zoneCount);
@@ -364,20 +371,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         });
         FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
-        FdRunTimeCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int fdrun = parseInt(FdRunTimeCount.getText().toString())*60;
-                    sendPriorityCommand("fdrun",Integer.toString(fdrun));
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
-                    FdRunTimeCount.clearFocus();
-                    handled = true;
-                }
-                return handled;
-            }
-        });
+        FdRunTimeCount.setOnClickListener(v -> NumericTimePopup.showNumericTimePopup(getContext(), FdRunTimeCount, this));
         recirRunCount = view.findViewById(R.id.recirRunCount);
         recirRunCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -659,12 +653,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
             yellowInput.setOnClickListener(v13 -> {
                 if(panelData.getPanelBool("bLow")) {  // Low Probe
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
-                     sendPriorityCommand("bLowUi", "true");
-                }
-                else {
                     yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
                     sendPriorityCommand("bLowUi", "false");
+                }
+                else {
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                    sendPriorityCommand("bLowUi", "true");
                 }
             });
             blueInput.setOnClickListener(v14 -> { // Alarm probe
@@ -851,7 +845,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -860,41 +854,84 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private void putBlueAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         } else {
-            tv.setTextColor(Color.BLUE);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
         }
     }
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
-    private void putWaterLevelTextColor(TextView tv, boolean value) {
+    private void putWaterLevelText(TextView tv, boolean value) {
         if (value) {
-            tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-        } else {
+            waterAlarm.setText("Water Level Alarm");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+        } else {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+        }
+    }
+    private void putLowWaterText(TextView tv, boolean value) {
+        if (value) {
+            waterAlarm.setText("Water Level Low");
+            tv.setTextColor(Color.YELLOW);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+        } else {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+        }
+    }
+    private void putAlarmWaterText(TextView tv, boolean value) {
+        if (value) {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+        } else {
+            waterAlarm.setText("Water Level Alarm");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        }
+    }
+    private void putHighWaterText(TextView tv, boolean value) {
+        if (value) {
+            waterAlarm.setText("Water Level High");
+            tv.setTextColor(Color.BLUE);
+        } else {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
         }
     }
     //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
-        /* Status Banner */
-        if(panelData.containsKey("bok"))
-            putRedAlarmTextColor(systemOk, !panelData.getPanelBool("bok"));
-        if(panelData.containsKey("bHigh"))  //System Alarm
-            putBlueAlarmTextColor(alarm, panelData.getPanelBool("bHigh"));
-        if(panelData.containsKey("bLow"))   // Yellow Alarm
-            putWaterLevelTextColor(lowProbe, !panelData.getPanelBool("bLow"));
+        // Status Banner
+        if(panelData.containsKey("bok")) {
+            putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
+            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
+        }
+
+        if(panelData.containsKey("bwater"))   //  Water Alarm Button
+            if(panelData.getPanelBool("bAlarm"))
+                putWaterLevelText(waterAlarm, true);
+            else if (panelData.getPanelBool("bHigh"))
+                putHighWaterText(waterAlarm, true);
+            else if (panelData.getPanelBool("bLow"))
+                putLowWaterText(waterAlarm, false);
+            else
+                putLowWaterText(waterAlarm,true);
+
         if(panelData.containsKey("bairalrm")) // Aeration Alarm
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
+        // Buttons
         if(panelData.containsKey("bptest"))
             putTextColor(effPumpTest, panelData.getPanelBool("effstat"));
         if(panelData.containsKey("balmrset"))
@@ -911,13 +948,16 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if(panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
             doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));
         if(panelData.containsKey("fdrun") && !FdRunTimeCount.hasFocus()) {
+            String formattedTime;
             if(panelData.getPanelString("fdrun").contentEquals("")) {
-                FdRunTimeCount.setText(String.format("%d", 100));
+                int fdrun = 0;
+                formattedTime = formatSeconds(fdrun); // returns "03:45"
             }
             else {
-                int fdrun = parseInt(panelData.getPanelString("fdrun"))/60;
-                FdRunTimeCount.setText(String.format("%d",fdrun));
+                int fdrun = parseInt(panelData.getPanelString("fdrun")) ;
+                formattedTime = formatSeconds(fdrun); // returns "03:45"
             }
+            FdRunTimeCount.setText(formattedTime);
         }
         if(panelData.containsKey("rrepeat") && !recirRepeatCount.hasFocus()) {
             if (panelData.getPanelString("rrepeat").contentEquals("")) {
@@ -938,7 +978,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
         if(panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI:             %s", panelData.getPanelString ("airpres")));
+            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
             if(panelData.getPanelString("palmtime").contentEquals(""))
                 effPumpAlarmTimeCount.setText(String.format("%d", 0));
@@ -957,7 +997,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 peristolticCount.setText(String.format("%d", perdur));
             }
         }
-        // end Variables
+        // Time and Gallons Averages
         if(panelData.containsKey("time"))
             timeRemote.setText(panelData.getPanelString("time"));
         if (panelData.containsKey("life"))
@@ -1007,7 +1047,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
     private void setTextViewFlavor(TextView textview, @NonNull String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -1061,14 +1101,36 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         updateTime.append(remoteSec);
         return(updateTime);
     }
+    private String formatSeconds(int totalSeconds) {
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    }
+    private void showTimeInputDialog() {
+        //sendPriorityCommand("rrun", String.valueOf(editText.getText()));
+
+    }
+    private int convertToSecondsSafe(String time) {
+        try {
+            String[] parts = time.split(":");
+            int minutes = Integer.parseInt(parts[0]);
+            int seconds = Integer.parseInt(parts[1]);
+            return minutes * 60 + seconds;
+        } catch (Exception e) {
+            return -1; // or handle error
+        }
+    }
+    private boolean isValidTimeFormat(String value) {
+        return value.matches("^[0-5]?\\d:[0-5]\\d$");
+    }
     private void effPumpTestCallback() {
-        if(panelData.getPanelBool("bptest")) {
+        if(panelData.getPanelBool("effstat")) {
             effPumpTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
-            sendPriorityCommand("bptest", "false");
+            sendPriorityCommand("effstat", "false");
         }
         else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendPriorityCommand("bptest", "true");
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendPriorityCommand("effstat", "true");
         }
     }
     private void alarmResetCallback() {
@@ -1080,7 +1142,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             sendPriorityCommand("so0", "false");
         }
         else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("so0", "true");
         }
     }
@@ -1100,7 +1162,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             sendPriorityCommand("balrmltch", "false");
         }
         else {
-            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("balrmltch", "true");
         }
     }
@@ -1110,7 +1172,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             sendPriorityCommand("so2", "false");
         }
         else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("so2", "true");
         }
     }
@@ -1120,7 +1182,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             sendPriorityCommand("so1", "false");
         }
         else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("so1", "true");
         }
     }

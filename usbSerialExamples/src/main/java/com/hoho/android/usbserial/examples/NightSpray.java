@@ -380,7 +380,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -468,7 +468,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -526,7 +526,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("bptest", "false");
         }
         else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bptest", "true");
         }
     }
@@ -536,7 +536,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("balmrset", "false");
         }
         else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
         }
     }
@@ -546,7 +546,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("ahist", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("ahist", "true");
         }
     }
@@ -556,7 +556,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("so0", "false");
         }
         else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so0", "true");
         }
     }
@@ -566,7 +566,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("bmantest", "false");
         }
         else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("bmantest", "true");
         }
     }
@@ -576,7 +576,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("so2", "false");
         }
         else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so2", "true");
         }
     }
@@ -586,7 +586,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             sendJson("so1", "false");
         }
         else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("so1", "true");
         }
     }

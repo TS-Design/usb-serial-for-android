@@ -43,7 +43,7 @@ import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
-
+import com.hoho.android.usbserial.examples.BuildConfig;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -140,7 +140,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         };
         mainLooper = new Handler(Looper.getMainLooper());
         priorityCommandEnabled = false;
-        //priorityCommandValue = null;
         priorityCommandValue = null;
     }
     /*
@@ -251,7 +250,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
         Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
@@ -568,7 +571,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {

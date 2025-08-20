@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <!-- First Row -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button android:id="@+id/btn_1" android:text="1" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_2" android:text="2" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_3" android:text="3" style="@style/KeypadButton"/>
+    </LinearLayout>
+
+    <!-- Second Row -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button android:id="@+id/btn_4" android:text="4" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_5" android:text="5" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_6" android:text="6" style="@style/KeypadButton"/>
+    </LinearLayout>
+
+    <!-- Third Row -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button android:id="@+id/btn_7" android:text="7" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_8" android:text="8" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_9" android:text="9" style="@style/KeypadButton"/>
+    </LinearLayout>
+
+    <!-- Fourth Row -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button android:id="@+id/btn_colon" android:text=":" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_0" android:text="0" style="@style/KeypadButton"/>
+        <Button android:id="@+id/btn_del" android:text="⌫" style="@style/KeypadButton"/>
+    </LinearLayout>
+</LinearLayout>
