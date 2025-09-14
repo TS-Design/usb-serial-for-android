@@ -19,5 +19,6 @@
     <color name="textGoodBackground">#4CAF50</color>
     <color name="RedAlarmBackground">#EC1016</color>
     <color name="WaterLevelBackground">#EC1016</color>
+    <color name="BannerDefault">#575843</color>
 
 </resources>

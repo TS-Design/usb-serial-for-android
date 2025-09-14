@@ -18,10 +18,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -48,8 +50,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
-import com.hoho.android.usbserial.examples.BuildConfig;
-import com.hoho.android.usbserial.examples.R;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
@@ -64,19 +64,23 @@ import java.util.List;
 import java.util.Locale;
 
 public class AnrFragment extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
-   // private Fragment anrFragment;
+    // private Fragment anrFragment;
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
     }
+
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
+
     private void onClick(View v1) {
         popupWindow.dismiss();
     }
-    private enum UsbPermission { Unknown, Requested, Granted, Denied }
+
+    private enum UsbPermission {Unknown, Requested, Granted, Denied}
+
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
     private static final int WRITE_WAIT_MILLIS = 1000;
     private static final int READ_WAIT_MILLIS = 1000;
@@ -110,9 +114,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private EditText doseDayCount;
     private EditText recirRepeatCount;
     private EditText recirRunCount;
+    private EditText recirRunCountSec;
     private EditText effPumpAlarmTimeCount;
     private EditText FdRunTimeCount;
+    private EditText FdRunTimeCountSec;
     private EditText peristolticCount;
+    private EditText peristolticCountSec;
     //private TextView FdRunTime;
     //private TextView dosesDay;
     private TextView effStatus;
@@ -161,7 +168,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public String remoteDay = "00";
     public String remoteMonth = "00";
     public String[][] alarmList = new String[30][20];
-
     public boolean popUpDialogPosted = false;
     PopupWindow popupWindow;
     PopupWindow popupManualTest;
@@ -184,7 +190,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     "fdrun",
                     "rrepeat",
                     "rrun",
-                    "effstat", 
+                    "effstat",
                     "airpres",
                     "palmtime",
                     "zone",
@@ -206,7 +212,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
+                if (INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
                     usbPermission = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                             ? UsbPermission.Granted : UsbPermission.Denied;
                     connect();
@@ -228,9 +234,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 priorityCommand = "time";
                 priorityCommandValue = uiTime;
                 Toast.makeText(getActivity(), "Panel Time Updated", Toast.LENGTH_SHORT).show();
-            }
-            else
-                mainLooper.postDelayed(setPanelTime,1000); // Keep Trying if disconnected
+            } else
+                mainLooper.postDelayed(setPanelTime, 1000); // Keep Trying if disconnected
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
@@ -239,20 +244,19 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         public void run() {
             //String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
             timeRemote.setText(panelData.getPanelString("time"));
-            mainLooper.postDelayed(timeHandler,1000);
+            mainLooper.postDelayed(timeHandler, 1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
         @Override
         public void run() {
-            if(panelData.getPanelString("tank").equals("0")) {
-                if(!popUpDialogPosted) {
+            if (panelData.getPanelString("tank").equals("0")) {
+                if (!popUpDialogPosted) {
                     showTankPopUp();
                     popUpDialogPosted = true;
                 }
                 mainLooper.postDelayed(waitOnTank, UPDATE_INTERVAL_MILLIS);
-            }
-            else {
+            } else {
                 // mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
                 popUpDialogPosted = false;
             }
@@ -264,6 +268,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     };*/
     final Runnable update = this::getPanelStatus;
     final Runnable postMsg = this::postDataLayer;
+
     /*final Runnable update5L = () -> {
         Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
         sendPriorityCommand("zone", panelData.getPanelString("zone"));
@@ -287,9 +292,10 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
-       //  mainLooper.postDelayed(timeHandler,1000);
+        //  mainLooper.postDelayed(timeHandler,1000);
 
     }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onResume() {
@@ -300,26 +306,30 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
         }
         Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
-        if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
+        if (usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
-    }    @Override
+    }
+
+    @Override
     public void onPause() {
-        if(connected) {
+        if (connected) {
             status("disconnected");
             disconnect();
         }
         getActivity().unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
         View view = inflater.inflate(com.hoho.android.usbserial.examples.R.layout.anr_fragment, container, false);
         //anrFragment = getParentFragment();
         // PopUpFragment popUpFragment;
+        //focusSink = view.findViewById(R.id.focusSink);
         systemOk = view.findViewById(R.id.systemOk);
         flowData = view.findViewById((R.id.flowData));
         alarmLatch = view.findViewById(R.id.alarmLatch);
-        alarmLatch.setOnClickListener(v-> alarmLatchCallback());
+        alarmLatch.setOnClickListener(v -> alarmLatchCallback());
         alarmHistory = view.findViewById(R.id.alarmHistory);
         recirTest = view.findViewById(R.id.recirTest);
         recirTest.setOnClickListener(v -> recirTestCallback());
@@ -339,52 +349,20 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         airPressure = view.findViewById(R.id.airPressure);
         waterAlarm = view.findViewById(R.id.waterAlarm);
         manualInputTest = view.findViewById(R.id.manualTest);
-
+        // Single EditText handlers
         zoneCount = (EditText) view.findViewById(R.id.zoneCount);
         zoneCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    sendPriorityCommand("zone",zoneCount.getText().toString());
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    int zone = parseInt(zoneCount.getText().toString());
+                    sendPriorityCommand("zone", Integer.toString(zone));
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
                     zoneCount.clearFocus();
-                    //keypadOn = false;
-                    handled = true;
+                    return true;
                 }
-                return handled;
-            }
-        });
-        doseDayCount = view.findViewById(R.id.doseDayCount);
-        doseDayCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    sendPriorityCommand("dosesday",doseDayCount.getText().toString());
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
-                    doseDayCount.clearFocus();
-                    handled = true;
-                }
-
-                return handled;
-            }
-        });
-        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
-        FdRunTimeCount.setOnClickListener(v -> NumericTimePopup.showNumericTimePopup(getContext(), FdRunTimeCount, this));
-        recirRunCount = view.findViewById(R.id.recirRunCount);
-        recirRunCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int rrun = parseInt(recirRunCount.getText().toString())*60;
-                    sendPriorityCommand("rrun",Integer.toString(rrun));
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
-                    recirRunCount.clearFocus();
-                    handled = true;
-                }
-                return handled;
+                return false;
             }
         });
         recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
@@ -393,13 +371,13 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                     int rrepeat = parseInt(recirRepeatCount.getText().toString())*60;
-                    sendPriorityCommand("rrepeat",Integer.toString(rrepeat));
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    int rrepeat = parseInt(recirRepeatCount.getText().toString())*60;
+                    sendPriorityCommand("rrepeat", Integer.toString(rrepeat));
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
                     recirRepeatCount.clearFocus();
-                    handled = true;
+                    return true;
                 }
-                return handled;
+                return false;
             }
         });
         effPumpAlarmTimeCount = view.findViewById(R.id.effPumpAlarmTimeCount);
@@ -408,30 +386,194 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int palmtime = parseInt(effPumpAlarmTimeCount.getText().toString())*60;
-                    sendPriorityCommand("palmtime",Integer.toString(palmtime));
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    int palmtime = parseInt(effPumpAlarmTimeCount.getText().toString()) * 60;
+                    sendPriorityCommand("palmtime", Integer.toString(palmtime));
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
                     effPumpAlarmTimeCount.clearFocus();
-                    handled = true;
+                    return true;
                 }
-                return handled;
+                return false;
             }
         });
+        doseDayCount = view.findViewById(R.id.doseDayCount);
+        doseDayCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int dosesday = parseInt(doseDayCount.getText().toString());
+                    sendPriorityCommand("dosesday", Integer.toString(dosesday));
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    doseDayCount.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        // Field Dose Minutes and Seconds
+        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
+        FdRunTimeCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // int fdrun = parseInt(FdRunTimeCount.getText().toString());
+                    int minutes = 0; // Declare here so it's visible after try-catch
+                    int seconds = 0; // Declare here so it's visible after try-catch
+                    int totalSeconds = 0; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(FdRunTimeCount.getText().toString());
+                        seconds = Integer.parseInt(FdRunTimeCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    Log.d("ANR", "Field Dose Update from Minutes:" + totalSeconds);
+                    sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    FdRunTimeCount.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        FdRunTimeCountSec = view.findViewById(R.id.FdRunTimeCountSec);
+        FdRunTimeCountSec.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // int fdrun = parseInt(FdRunTimeCountSec.getText().toString());
+                    int minutes = 0; // Declare here so it's visible after try-catch
+                    int seconds = 0; // Declare here so it's visible after try-catch
+                    int totalSeconds = 0; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(FdRunTimeCount.getText().toString());
+                        seconds = Integer.parseInt(FdRunTimeCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
+                    Log.d("ANR", "Field Dose Update from Seconds:" + totalSeconds);
+                    // Hide keyboard using EditText's window token
+                    InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(FdRunTimeCountSec.getWindowToken(), 0);
+                    // Clear focus AFTER hiding keyboard
+                    FdRunTimeCountSec.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+         // Recirculater Run Time Minutes and Seconds
+        recirRunCount = view.findViewById(R.id.recirRunCount);
+        recirRunCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // int rrun = parseInt(recirRunCount.getText().toString());
+                    int minutes = 0; // Declare here so it's visible after try-catch
+                    int seconds = 0; // Declare here so it's visible after try-catch
+                    int totalSeconds = 0; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(recirRunCount.getText().toString());
+                        seconds = Integer.parseInt(recirRunCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    sendPriorityCommand("rrun", Integer.toString(totalSeconds));
+                    Log.d("ANR", "Reciculate Update from Minutes:" + totalSeconds);
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    recirRunCount.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        recirRunCountSec = view.findViewById(R.id.recirRunCountSec);
+        recirRunCountSec.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int rrun = parseInt(recirRunCountSec.getText().toString());
+                    int minutes = 0; // Declare here so it's visible after try-catch
+                    int seconds = 0; // Declare here so it's visible after try-catch
+                    int totalSeconds = 0; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(recirRunCount.getText().toString());
+                        seconds = Integer.parseInt(recirRunCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    sendPriorityCommand("rrun", Integer.toString(totalSeconds));
+                    Log.d("ANR", "Reciculate Update from Seconds:" + totalSeconds);
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    recirRunCountSec.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+        // Carbon Pump Run Time Minutes and Seconds
         peristolticCount = view.findViewById(R.id.peristolticCount);
         peristolticCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    int perdur = parseInt(peristolticCount.getText().toString());
-                    sendPriorityCommand("perdur",Integer.toString(perdur));
-                    ((InputMethodManager)getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    // int perdur = parseInt(peristolticCount.getText().toString());
+                    int minutes = 0; // Declare here so it's visible after try-catch
+                    int seconds = 0; // Declare here so it's visible after try-catch
+                    int totalSeconds = 0; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(peristolticCount.getText().toString());
+                        seconds = Integer.parseInt(peristolticCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    sendPriorityCommand("perdur", Integer.toString(totalSeconds));
+                    Log.d("ANR", "Carbon Update from Minutes:" + totalSeconds);
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
                     peristolticCount.clearFocus();
-                    handled = true;
+                    return true;
                 }
-                return handled;
+                return false;
             }
         });
+        peristolticCountSec = view.findViewById(R.id.peristolticCountSec);
+        peristolticCountSec.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // int perdur = parseInt(peristolticCountSec.getText().toString());
+                    int minutes = 0; // Declare here so it's visible after try-catch
+                    int seconds = 0; // Declare here so it's visible after try-catch
+                    int totalSeconds = 0; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(peristolticCount.getText().toString());
+                        seconds = Integer.parseInt(peristolticCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    sendPriorityCommand("perdur", Integer.toString(totalSeconds));
+                    Log.d("ANR", "Carbon Update from Seconds:" + totalSeconds);
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    peristolticCountSec.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
+        // peristolticCount.setOnClickListener(v -> NumericTimePopup.showNumericTimePopup(getContext(), "perdur", this));
         // dropdowns
 /*        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, R.layout.mode_spinner);
         zoneCountAdapter.setDropDownViewResource(R.layout.mode_spinner);
@@ -601,10 +743,10 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             alarmTextWindow.setText(" ");
             alarmTextWindow.setMovementMethod(new ScrollingMovementMethod());
             //StringBuilder time = new StringBuilder(panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") + " " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min"));
-            textAlarmTime.setText(panelData.getPanelString("time")) ;
+            textAlarmTime.setText(panelData.getPanelString("time"));
 
-            for (int i = 0; i< alarmList.length; i++) {
-                if(alarmList[i][1] != null) {
+            for (int i = 0; i < alarmList.length; i++) {
+                if (alarmList[i][1] != null) {
                     alarmTextWindow.append(alarmList[i][1]);
                     alarmTextWindow.append("\n");
                 }
@@ -632,15 +774,15 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 /*            if(panelData.getPanelBool("bLow"))
                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
             else
-               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             if(panelData.getPanelBool("bHigh"))
                 blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
             else
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             if(panelData.getPanelBool("bAlarm"))
                 redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
             else
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOfftextOff));
 */
             manualInputTest.setVisibility(View.INVISIBLE);
             sendPriorityCommand("bENA", "true");
@@ -652,40 +794,38 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             });
 
             yellowInput.setOnClickListener(v13 -> {
-                if(panelData.getPanelBool("bLow")) {  // Low Probe
+                if (panelData.getPanelBool("bLow")) {  // Low Probe
                     yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
                     sendPriorityCommand("bLowUi", "false");
-                }
-                else {
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                } else {
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
                     sendPriorityCommand("bLowUi", "true");
                 }
             });
             blueInput.setOnClickListener(v14 -> { // Alarm probe
-                if(panelData.getPanelBool("bHigh")) {
-                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                if (panelData.getPanelBool("bHigh")) {
+                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
                     sendPriorityCommand("bHighUi", "false");
-                }
-                else {
+                } else {
                     blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
                     sendPriorityCommand("bHighUi", "true");
                 }
             });
             redInput.setOnClickListener(v15 -> {  //High Probe
-                if(panelData.getPanelBool("bAlarm")) {
-                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+                if (panelData.getPanelBool("bAlarm")) {
+                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
                     sendPriorityCommand("bAlarmUi", "false");
-                }
-                else {
+                } else {
                     redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
                     sendPriorityCommand("bAlarmUi", "true");
                 }
             });
-         });
+        });
         // Start Update timer to sync UI
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
     }
+
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
@@ -700,20 +840,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             Toast.makeText(getActivity(), "Matrix", Toast.LENGTH_SHORT).show();
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.matrix, null);
-            // create the popup window
             int width = LinearLayout.LayoutParams.WRAP_CONTENT;
             int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-            boolean focusable = true; // lets taps outside the popup also dismiss it
+            boolean focusable = true;
             final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
-            // show the popup window
-            // which view you pass in doesn't matter, it is only used for the window tolken
-
             popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
             popupView.setBackgroundColor(Color.GRAY);
-
-
-
-
             popupView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -721,10 +853,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     return true;
                 }
             });
-
             return true;
-            // dismiss the popup window when touched
-
         } else if (id == R.id.update_time) {
             mainLooper.post(setPanelTime);
             return true;
@@ -734,12 +863,11 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             } else {
                 try {
                     usbSerialPort.setBreak(true);
-                    Thread.sleep(100); // should show progress bar instead of blocking UI thread
+                    Thread.sleep(100);
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
                     spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //receiveText.append(spn);
                 } catch (UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
@@ -751,64 +879,70 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             return super.onOptionsItemSelected(item);
         }
     }
+
     public void onNewData(byte[] data) {
         mainLooper.post(() -> receive(data));
     }
+
     public void onRunError(Exception e) {
         mainLooper.post(() -> {
             status("connection lost: " + e.getMessage());
             disconnect();
         });
     }
+
     // Local Methods and Callbacks
     public void sendPriorityCommand(String pCmd, String pValue) {
         priorityCommandEnabled = true;
         priorityCommand = pCmd;
         priorityCommandValue = pValue;
     }
+
     public void setLog(String v) {
-        StringBuilder  temp = new StringBuilder(v);
+        StringBuilder temp = new StringBuilder(v);
         alarmTextWindow.append(temp);
         alarmTextWindow.append("\n");
     }
-    public void clearAlarmCallBack(){
+
+    public void clearAlarmCallBack() {
         int i;
         sendPriorityCommand("clrlog", "query");
         panelData.deletePanelLogs("log");   // Remove all log's from panelData
         alarmTextWindow.setText("");
     }
+
     private void connect() {
         UsbDevice device = null;
         UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-        for(UsbDevice v : usbManager.getDeviceList().values())
-            if(v.getDeviceId() == deviceId)
+        for (UsbDevice v : usbManager.getDeviceList().values())
+            if (v.getDeviceId() == deviceId)
                 device = v;
-        if(device == null) {
+        if (device == null) {
             status("connection failed: device not found");
             return;
         }
         UsbSerialDriver driver = UsbSerialProber.getDefaultProber().probeDevice(device);
-        if(driver == null) {
+        if (driver == null) {
             driver = CustomProber.getCustomProber().probeDevice(device);
         }
-        if(driver == null) {
+        if (driver == null) {
             status("connection failed: no driver for device");
             return;
         }
-        if(driver.getPorts().size() < portNum) {
+        if (driver.getPorts().size() < portNum) {
             status("connection failed: not enough ports at device");
             return;
         }
         usbSerialPort = driver.getPorts().get(portNum);
         UsbDeviceConnection usbConnection = usbManager.openDevice(driver.getDevice());
-        if(usbConnection == null && usbPermission == UsbPermission.Unknown && !usbManager.hasPermission(driver.getDevice())) {
+        if (usbConnection == null && usbPermission == UsbPermission.Unknown && !usbManager.hasPermission(driver.getDevice())) {
             usbPermission = UsbPermission.Requested;
             int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
             PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), flags);
             usbManager.requestPermission(driver.getDevice(), usbPermissionIntent);
             return;
         }
-        if(usbConnection == null) {
+        if (usbConnection == null) {
             if (!usbManager.hasPermission(driver.getDevice()))
                 status("connection failed: permission denied");
             else
@@ -819,7 +953,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         try {
             usbSerialPort.open(usbConnection);
             usbSerialPort.setParameters(baudRate, 8, 1, UsbSerialPort.PARITY_NONE);
-            if(withIoManager) {
+            if (withIoManager) {
                 usbIoManager = new SerialInputOutputManager(usbSerialPort, this);
                 usbIoManager.start();
             }
@@ -830,18 +964,21 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             disconnect();
         }
     }
+
     private void disconnect() {
         connected = false;
-        if(usbIoManager != null) {
+        if (usbIoManager != null) {
             usbIoManager.setListener(null);
             usbIoManager.stop();
         }
         usbIoManager = null;
         try {
             usbSerialPort.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
         usbSerialPort = null;
     }
+
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
@@ -851,24 +988,27 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+
     private void putBlueAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         } else {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
+
     private void putWaterLevelText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level Alarm");
@@ -877,31 +1017,34 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+
     private void putLowWaterText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level Low");
             tv.setTextColor(Color.YELLOW);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+
     private void putAlarmWaterText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOnBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         } else {
             waterAlarm.setText("Water Level Alarm");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
+
     private void putHighWaterText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level High");
@@ -911,94 +1054,109 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             tv.setTextColor(Color.BLACK);
         }
     }
+
     //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
         // Status Banner
-        if(panelData.containsKey("bok")) {
+        String formattedTime;
+
+        if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
             putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
         }
-
-        if(panelData.containsKey("bwater"))   //  Water Alarm Button
-            if(panelData.getPanelBool("bAlarm"))
+        if (panelData.containsKey("bwater"))   //  Water Alarm Button
+            if (panelData.getPanelBool("bAlarm"))
                 putWaterLevelText(waterAlarm, true);
             else if (panelData.getPanelBool("bHigh"))
                 putHighWaterText(waterAlarm, true);
             else if (panelData.getPanelBool("bLow"))
                 putLowWaterText(waterAlarm, false);
             else
-                putLowWaterText(waterAlarm,true);
+                putLowWaterText(waterAlarm, true);
 
-        if(panelData.containsKey("bairalrm")) // Aeration Alarm
+        if (panelData.containsKey("bairalrm")) // Aeration Alarm
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         // Buttons
-        if(panelData.containsKey("bptest"))
+        if (panelData.containsKey("bptest"))
             putTextColor(effPumpTest, panelData.getPanelBool("effstat"));
-        if(panelData.containsKey("balmrset"))
+        if (panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
-        if(panelData.containsKey("so1"))
+        if (panelData.containsKey("so1"))
             putTextColor(recirTest, panelData.getPanelBool("so1"));
-        if(panelData.containsKey("so0"))
+        if (panelData.containsKey("so0"))
             putTextColor(ffTest, panelData.getPanelBool("so0"));
-        if(panelData.containsKey("so2"))
+        if (panelData.containsKey("so2"))
             putTextColor(peristalticTest, panelData.getPanelBool("so2"));
-        if(panelData.containsKey("balrmltch"))
+        if (panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
         // Variables
-        if(panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
+        if (panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
             doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));
-        if(panelData.containsKey("fdrun") && !FdRunTimeCount.hasFocus()) {
-            String formattedTime;
-            if(panelData.getPanelString("fdrun").contentEquals("")) {
-                int fdrun = 0;
-                formattedTime = formatSeconds(fdrun); // returns "03:45"
+
+        if (panelData.containsKey("fdrun") && !(FdRunTimeCount.hasFocus() || FdRunTimeCountSec.hasFocus()) ) {
+            int fdrun = 0;
+            int fdrunSec = 0;
+            if (panelData.getPanelString("fdrun").contentEquals("")) {
+                //FdRunTimeCount.setText("0");
+                //FdRunTimeCountSec.setText("0");
+            } else {
+                fdrun = (parseInt(panelData.getPanelString("fdrun")) / 60);
+                fdrunSec = (parseInt(panelData.getPanelString("fdrun")) % 60);
+                FdRunTimeCount.setText(Integer.toString(fdrun));
+                FdRunTimeCountSec.setText(Integer.toString(fdrunSec));
             }
-            else {
-                int fdrun = parseInt(panelData.getPanelString("fdrun")) ;
-                formattedTime = formatSeconds(fdrun); // returns "03:45"
-            }
-            FdRunTimeCount.setText(formattedTime);
         }
-        if(panelData.containsKey("rrepeat") && !recirRepeatCount.hasFocus()) {
+
+        if (panelData.containsKey("rrepeat") && !recirRepeatCount.hasFocus()) {
             if (panelData.getPanelString("rrepeat").contentEquals("")) {
                 int rrepeat = 0;
-                recirRepeatCount.setText(String.format("%d", rrepeat));
+                recirRepeatCount.setText(String.format("000"));
             } else {
-                int rrepeat = parseInt(panelData.getPanelString("rrepeat"))/60;
-                recirRepeatCount.setText(String.format("%d", rrepeat));
+                int rrepeat = parseInt(panelData.getPanelString("rrepeat"));
+                recirRepeatCount.setText(String.format("%d", rrepeat / 60));
             }
         }
-        if(panelData.containsKey("rrun") && !recirRunCount.hasFocus()) {
+
+        if (panelData.containsKey("rrun") && !(recirRunCount.hasFocus() || recirRunCountSec.hasFocus())) {
+            int rrun = 0;
+            int rrunSec = 0;
             if (panelData.getPanelString("rrun").contentEquals("")) {
-                int rrun = 0;
-                recirRunCount.setText(String.format("%d", rrun));
+                //recirRunCount.setText(String.format("000"));
+                //recirRunCountSec.setText(String.format("00"));
             } else {
-                int rrun = parseInt(panelData.getPanelString("rrun"));
-                recirRunCount.setText(String.format("%d", rrun / 60));
+                rrun = (parseInt(panelData.getPanelString("rrun")) / 60);
+                rrunSec = (parseInt(panelData.getPanelString("rrun")) % 60);
+                recirRunCount.setText(Integer.toString(rrun));
+                recirRunCountSec.setText(Integer.toString(rrunSec));
             }
         }
-        if(panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString ("airpres")));
-        if(panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
-            if(panelData.getPanelString("palmtime").contentEquals(""))
+        if (panelData.containsKey("airpres"))
+            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString("airpres")));
+        if (panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
+            if (panelData.getPanelString("palmtime").contentEquals(""))
                 effPumpAlarmTimeCount.setText(String.format("%d", 0));
             else {
                 int palmtime = parseInt(panelData.getPanelString("palmtime"));
-                effPumpAlarmTimeCount.setText(String.format("%d", palmtime /60));
+                effPumpAlarmTimeCount.setText(String.format("%d", palmtime / 60));
             }
         }
-        if(panelData.containsKey("zone") && !zoneCount.hasFocus())
+        if (panelData.containsKey("zone") && !zoneCount.hasFocus())
             zoneCount.setText(String.format(panelData.getPanelString("zone")));
-        if(panelData.containsKey("perdur") && !peristolticCount.hasFocus()) {
-            if(panelData.getPanelString("perdur").contentEquals(""))
-                peristolticCount.setText(String.format("%d", 0));
-            else {
-                int perdur = parseInt(panelData.getPanelString("perdur"))/60;
-                peristolticCount.setText(String.format("%d", perdur));
+        if (panelData.containsKey("perdur") && !(peristolticCount.hasFocus() || peristolticCountSec.hasFocus())) {
+            int perdur = 0;
+            int perdurSec = 0;
+            if (panelData.getPanelString("perdur").contentEquals("")) {
+                // peristolticCount.setText(String.format("000"));
+                // peristolticCountSec.setText(String.format("00"));
+            } else {
+                perdur = (parseInt(panelData.getPanelString("perdur")) / 60);
+                perdurSec = (parseInt(panelData.getPanelString("perdur")) % 60);
+                peristolticCount.setText(Integer.toString(perdur));
+                peristolticCountSec.setText(Integer.toString(perdurSec));
             }
         }
         // Time and Gallons Averages
-        if(panelData.containsKey("time"))
+        if (panelData.containsKey("time"))
             timeRemote.setText(panelData.getPanelString("time"));
         if (panelData.containsKey("life"))
             remoteSec = panelData.getPanelString("life");
@@ -1017,10 +1175,23 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if (panelData.containsKey("day30Avg"))
             remoteSec = panelData.getPanelString("day30Avg");
         if (panelData.containsKey("KEY")) {
-            if(panelData.getPanelString("KEY").contains("log")) {
-                alarmList  = panelData.displayFilterLog("log");         // Filter log* to alarm list
+            if (panelData.getPanelString("KEY").contains("log")) {
+                alarmList = panelData.displayFilterLog("log");         // Filter log* to alarm list
             }
         }
+    }
+
+    public static String secondsToTimeString(String secondsStr) {
+        int totalSeconds;
+        try {
+            totalSeconds = Integer.parseInt(secondsStr);
+        } catch (NumberFormatException e) {
+            return "000:00";
+        }
+        if (totalSeconds < 0) totalSeconds = 0;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%03d:%02d", minutes, seconds);
     }
 
     public void getPanelStatus() {
@@ -1030,31 +1201,32 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         //mainLooper.postDelayed(clearAck, 200);
         if (connected) {
-            if(priorityCommandEnabled == true) {
+            if (priorityCommandEnabled == true) {
                 sendJson(priorityCommand, priorityCommandValue);
                 priorityCommandEnabled = false;
-            }
-            else
+            } else
                 sendJson(updateCommandList.get(commandListIndex++), "Query");
             if (commandListIndex == updateCommandList.size())
                 commandListIndex = 0;
         }
     }
+
     public void showTankPopUp() {
         DialogFragment newFragment = new PopUpFragment();
         assert getParentFragmentManager() != null;
         newFragment.show(getParentFragmentManager(), "tank");
     }
+
     private void setTextViewFlavor(TextView textview, @NonNull String value) {
         if (value.equalsIgnoreCase("true")) {
             textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
-        }
-        else {
+        } else {
             textview.setBackgroundColor(Color.BLACK);
             textview.setTextColor(Color.WHITE);
         }
     }
+
     private boolean check5lTime() {
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -1073,18 +1245,20 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         sendPriorityCommand("year", String.valueOf(year));
         return true;
     }
+
     @NonNull
-    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
+    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec) {
         SpannableStringBuilder remoteTime = new SpannableStringBuilder();
         remoteTime.append(String.valueOf(remoteHr));
         remoteTime.append(":");
         remoteTime.append(String.valueOf(remoteMin));
         remoteTime.append(":");
         remoteTime.append(String.valueOf(remoteSec));
-        return(remoteTime);
+        return (remoteTime);
     }
+
     @NonNull
-    private SpannableStringBuilder updateTime(String remoteYear, String remoteMonth, String remoteDay, String remoteHr, String remoteMin, String remoteSec){
+    private SpannableStringBuilder updateTime(String remoteYear, String remoteMonth, String remoteDay, String remoteHr, String remoteMin, String remoteSec) {
         SpannableStringBuilder updateTime = new SpannableStringBuilder();
         updateTime.append(remoteDay);
         updateTime.append("-");
@@ -1099,17 +1273,20 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         updateTime.append(remoteMin);
         updateTime.append(":");
         updateTime.append(remoteSec);
-        return(updateTime);
+        return (updateTime);
     }
+
     private String formatSeconds(int totalSeconds) {
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
+
     private void showTimeInputDialog() {
         //sendPriorityCommand("rrun", String.valueOf(editText.getText()));
 
     }
+
     private int convertToSecondsSafe(String time) {
         try {
             String[] parts = time.split(":");
@@ -1120,32 +1297,35 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             return -1; // or handle error
         }
     }
+
     private boolean isValidTimeFormat(String value) {
         return value.matches("^[0-5]?\\d:[0-5]\\d$");
     }
+
     private void effPumpTestCallback() {
-        if(panelData.getPanelBool("effstat")) {
+        if (panelData.getPanelBool("effstat")) {
             effPumpTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("effstat", "false");
-        }
-        else {
+        } else {
             effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("effstat", "true");
         }
     }
+
     private void alarmResetCallback() {
-            sendPriorityCommand("balmrset", "true");
+        sendPriorityCommand("balmrset", "true");
     }
+
     private void ffTestCallback() {
-        if(panelData.getPanelBool("so0")) {
+        if (panelData.getPanelBool("so0")) {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             sendPriorityCommand("so0", "false");
-        }
-        else {
+        } else {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("so0", "true");
         }
     }
+
     /*private void manualTestCallback() {
         if(panelData.getPanelBool("bmantest")) {
             manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -1156,36 +1336,36 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             sendPriorityCommand("bmantest", "true");
         }
     }*/
-    private  void alarmLatchCallback() {
-        if(panelData.getPanelBool("balrmltch")) {
+    private void alarmLatchCallback() {
+        if (panelData.getPanelBool("balrmltch")) {
             alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             sendPriorityCommand("balrmltch", "false");
-        }
-        else {
+        } else {
             alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("balrmltch", "true");
         }
     }
+
     private void peristalticTestCallback() {
-        if(panelData.getPanelBool("so2")) {
+        if (panelData.getPanelBool("so2")) {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             sendPriorityCommand("so2", "false");
-        }
-        else {
+        } else {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("so2", "true");
         }
     }
+
     private void recirTestCallback() {
-        if(panelData.getPanelBool("so1")) {
+        if (panelData.getPanelBool("so1")) {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
             sendPriorityCommand("so1", "false");
-        }
-        else {
+        } else {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendPriorityCommand("so1", "true");
         }
     }
+
     private boolean sendJson(String cmd, String value) {
         // int j = 0;
         SpannableStringBuilder json = new SpannableStringBuilder();
@@ -1202,8 +1382,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
         return true;
     }
+
     private void send(String str) {
-        if(!connected) {
+        if (!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -1217,6 +1398,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             onRunError(e);
         }
     }
+
     /*private void read() {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
@@ -1239,13 +1421,13 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }*/
     public void receive(@NonNull byte[] data) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
-        if(data.length > 0)
-        {
+        if (data.length > 0) {
 //            spn.append("receive " + data.length + " bytes\n");
 //            spn.append(HexDump.dumpHexString(data)).append("\n");
             parse(data);
         }
     }
+
     public void parse(byte[] data) {
         String rx = new String(data);
         String K = "";
@@ -1253,23 +1435,22 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         // boolean key = false;
         // boolean value = false;
 
-        if(!rx.isEmpty()){
-            for(int k = 0; k < rx.length(); k++){
-                switch(rx.charAt(k)) {
+        if (!rx.isEmpty()) {
+            for (int k = 0; k < rx.length(); k++) {
+                switch (rx.charAt(k)) {
                     case '{':                           // start case start key phase
                         keyString = "";
                         break;
                     case '}':                           // End Parse Save [key,Value] and exit
                         V = keyString;
-                        if(V != null && K != null ) {
-                            panelData.setPanel(K,V);
+                        if (V != null && K != null) {
+                            panelData.setPanel(K, V);
                             panelData.setPanel("KEY", K);
                             panelData.setPanel("VALUE", V);
                             //receiveText.append( K + ":" + V  + "\n");
-                        }
-                        else
+                        } else
                             // Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
-                        keyString = "";
+                            keyString = "";
                         mainLooper.post(postMsg);       // Post Message to UI
                         break;
                     case ':':                           // save key move to value phase
@@ -1279,7 +1460,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     case '"':                           // ignore these
                     case '\n':
                     case '\r':
-                    //case ' ':
+                        //case ' ':
                         break;
                     default:
                         keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
@@ -1288,8 +1469,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
     }
+
     void status(String str) {
-        SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
+        SpannableStringBuilder spn = new SpannableStringBuilder(str + '\n');
         spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
