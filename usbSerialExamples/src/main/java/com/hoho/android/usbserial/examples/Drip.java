@@ -1,7 +1,10 @@
 package com.hoho.android.usbserial.examples;
 
-import static java.util.List.of;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static java.lang.Integer.parseInt;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,16 +20,25 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.RadioGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,27 +54,50 @@ import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-
+import java.util.Locale;
 public class Drip extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
+    // private Fragment anrFragment;
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-    private enum UsbPermission { Unknown, Requested, Granted, Denied }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void onClick(View v1) {
+        popupWindow.dismiss();
+    }
+
+    private enum UsbPermission {Unknown, Requested, Granted, Denied}
+
     private static final String INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB";
-    private static final int WRITE_WAIT_MILLIS = 2000;
-    private static final int READ_WAIT_MILLIS = 2000;
+    private static final int WRITE_WAIT_MILLIS = 1000;
+    //private static final int READ_WAIT_MILLIS = 1000;
     private static final int UPDATE_INTERVAL_MILLIS = 100;
-    private static final int RESET_ALARM_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
+    // private boolean keypadOn = false;
+    // private boolean bALT = false;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
-    private final boolean UiMessageSent = false;
+    //private final boolean UiMessageSent = false;
+    public String priorityCommandValue;
+    public String priorityCommand;
+    public boolean priorityCommandEnabled;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
+   //  private TextView receiveText;
     public PanelData panelData = new PanelData();
 
+    private TextView timeRemote;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
@@ -71,75 +106,108 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
-    private TextView timeRemote;
+    //private Spinner zoneCount;
+    private EditText zoneCount;
+    private EditText doseDayCount;
+    // private EditText recirRepeatCount;
+    // private EditText dripRunCount;
+    // private EditText dripRunCountSec;
+    private EditText effPumpAlarmTimeCount;
+    private EditText FdRunTimeCount;
+    private EditText FdRunTimeCountSec;
+   // private EditText peristolticCount;
+   // private EditText peristolticCountSec;
     //private TextView FdRunTime;
-    private TextView dosesDay;
-    //private TextView recirRepeatTime;
-    //private TextView recirRunTime;
-    //private TextView effStatus;
+    //private TextView dosesDay;
+    // private TextView effStatus;
     private TextView airPressure;
     //private TextView effPumpAlarmTime;
-    private TextView numberZones;
-    private TextView receiveText;
-    private TextView dripOnTimer;
-    //private TextView dripOffTimer;
-    public Button alarmHistory;
-    public Button systemOk;
-    public Button so0;
-    public Button so1;
-    public Button so2;
-    public Button alarmReset;
+    // private Button closePopupBtn;
+    private Button closeAlarmBtn;
+    private Button clearAlarm;
+    private TextView textAlarmTime;
+    private TextView alarmTextWindow;
+    private Button closeGallonsBtn;
+    private Button yellowInput;
+    private Button closeManualInputBtn;
+    private Button redInput;
+    private Button blueInput;
+    private Button manualInputTest;
+    private Button zone1;
+    private Button zone2;
+    private TextView hourTotalValue;
+    private TextView hourlyAverageValue;
+    private TextView dailyTotalValue;
+    private TextView thirtyDayTotalValue;
+    private TextView thirtyDayTotalAverageValue;
+    private TextView lifetimeDaysValue;
+    private TextView lifetimeValue;
+    private TextView lifetimeDaysAverageValue;
+    private Button systemOk;
+    public Button effPumpTest;
     public Button alarmLatch;
+    public Button alarmHistory;
+    public Button closePopupBtn;
+    public Button flowData;
+    public Button ffTest;
+    public Button recirTest;
+    public Button alarmReset;
     public Button alarm;
-    public Button lowProbe;
+    public Button waterAlarm;
     public Button airAlarm;
+    // public Button peristalticTest;
     public String keyString = "";
-
-    public String remoteMin = "00";
-    public String remoteSec = "00";
-    public String remoteHr = "00";
-    public String remoteYear = "00";
-    public String remoteDow = "00";
-    public String remoteDay = "00";
-    public String remoteMonth = "00";
-    public boolean popUpDialogPosted = false;
-    //Button showPopupBtn, closePopupBtn;
-    //public Button effPumpTest;
-    //public Button ffTest;
-    //public Button recirTest;
-    //public Button manualTest;
-    //public Button peristalticTest;
     //public String KEY = "";
     //public String VALUE = "";
+    //public String remoteMin = "00";
+    public String remoteSec = "00";
+    // public String remoteHr = "00";
+    // public String remoteYear = "00";
+    // public String remoteDow = "00";
+    // public String remoteDay = "00";
+    // public String remoteMonth = "00";
+    public String[][] alarmList = new String[30][20];
+    public boolean popUpDialogPosted = false;
+    PopupWindow popupWindow;
+    PopupWindow popupManualTest;
+    //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
      *   command lenght is length of commandList
      */
-    public List<String> updateCommandList = of(
-            "mode",
-            "year", "month","day","hour", "min", "sec",
-            "bok", "balarm","bLow","bairalrm","balrmltch",
-            "zone",
-            "dosesday",
-            "airpres",
-            "palmtime",
+    public List<String> updateCommandList = Arrays.asList(
+            "tank",
+            "bok",
+            "bwater",
             "bptest",
             "balmrset",
-            "bmantest",
             "so0",
             "so1",
             "so2",
-            "dripon",
-            "dripoff"
-            );                                                  /* dont need bmantest? */
-    public int commandLength = updateCommandList.size();
+            "dosesday",
+            "fdrun",
+            "effstat",
+            "airpres",
+            "palmtime",
+            "zone",
+            "balrmltch",
+            "bAlarm",
+            "bLow",
+            "bHigh",
+            "bairalrm",
+            "flow",
+            "log",
+            "time",
+            "perdur"
+    );
+    // public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
 
     public Drip() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
+                if (INTENT_ACTION_GRANT_USB.equals(intent.getAction())) {
                     usbPermission = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                             ? UsbPermission.Granted : UsbPermission.Denied;
                     connect();
@@ -148,60 +216,67 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         };
         mainLooper = new Handler(Looper.getMainLooper());
     }
-    /*
-     * Lifecycle
-     */
-    final Runnable timeHandler = new Runnable() {
+    /* Runnable */
+
+    final Runnable setPanelTime = new Runnable() {
         @Override
         public void run() {
-            String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
-            timeRemote.setText(time);
-            mainLooper.postDelayed(timeHandler,1000);
+            String currentDate = new SimpleDateFormat("dd MM yyyy", Locale.getDefault()).format(new Date());
+            String currentTime = new SimpleDateFormat("HH mm ss", Locale.getDefault()).format(new Date());
+            if (connected) {
+                String uiTime = currentTime + " " + currentDate;
+                priorityCommandEnabled = true;
+                priorityCommand = "time";
+                priorityCommandValue = uiTime;
+                Toast.makeText(getActivity(), "Panel Time Updated", Toast.LENGTH_SHORT).show();
+            } else
+                mainLooper.postDelayed(setPanelTime, 1000); // Keep Trying if disconnected
+            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+        }
+    };
+    final Runnable timeHandler = new Runnable() { // TODO no longer used?
+        @Override
+        public void run() {
+            //String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
+            timeRemote.setText(panelData.getPanelString("time"));
+            mainLooper.postDelayed(timeHandler, 1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
         @Override
         public void run() {
-            if(panelData.getPanelString("tank").equals("0")) {
-                if(!popUpDialogPosted) {
+            if (panelData.getPanelString("tank").equals("0")) {
+                if (!popUpDialogPosted) {
                     showTankPopUp();
                     popUpDialogPosted = true;
                 }
                 mainLooper.postDelayed(waitOnTank, UPDATE_INTERVAL_MILLIS);
-            }
-            else {
+            } else {
                 // mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
                 popUpDialogPosted = false;
             }
         }
     };
-    final Runnable updateTank = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(getActivity(), "Send Tank " + panelData.getPanelString("tank"), Toast.LENGTH_SHORT).show();
-            sendJson("tank", panelData.getPanelString("tank"));
-        }
-    };
-    final Runnable resetAlarmClear = new Runnable() {
-        @Override
-        public void run() {
-            Toast.makeText(getActivity(), "Alarm Reset End ", Toast.LENGTH_SHORT).show();
-            sendJson("balmrset", "false");
-        }
-    };
-    final Runnable update = new Runnable() {
-        public void run() {
-            //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
-            getPanelStatus();
-        }
-    };
-    final Runnable postMsg = new Runnable() {
-        public void run() {
-            postDataLayer();
+    /*final Runnable updateTank = () -> {
+        Toast.makeText(getActivity(), "Send Tank " + panelData.getPanelString("tank"), Toast.LENGTH_SHORT).show();
+        sendPriorityCommand("tank", panelData.getPanelString("tank"));
+    };*/
+    final Runnable update = this::getPanelStatus;
+    final Runnable postMsg = this::postDataLayer;
 
-            //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+    /*final Runnable update5L = () -> {
+        Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
+        sendPriorityCommand("zone", panelData.getPanelString("zone"));
+    };*/
+    /*    final Runnable modeSpinner = new Runnable() {
+        @Override
+        public void run() {
+
+            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
+            zoneCount.setSelection(((ArrayAdapter)zoneCount.getAdapter()).getPosition(panelData.getPanelString("zone")));
         }
-    };
+    }; */
+    /* OS Callbacks */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,108 +287,416 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
-        mainLooper.postDelayed(timeHandler,1000);
+        //  mainLooper.postDelayed(timeHandler,1000);
 
     }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-
-        if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
+        Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
+        if (usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
     }
+
     @Override
     public void onPause() {
-        if(connected) {
+        if (connected) {
             status("disconnected");
             disconnect();
         }
         getActivity().unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
-    /*
-     * UI
-     */
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
         View view = inflater.inflate(R.layout.drip_frag, container, false);
-        PopUpFragment popUpFragment;
-        timeRemote = view.findViewById(R.id.timeRemote);
+        //anrFragment = getParentFragment();
+        // PopUpFragment popUpFragment;
+        //focusSink = view.findViewById(R.id.focusSink);
         systemOk = view.findViewById(R.id.systemOk);
-        alarm = view.findViewById(R.id.alarm);
-        lowProbe = view.findViewById(R.id.lowProbe);
-        airAlarm = view.findViewById(R.id.airAlarm );
+        flowData = view.findViewById((R.id.flowData));
         alarmLatch = view.findViewById(R.id.alarmLatch);
-        numberZones = view.findViewById(R.id.numberZones);
-        dosesDay = view.findViewById(R.id.dosesDay);
-        //FdRunTime = view.findViewById(R.id.FdRunTime);
-        //recirRepeatTime = view.findViewById(R.id.recirRepeatTime);
-        //recirRunTime = view.findViewById(R.id.recirRunTime);
-        //effStatus = view.findViewById(R.id.effStatus);
-        airPressure = view.findViewById(R.id.airPressure);
-        //effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
+        alarmLatch.setOnClickListener(v -> alarmLatchCallback());
         alarmHistory = view.findViewById(R.id.alarmHistory);
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        // recirTest = view.findViewById(R.id.recirTest);
+        // recirTest.setOnClickListener(v -> recirTestCallback());
+        ffTest = view.findViewById(R.id.ffTest);
+        ffTest.setOnClickListener(v -> ffTestCallback());
+        // peristalticTest = view.findViewById(R.id.peristalticTest);
+        //peristalticTest.setOnClickListener(v -> peristalticTestCallback());
+        effPumpTest = view.findViewById(R.id.effPumpTest);
+        effPumpTest.setOnClickListener(v -> effPumpTestCallback());
+        //effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
+        // effStatus = view.findViewById(R.id.effStatus);
+        timeRemote = view.findViewById(R.id.timeRemote);
+        airAlarm = view.findViewById(R.id.airAlarm);
+        alarm = view.findViewById(R.id.alarm);
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
-        dripOnTimer = view.findViewById(R.id.dripOnTimer);
-        dripOnTimer.setOnClickListener(v -> dripOnTimerCallback());
-        //dripOffTimer = view.findViewById(R.id.dripOffTimer);
-       // dripOffTimer.setOnClickListener(v -> dripOffTimerCallback());
-        so0 = view.findViewById(R.id.so0);
-        so1 = view.findViewById(R.id.so1);
-        so2 = view.findViewById(R.id.so2);
-        receiveText = view.findViewById(R.id.receiveText);
-        //recirTest = view.findViewById(R.id.recirTest);
-        //recirTest.setOnClickListener(v -> recirTestCallback());
-        //ffTest = view.findViewById(R.id.ffTest);
-        //ffTest.setOnClickListener(v -> ffTestCallback());
-        //peristalticTest = view.findViewById(R.id.peristalticTest);
-        //peristalticTest.setOnClickListener(v -> peristalticTestCallback());
-        //effPumpTest = view.findViewById(R.id.effPumpTest);
-        //effPumpTest.setOnClickListener(v -> effPumpTestCallback());
+        airPressure = view.findViewById(R.id.airPressure);
+        waterAlarm = view.findViewById(R.id.waterAlarm);
+        manualInputTest = view.findViewById(R.id.manualTest);
+        // Single EditText handlers
+        zoneCount = view.findViewById(R.id.zoneCount);
+        zone1 =  view.findViewById(R.id.zone1);
+        zone2 =  view.findViewById(R.id.zone2);
+        zoneCount.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int zone = parseInt(zoneCount.getText().toString());
+                sendPriorityCommand("zone", Integer.toString(zone));
+                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                zoneCount.clearFocus();
+                handled = true;
+            }
+            return handled;
+        });
+        /* recirRepeatCount = view.findViewById(R.id.recirRepeatCount);
+        recirRepeatCount.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int rrepeat = parseInt(recirRepeatCount.getText().toString())*60;
+                    sendPriorityCommand("rrepeat", Integer.toString(rrepeat));
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    recirRepeatCount.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+        });*/
+        effPumpAlarmTimeCount = view.findViewById(R.id.effPumpAlarmTimeCount);
+        effPumpAlarmTimeCount.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int palmtime = parseInt(effPumpAlarmTimeCount.getText().toString()) * 60;
+                sendPriorityCommand("palmtime", Integer.toString(palmtime));
+                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                effPumpAlarmTimeCount.clearFocus();
+                handled = true;
+            }
+            return handled;
+        });
+        doseDayCount = view.findViewById(R.id.doseDayCount);
+        doseDayCount.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                int dosesday = parseInt(doseDayCount.getText().toString());
+                sendPriorityCommand("dosesday", Integer.toString(dosesday));
+                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                doseDayCount.clearFocus();
+                return true;
+            }
+            return false;
+        });       // Field Dose Minutes and Seconds
+        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
+        FdRunTimeCount.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // int fdrun = parseInt(FdRunTimeCount.getText().toString());
+                int minutes; // Declare here so it's visible after try-catch
+                int seconds; // Declare here so it's visible after try-catch
+                int totalSeconds; // Declare here so it's visible after try-catch
+                try {
+                    minutes = Integer.parseInt(FdRunTimeCount.getText().toString());
+                    seconds = Integer.parseInt(FdRunTimeCountSec.getText().toString());
+                    totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                Log.d("Drip", "Field Dose Update from Minutes:" + totalSeconds);
+                sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
+                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                FdRunTimeCount.clearFocus();
+                handled = true;
+            }
+            return handled;
+        });
+        FdRunTimeCountSec = view.findViewById(R.id.FdRunTimeCountSec);
+        FdRunTimeCountSec.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // int fdrun = parseInt(FdRunTimeCountSec.getText().toString());
+                int minutes; // Declare here so it's visible after try-catch
+                int seconds; // Declare here so it's visible after try-catch
+                int totalSeconds; // Declare here so it's visible after try-catch
+                try {
+                    minutes = Integer.parseInt(FdRunTimeCount.getText().toString());
+                    seconds = Integer.parseInt(FdRunTimeCountSec.getText().toString());
+                    totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
+                Log.d("Drio", "Field Dose Update from Seconds:" + totalSeconds);
+                // Hide keyboard using EditText's window token
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(FdRunTimeCountSec.getWindowToken(), 0);
+                // Clear focus AFTER hiding keyboard
+                FdRunTimeCountSec.clearFocus();
+                handled = true;
+            }
+            return handled;
+        });
 
-        /* Start Update timer to sync UI   */
+        // Drip Run Time Minutes and Seconds
+        /*dripRunCount = view.findViewById(R.id.dripRunCount);
+        dripRunCount.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // int rrun = parseInt(recirRunCount.getText().toString());
+                int minutes; // Declare here so it's visible after try-catch
+                int seconds; // Declare here so it's visible after try-catch
+                int totalSeconds; // Declare here so it's visible after try-catch
+                try {
+                    minutes = Integer.parseInt(dripRunCount.getText().toString());
+                    seconds = Integer.parseInt(dripRunCountSec.getText().toString());
+                    totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
+                Log.d("Drip", "Drip Run Time Sec = " + totalSeconds);
+                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                dripRunCount.clearFocus();
+                handled = true;
+            }
+            return handled;
+        });
+        //dripRunCountSec = view.findViewById(R.id.dripRunCountSec);
+        /* dripRunCountSec.setOnEditorActionListener(new OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    int rrun = parseInt(dripRunCountSec.getText().toString());
+                    int minutes; // Declare here so it's visible after try-catch
+                    int seconds; // Declare here so it's visible after try-catch
+                    int totalSeconds; // Declare here so it's visible after try-catch
+                    try {
+                        minutes = Integer.parseInt(dripRunCount.getText().toString());
+                        seconds = Integer.parseInt(dripRunCountSec.getText().toString());
+                        totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                    sendPriorityCommand("rrun", Integer.toString(totalSeconds));
+                    Log.d("Drip", "Reciculate Update from Seconds:" + totalSeconds);
+                    ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                    dripRunCountSec.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });*/
+
+        flowData.setOnClickListener(v -> {
+            //instantiate the popup.xml layout file
+            LayoutInflater layoutInflater = (LayoutInflater) Drip.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+            View customView = layoutInflater.inflate(R.layout.gallons_popup, null);
+            manualInputTest.setEnabled(false);
+            closeGallonsBtn = customView.findViewById(R.id.closeGallonsBtn);
+            hourTotalValue = customView.findViewById(R.id.hourTotalValue);
+            hourlyAverageValue = customView.findViewById(R.id.hourlyAverageValue);
+            dailyTotalValue = customView.findViewById(R.id.dailyTotalValue);
+            thirtyDayTotalValue = customView.findViewById(R.id.thirtyDayTotalValue);
+            thirtyDayTotalAverageValue = customView.findViewById(R.id.thirtyDayTotalAverageValue);
+            lifetimeValue = customView.findViewById(R.id.lifetimeValue);
+            lifetimeDaysAverageValue = customView.findViewById(R.id.lifetimeDaysAverageValue);
+            lifetimeDaysValue = customView.findViewById(R.id.lifetimeDaysValue);
+            //instantiate popup window
+            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+            //display the popup window
+            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+            hourTotalValue.setText(panelData.getPanelString("hours1"));
+            hourlyAverageValue.setText(panelData.getPanelString("hourAvg"));
+            dailyTotalValue.setText(panelData.getPanelString("day1"));
+            thirtyDayTotalValue.setText(panelData.getPanelString("day30"));
+            thirtyDayTotalAverageValue.setText(panelData.getPanelString("day30Avg"));
+            lifetimeDaysValue.setText(panelData.getPanelString("lifedays"));
+            lifetimeValue.setText(panelData.getPanelString("life"));
+            lifetimeDaysAverageValue.setText(panelData.getPanelString("lifetimeAvg"));
+            //close the popup window on button click
+            closeGallonsBtn.setOnClickListener(v16 -> {
+                manualInputTest.setEnabled(true);
+                popupWindow.dismiss();
+            });
+        });
+        alarmHistory.setOnClickListener(v -> {
+            //instantiate the popup.xml layout file
+            LayoutInflater layoutInflater = (LayoutInflater) Drip.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+            View customView = layoutInflater.inflate(R.layout.alarm_history, null);
+
+            closeAlarmBtn = customView.findViewById(R.id.closeAlarmBtn);
+            clearAlarm = customView.findViewById(R.id.clearAlarm);
+            alarmTextWindow = customView.findViewById(R.id.alarmTextWindow);
+            textAlarmTime = customView.findViewById((R.id.textAlarmTime));
+            //instantiate popup window
+            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+            //display the popup window
+            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+            alarmTextWindow.setText(" ");
+            alarmTextWindow.setMovementMethod(new ScrollingMovementMethod());
+            //StringBuilder time = new StringBuilder(panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") + " " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min"));
+            textAlarmTime.setText(panelData.getPanelString("time"));
+
+            for (int i = 0; i < alarmList.length; i++) {
+                if (alarmList[i][1] != null) {
+                    alarmTextWindow.append(alarmList[i][1]);
+                    alarmTextWindow.append("\n");
+                }
+            }
+            // close the popup window on button click
+            closeAlarmBtn.setOnClickListener(v1 -> {
+                popupWindow.dismiss();
+                alarmTextWindow.setText("");
+            });
+            clearAlarm.setOnClickListener((v1 -> clearAlarmCallBack()));
+        });
+        manualInputTest.setOnClickListener(v -> {
+            //instantiate the popup.xml layout file
+            LayoutInflater layoutInflater = (LayoutInflater) Drip.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+            View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
+            closeManualInputBtn = customView.findViewById(R.id.closeManualInputBtn);
+            yellowInput = customView.findViewById(R.id.yellowInput);
+            redInput = customView.findViewById(R.id.redInput);
+            blueInput = customView.findViewById(R.id.blueInput);
+            zone1 = customView.findViewById(R.id.zone1);
+            zone2 = customView.findViewById(R.id.zone2);
+            //instantiate popup window
+            popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+            //display the popup window
+            popupManualTest.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
+/*            if(panelData.getPanelBool("bLow"))
+               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+            else
+               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            if(panelData.getPanelBool("bHigh"))
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+            else
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            if(panelData.getPanelBool("bAlarm"))
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+            else
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOfftextOff));
+*/
+            manualInputTest.setVisibility(View.INVISIBLE);
+            sendPriorityCommand("bENA", "true");
+            //close the popup window on button click
+            closeManualInputBtn.setOnClickListener(v12 -> {
+                sendPriorityCommand("bENA", "false");
+                manualInputTest.setVisibility(View.VISIBLE);
+                popupManualTest.dismiss();
+            });
+
+            yellowInput.setOnClickListener(v13 -> {
+                if (panelData.getPanelBool("bLow")) {  // Low Probe
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+                    sendPriorityCommand("bLowUi", "false");
+                } else {
+                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                    sendPriorityCommand("bLowUi", "true");
+                }
+            });
+            blueInput.setOnClickListener(v14 -> { // Alarm probe
+                if (panelData.getPanelBool("bHigh")) {
+                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                    sendPriorityCommand("bHighUi", "false");
+                } else {
+                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+                    sendPriorityCommand("bHighUi", "true");
+                }
+            });
+            redInput.setOnClickListener(v15 -> {  //High Probe
+                if (panelData.getPanelBool("bAlarm")) {
+                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                    sendPriorityCommand("bAlarmUi", "false");
+                } else {
+                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+                    sendPriorityCommand("bAlarmUi", "true");
+                }
+            });
+            zone1.setOnClickListener(v13 -> {
+                if (panelData.getPanelBool("so0")) {  // Zone Manual Toggle
+                    zone1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+                    sendPriorityCommand("so0", "false");
+                } else {
+                    zone1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                    sendPriorityCommand("so0", "true");
+                }
+            });
+            zone2.setOnClickListener(v13 -> {
+                if (panelData.getPanelBool("so2")) {  // Zone Manual Toggle
+                    zone2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+                    sendPriorityCommand("so2", "false");
+                } else {
+                    zone2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                    sendPriorityCommand("so2", "true");
+                }
+            });
+        });
+
+        // Start Update timer to sync UI
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         return view;
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-    }
-
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
-    }
-
-    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.clear) {
-            receiveText.setText("");
+            // eiveText.setText("");
             return true;
-        } else if( id == R.id.send_break) {
-            if(!connected) {
+        } else if (id == R.id.matrix) {
+            Toast.makeText(getActivity(), "Matrix", Toast.LENGTH_SHORT).show();
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.matrix, null);
+            int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            boolean focusable = true;
+            final PopupWindow popupWindow = new PopupWindow(popupView, width, height, focusable);
+            popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            popupView.setBackgroundColor(Color.GRAY);
+            popupView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    popupWindow.dismiss();
+                    return true;
+                }
+            });
+            return true;
+        } else if (id == R.id.update_time) {
+            mainLooper.post(setPanelTime);
+            return true;
+        } else if (id == R.id.send_break) {
+            if (!connected) {
                 Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             } else {
                 try {
                     usbSerialPort.setBreak(true);
-                    Thread.sleep(100); // should show progress bar instead of blocking UI thread
+                    Thread.sleep(100);
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
                     spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //receiveText.append(spn);
-                } catch(UnsupportedOperationException ignored) {
+                } catch (UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     Toast.makeText(getActivity(), "BREAK failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -323,16 +706,10 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         }
     }
 
-    /*
-     * Serial
-     */
-    @Override
     public void onNewData(byte[] data) {
-        mainLooper.post(() -> {
-            receive(data); });
+        mainLooper.post(() -> receive(data));
     }
 
-    @Override
     public void onRunError(Exception e) {
         mainLooper.post(() -> {
             status("connection lost: " + e.getMessage());
@@ -340,41 +717,58 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         });
     }
 
-    /*
-     * Serial + UI
-     */
+    // Local Methods and Callbacks
+    public void sendPriorityCommand(String pCmd, String pValue) {
+        priorityCommandEnabled = true;
+        priorityCommand = pCmd;
+        priorityCommandValue = pValue;
+    }
+
+    public void setLog(String v) {
+        StringBuilder temp = new StringBuilder(v);
+        alarmTextWindow.append(temp);
+        alarmTextWindow.append("\n");
+    }
+
+    public void clearAlarmCallBack() {
+        int i;
+        sendPriorityCommand("clrlog", "query");
+        panelData.deletePanelLogs("log");   // Remove all log's from panelData
+        alarmTextWindow.setText("");
+    }
+
     private void connect() {
         UsbDevice device = null;
         UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
-        for(UsbDevice v : usbManager.getDeviceList().values())
-            if(v.getDeviceId() == deviceId)
+        for (UsbDevice v : usbManager.getDeviceList().values())
+            if (v.getDeviceId() == deviceId)
                 device = v;
-        if(device == null) {
+        if (device == null) {
             status("connection failed: device not found");
             return;
         }
         UsbSerialDriver driver = UsbSerialProber.getDefaultProber().probeDevice(device);
-        if(driver == null) {
+        if (driver == null) {
             driver = CustomProber.getCustomProber().probeDevice(device);
         }
-        if(driver == null) {
+        if (driver == null) {
             status("connection failed: no driver for device");
             return;
         }
-        if(driver.getPorts().size() < portNum) {
+        if (driver.getPorts().size() < portNum) {
             status("connection failed: not enough ports at device");
             return;
         }
         usbSerialPort = driver.getPorts().get(portNum);
         UsbDeviceConnection usbConnection = usbManager.openDevice(driver.getDevice());
-        if(usbConnection == null && usbPermission == UsbPermission.Unknown && !usbManager.hasPermission(driver.getDevice())) {
+        if (usbConnection == null && usbPermission == UsbPermission.Unknown && !usbManager.hasPermission(driver.getDevice())) {
             usbPermission = UsbPermission.Requested;
             int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
             PendingIntent usbPermissionIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(INTENT_ACTION_GRANT_USB), flags);
             usbManager.requestPermission(driver.getDevice(), usbPermissionIntent);
             return;
         }
-        if(usbConnection == null) {
+        if (usbConnection == null) {
             if (!usbManager.hasPermission(driver.getDevice()))
                 status("connection failed: permission denied");
             else
@@ -385,7 +779,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         try {
             usbSerialPort.open(usbConnection);
             usbSerialPort.setParameters(baudRate, 8, 1, UsbSerialPort.PARITY_NONE);
-            if(withIoManager) {
+            if (withIoManager) {
                 usbIoManager = new SerialInputOutputManager(usbSerialPort, this);
                 usbIoManager.start();
             }
@@ -396,18 +790,21 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             disconnect();
         }
     }
+
     private void disconnect() {
         connected = false;
-        if(usbIoManager != null) {
+        if (usbIoManager != null) {
             usbIoManager.setListener(null);
             usbIoManager.stop();
         }
         usbIoManager = null;
         try {
             usbSerialPort.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
         usbSerialPort = null;
     }
+
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
@@ -417,153 +814,276 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
-    private void putYellowAlarmTextColor(TextView tv, boolean value) {
+
+    private void putBlueAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         } else {
-            tv.setTextColor(Color.YELLOW);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
-    private void putWaterLevelTextColor(TextView tv, boolean value) {
+
+    private void putWaterLevelText(TextView tv, boolean value) {
         if (value) {
-            tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-        } else {
+            waterAlarm.setText("Water Level Alarm");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+        } else {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
-    public void postDataLayer() {                           // Convert string to bool and update UI with command
-        boolean enableMode;
-        /* Status Banner */
-        if(panelData.containsKey("bok"))
-            putYellowAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-        if(panelData.containsKey("balrmltch"))
-            putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("balarm"))
-            putRedAlarmTextColor(alarm, !panelData.getPanelBool("balarm"));
-        if(panelData.containsKey("bLow"))
-            putWaterLevelTextColor(lowProbe, panelData.getPanelBool("bLow"));
-        if(panelData.containsKey("bairalrm"))
-            putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
-        if(panelData.containsKey("balmrset"))
+
+    private void putLowWaterText(TextView tv, boolean value) {
+        if (value) {
+            waterAlarm.setText("Water Level Low");
+            tv.setTextColor(Color.YELLOW);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        } else {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+        }
+    }
+
+    private void putAlarmWaterText(TextView tv, boolean value) {
+        if (value) {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+        } else {
+            waterAlarm.setText("Water Level Alarm");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        }
+    }
+
+    private void putHighWaterText(TextView tv, boolean value) {
+        if (value) {
+            waterAlarm.setText("Water Level High");
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            tv.setTextColor(Color.BLUE);
+        } else {
+            waterAlarm.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+        }
+    }
+
+    //===POST DATA LAYER ================================
+    public void postDataLayer() {                           // Take action on all Panel Data
+        // Status Banner
+       // String formattedTime;
+
+        if (panelData.containsKey("bok")) {
+            putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
+            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
+        }
+        if (panelData.containsKey("bwater"))   //  Water Alarm Button
+            if (panelData.getPanelBool("bAlarm"))
+                putWaterLevelText(waterAlarm, true);
+            else if (panelData.getPanelBool("bHigh"))
+                putHighWaterText(waterAlarm, true);
+            else if (panelData.getPanelBool("bLow"))
+                putLowWaterText(waterAlarm, false);
+            else
+                putLowWaterText(waterAlarm, true);
+
+        if (panelData.containsKey("bairalrm")) // Aeration Alarm
+            putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
+        // Buttons
+        if (panelData.containsKey("bptest"))
+            putTextColor(effPumpTest, panelData.getPanelBool("effstat"));
+        if (panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
-        if(panelData.containsKey("so0"))
-            putTextColor(so0, panelData.getPanelBool("so0"));
-        if(panelData.containsKey("so1"))
-            putTextColor(so1, panelData.getPanelBool("so1"));
-        if(panelData.containsKey("so2"))
-            putTextColor(so2, panelData.getPanelBool("so2"));
-        /* Variables */
-        if(panelData.containsKey("dosesday"))
-            dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
-//        if(panelData.containsKey("fdrun"))
-//            FdRunTime.setText(String.format("Pump Run Time (Field Dose):%s", panelData.getPanelString("fdrun")));
-//        if(panelData.containsKey("rrepeat"))
-//            recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %s", panelData.getPanelString("rrepeat")));
-//        if(panelData.containsKey("rrun"))
- //           recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
-//        if(panelData.containsKey("effstat"))
-//            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
-        if(panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
-        if(panelData.containsKey("dripon"))
-            dripOnTimer.setText(String.format("Drip Current Timer: %s", panelData.getPanelString ("dripon")));
-//        if(panelData.containsKey("dripoff"))
-//            dripOffTimer.setText(String.format("Drip Off Timer: %s", panelData.getPanelString ("dripoff")));
-  //      if(panelData.containsKey("palmtime"))
-    //        effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %s", panelData.getPanelString("palmtime")));
-        if(panelData.containsKey("zone"))
-            numberZones.setText(String.format("Number of Zones %s", panelData.getPanelString("zone")));
-        if(panelData.containsKey("dow"))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"dow\")")));
-        if(panelData.containsKey(""))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"\")")));
-        if (panelData.containsKey("dow"))
-            remoteDow = panelData.getPanelString("dow");
-        if (panelData.containsKey("day"))
-            remoteDay = panelData.getPanelString("day");
-        if (panelData.containsKey("month"))
-            remoteMonth = panelData.getPanelString("month");
-        if (panelData.containsKey("year"))
-            remoteYear = panelData.getPanelString("year");
-        if (panelData.containsKey("hrs"))
-            remoteHr = panelData.getPanelString("hrs");
-        if (panelData.containsKey("min"))
-            remoteMin = panelData.getPanelString("min");
-        if (panelData.containsKey("sec"))
-            remoteSec = panelData.getPanelString("sec");
-        //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        if (panelData.containsKey("so1"))
+            putTextColor(ffTest, panelData.getPanelBool("so1"));
+        if (panelData.containsKey("so0"))
+            putTextColor(zone1, panelData.getPanelBool("so0"));
+        if (panelData.containsKey("so2"))
+            putTextColor( zone2, panelData.getPanelBool("so2"));
+        if (panelData.containsKey("balrmltch"))
+            putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
+        // Variables
+         if (panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
+            doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));
+
+        if (panelData.containsKey("fdrun") && !(FdRunTimeCount.hasFocus() || FdRunTimeCountSec.hasFocus()) ) {
+            int fdrun;
+            int fdrunSec;
+            if (panelData.getPanelString("fdrun").contentEquals("")) {
+                //FdRunTimeCount.setText("0");
+                //FdRunTimeCountSec.setText("0");
+            } else {
+                fdrun = (parseInt(panelData.getPanelString("fdrun")) / 60);
+                fdrunSec = (parseInt(panelData.getPanelString("fdrun")) % 60);
+                FdRunTimeCount.setText(Integer.toString(fdrun));
+                FdRunTimeCountSec.setText(Integer.toString(fdrunSec));
+            }
+        }
+/*      if (panelData.containsKey("rrepeat") && !recirRepeatCount.hasFocus()) {
+            if (panelData.getPanelString("rrepeat").contentEquals("")) {
+                int rrepeat = 0;
+                recirRepeatCount.setText(String.format("000"));
+            } else {
+                int rrepeat = parseInt(panelData.getPanelString("rrepeat"));
+                recirRepeatCount.setText(String.format("%d", rrepeat / 60));
+            }
+        }*/
+/*      if (panelData.containsKey("rrun") && !(dripRunCount.hasFocus() || dripRunCountSec.hasFocus())) {
+            int rrun;
+            int rrunSec;
+            if (panelData.getPanelString("rrun").contentEquals("")) {
+                //recirRunCount.setText(String.format("000"));
+                //recirRunCountSec.setText(String.format("00"));
+            } else {
+                rrun = (parseInt(panelData.getPanelString("rrun")) / 60);
+                rrunSec = (parseInt(panelData.getPanelString("rrun")) % 60);
+                dripRunCount.setText(Integer.toString(rrun));
+                dripRunCountSec.setText(Integer.toString(rrunSec));
+            }
+        }*/
+        if (panelData.containsKey("airpres"))
+            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString("airpres")));
+        if (panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
+            if (panelData.getPanelString("palmtime").contentEquals(""))
+                effPumpAlarmTimeCount.setText(String.format("%d", 0));
+            else {
+                int palmtime = parseInt(panelData.getPanelString("palmtime"));
+                effPumpAlarmTimeCount.setText(String.format("%d", palmtime / 60));
+            }
+        }
+        if (panelData.containsKey("zone") && !zoneCount.hasFocus())
+            zoneCount.setText(String.format(panelData.getPanelString("zone")));
+ /*       if (panelData.containsKey("perdur") && !(peristolticCount.hasFocus() || peristolticCountSec.hasFocus())) {
+            int perdur = 0;
+            int perdurSec = 0;
+            if (panelData.getPanelString("perdur").contentEquals("")) {
+                // peristolticCount.setText(String.format("000"));
+                // peristolticCountSec.setText(String.format("00"));
+            } else {
+                perdur = (parseInt(panelData.getPanelString("perdur")) / 60);
+                perdurSec = (parseInt(panelData.getPanelString("perdur")) % 60);
+                peristolticCount.setText(Integer.toString(perdur));
+                peristolticCountSec.setText(Integer.toString(perdurSec));
+            }
+        }*/
+        // Time and Gallons Averages
+        if (panelData.containsKey("time"))
+            timeRemote.setText(panelData.getPanelString("time"));
+        if (panelData.containsKey("life"))
+            remoteSec = panelData.getPanelString("life");
+        if (panelData.containsKey("lifedays"))
+            remoteSec = panelData.getPanelString("lifedays");
+        if (panelData.containsKey("lifetimeAvg"))
+            remoteSec = panelData.getPanelString("lifetimeAvg");
+        if (panelData.containsKey("hours24"))
+            remoteSec = panelData.getPanelString("hours24");
+        if (panelData.containsKey("hours1"))
+            remoteSec = panelData.getPanelString("hours1");
+        if (panelData.containsKey("hourAvg"))
+            remoteSec = panelData.getPanelString("hourAvg");
+        if (panelData.containsKey("day30"))
+            remoteSec = panelData.getPanelString("day30");
+        if (panelData.containsKey("day30Avg"))
+            remoteSec = panelData.getPanelString("day30Avg");
+        if (panelData.containsKey("KEY")) {
+            if (panelData.getPanelString("KEY").contains("log")) {
+                alarmList = panelData.displayFilterLog("log");         // Filter log* to alarm list
+            }
+        }
     }
-    public void modeEnable(RadioGroup main_mode) {
+
+    public static String secondsToTimeString(String secondsStr) {
+        int totalSeconds;
+        try {
+            totalSeconds = Integer.parseInt(secondsStr);
+        } catch (NumberFormatException e) {
+            return "000:00";
+        }
+        if (totalSeconds < 0) totalSeconds = 0;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format("%03d:%02d", minutes, seconds);
     }
+
     public void getPanelStatus() {
  /*       if(check5lTime()) {
             Toast.makeText(getActivity(), "Update 5L Time", Toast.LENGTH_SHORT).show();
         }*/
-
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         //mainLooper.postDelayed(clearAck, 200);
         if (connected) {
-            sendJson(updateCommandList.get(commandListIndex++), "Query");
-            if (commandListIndex == commandLength)
+            if (priorityCommandEnabled == true) {
+                sendJson(priorityCommand, priorityCommandValue);
+                priorityCommandEnabled = false;
+            } else
+                sendJson(updateCommandList.get(commandListIndex++), "Query");
+            if (commandListIndex == updateCommandList.size())
                 commandListIndex = 0;
         }
     }
+
     public void showTankPopUp() {
         DialogFragment newFragment = new PopUpFragment();
-        assert getFragmentManager() != null;
-        newFragment.show(getFragmentManager(), "tank");
+        assert getParentFragmentManager() != null;
+        newFragment.show(getParentFragmentManager(), "tank");
     }
-    private void setTextViewFlavor(TextView textview, String value) {
+
+    private void setTextViewFlavor(TextView textview, @NonNull String value) {
         if (value.equalsIgnoreCase("true")) {
             textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
-        }
-        else {
+        } else {
             textview.setBackgroundColor(Color.BLACK);
             textview.setTextColor(Color.WHITE);
         }
     }
+
     private boolean check5lTime() {
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
 
-        sendJson("hour", String.valueOf(hour));
+        sendPriorityCommand("hour", String.valueOf(hour));
 
         int minute = rightNow.get(Calendar.MINUTE);
-        sendJson("min", String.valueOf(minute));
+        sendPriorityCommand("min", String.valueOf(minute));
         int second = rightNow.get(Calendar.SECOND);
-        sendJson("sec", String.valueOf(second));
+        sendPriorityCommand("sec", String.valueOf(second));
         int month = rightNow.get(Calendar.DAY_OF_MONTH);
-        sendJson("month", String.valueOf(month));
+        sendPriorityCommand("month", String.valueOf(month));
         int day = rightNow.get(Calendar.DAY_OF_MONTH);
-        sendJson("day", String.valueOf(day));
+        sendPriorityCommand("day", String.valueOf(day));
         int year = rightNow.get(Calendar.YEAR);
-        sendJson("year", String.valueOf(year));
+        sendPriorityCommand("year", String.valueOf(year));
         return true;
     }
-    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
+
+    @NonNull
+    private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec) {
         SpannableStringBuilder remoteTime = new SpannableStringBuilder();
         remoteTime.append(String.valueOf(remoteHr));
         remoteTime.append(":");
         remoteTime.append(String.valueOf(remoteMin));
         remoteTime.append(":");
         remoteTime.append(String.valueOf(remoteSec));
-        return(remoteTime);
+        return (remoteTime);
     }
-    private SpannableStringBuilder updateTime(String remoteYear, String remoteMonth, String remoteDay, String remoteHr, String remoteMin, String remoteSec){
+
+    @NonNull
+    private SpannableStringBuilder updateTime(String remoteYear, String remoteMonth, String remoteDay, String remoteHr, String remoteMin, String remoteSec) {
         SpannableStringBuilder updateTime = new SpannableStringBuilder();
         updateTime.append(remoteDay);
         updateTime.append("-");
@@ -578,37 +1098,92 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         updateTime.append(remoteMin);
         updateTime.append(":");
         updateTime.append(remoteSec);
-        return(updateTime);
+        return (updateTime);
     }
-    private void dripOnTimerCallback() {
+
+    private String formatSeconds(int totalSeconds) {
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    }
+
+    private void showTimeInputDialog() {
+        //sendPriorityCommand("rrun", String.valueOf(editText.getText()));
 
     }
-    private void dripOffTimerCallback() {
 
+    private int convertToSecondsSafe(String time) {
+        try {
+            String[] parts = time.split(":");
+            int minutes = Integer.parseInt(parts[0]);
+            int seconds = Integer.parseInt(parts[1]);
+            return minutes * 60 + seconds;
+        } catch (Exception e) {
+            return -1; // or handle error
+        }
     }
+
+    private boolean isValidTimeFormat(String value) {
+        return value.matches("^[0-5]?\\d:[0-5]\\d$");
+    }
+
+    private void effPumpTestCallback() {
+        if (panelData.getPanelBool("effstat")) {
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
+            sendPriorityCommand("effstat", "false");
+        } else {
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendPriorityCommand("effstat", "true");
+        }
+    }
+
     private void alarmResetCallback() {
-        if(panelData.getPanelBool("balmrset")) {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("balmrset", "false");
-        }
-        else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("balmrset", "true");
-            mainLooper.postDelayed(resetAlarmClear, RESET_ALARM_MILLIS);
+        sendPriorityCommand("balmrset", "true");
+    }
+
+    private void ffTestCallback() {
+        if (panelData.getPanelBool("so0")) {
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendPriorityCommand("so0", "false");
+        } else {
+            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendPriorityCommand("so0", "true");
         }
     }
-    private void alarmHistoryCallback() {
-        if(panelData.getPanelBool("alarmHistory")) {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("ahist", "false");
+
+    /*private void manualTestCallback() {
+        if(panelData.getPanelBool("bmantest")) {
+            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendPriorityCommand("bmantest", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("ahist", "true");
+            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
+            sendPriorityCommand("bmantest", "true");
+        }
+    }*/
+    private void alarmLatchCallback() {
+        if (panelData.getPanelBool("balrmltch")) {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendPriorityCommand("balrmltch", "false");
+        } else {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendPriorityCommand("balrmltch", "true");
         }
     }
+
+/*    private void peristalticTestCallback() {
+        if (panelData.getPanelBool("so2")) {
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendPriorityCommand("so2", "false");
+        } else {
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendPriorityCommand("so2", "true");
+        }
+    }*/
+
+
     private boolean sendJson(String cmd, String value) {
-        int j = 0;
+        // int j = 0;
         SpannableStringBuilder json = new SpannableStringBuilder();
         json.append("{\"");
         json.append(cmd);
@@ -623,78 +1198,75 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         }
         return true;
     }
+
     private void send(String str) {
-        if(!connected) {
+        if (!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
             byte[] data = (str + '\n').getBytes();
             SpannableStringBuilder spn = new SpannableStringBuilder();
-            /* spn.append("send " + data.length + " bytes\n");
-            spn.append(HexDump.dumpHexString(data)).append("\n");
-            spn.append(data + "\n");*/
             spn.append(str);
             spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            //receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             onRunError(e);
         }
     }
-    private void read() {
+
+    /*private void read() {
         if(!connected) {
             Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
             byte[] buffer = new byte[8192];
-            int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);
-/*            if(len == -1)
+            int len = usbSerialPort.read(buffer, READ_WAIT_MILLIS);*/
+    /*            if(len == -1)
                 msgAck = false;
             else
                 msgAck = true;*/
-            receive(Arrays.copyOf(buffer, len));
+    /*    receive(Arrays.copyOf(buffer, len));
         } catch (IOException e) {
             // when using read with timeout, USB bulkTransfer returns -1 on timeout _and_ errors
             // like connection loss, so there is typically no exception thrown here on error
             status("connection lost: " + e.getMessage());
             disconnect();
         }
-    }
-    public void receive(byte[] data) {
+    }*/
+    public void receive(@NonNull byte[] data) {
         SpannableStringBuilder spn = new SpannableStringBuilder();
-        if(data.length > 0)
-        {
+        if (data.length > 0) {
 //            spn.append("receive " + data.length + " bytes\n");
 //            spn.append(HexDump.dumpHexString(data)).append("\n");
             parse(data);
         }
     }
+
     public void parse(byte[] data) {
         String rx = new String(data);
-        String K = null;
-        String V = null;
-        boolean key = false;
-        boolean value = false;
+        String K = "";
+        String V = "";
+        // boolean key = false;
+        // boolean value = false;
 
-        if(rx.length() > 0){
-            for(int k = 0; k < rx.length(); k++){
-                switch(rx.charAt(k)) {
+        if (!rx.isEmpty()) {
+            for (int k = 0; k < rx.length(); k++) {
+                switch (rx.charAt(k)) {
                     case '{':                           // start case start key phase
                         keyString = "";
                         break;
                     case '}':                           // End Parse Save [key,Value] and exit
                         V = keyString;
-                        if(V != null && K != null ) {
+                        if (V != null && K != null) {
                             panelData.setPanel(K, V);
                             panelData.setPanel("KEY", K);
                             panelData.setPanel("VALUE", V);
                             //receiveText.append( K + ":" + V  + "\n");
-                        }
-                        //else
-                            //Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
-                        keyString = "";
+                        } else
+                            // Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
+                            keyString = "";
                         mainLooper.post(postMsg);       // Post Message to UI
                         break;
                     case ':':                           // save key move to value phase
@@ -704,7 +1276,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
                     case '"':                           // ignore these
                     case '\n':
                     case '\r':
-                    case ' ':
+                        //case ' ':
                         break;
                     default:
                         keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
@@ -713,8 +1285,9 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             }
         }
     }
+
     void status(String str) {
-        SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
+        SpannableStringBuilder spn = new SpannableStringBuilder(str + '\n');
         spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }

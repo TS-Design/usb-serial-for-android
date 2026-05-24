@@ -1025,7 +1025,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         if (value) {
             waterAlarm.setText("Water Level Low");
             tv.setTextColor(Color.YELLOW);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
@@ -1048,6 +1048,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private void putHighWaterText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level High");
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
             tv.setTextColor(Color.BLUE);
         } else {
             waterAlarm.setText("Water Level Good");

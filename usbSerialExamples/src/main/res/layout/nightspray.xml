@@ -5,56 +5,88 @@
     android:id="@+id/AnrLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="@dimen/StartMarginFrag"
-    android:theme="@style/AppTheme">
-    <!--Mode Radio Group-->
-
-    <!--Time-->
-
-    <!--Time,Gallons Labels Here -->
-
-    <!-- Receive Stuff -->
-
-    <Button
-        android:id="@+id/alarmHistory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:layout_marginTop="184dp"
-        android:background="@color/colorSendText"
-        android:text="Alarm History"
-        android:textColor="@color/design_default_color_on_secondary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.011"
-        app:layout_constraintStart_toEndOf="@+id/waterFlowData"
-        app:layout_constraintTop_toBottomOf="@+id/effStartTime" />
-
-    <TextView
-        android:id="@+id/timeRemote"
-        android:layout_width="328dp"
-        android:layout_height="59dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="20dp"
-        android:maxLines="2"
-        android:minLines="1"
-        android:paddingStart="10pt"
-        android:paddingTop="1dp"
-        android:paddingEnd="10pt"
-        android:paddingBottom="10pt"
-        android:text="00:00:00"
-        android:textColor="@android:color/secondary_text_dark"
-        android:textSize="16sp"
+    android:theme="@style/AppTheme"
+    tools:layout_editor_absoluteY="25dp">
+    <!-- Focus Sink View -->
+    <View
+        android:id="@+id/focusSink"
+        android:layout_width="14dp"
+        android:layout_height="11dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!--comment out recieve text-->
+    <!-- Alarm History Button -->
+    <!-- Flow Data Button -->
+    <!-- Manual Test Button -->
+    <!-- Time -->
 
+    <Button
+        android:id="@+id/alarmHistory"
+        android:layout_width="100dp"
+        android:layout_height="@dimen/TestButtonHeight"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="36dp"
+        android:background="@color/colorSendText"
+        android:text="Alarm History"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textSize="@dimen/AnrButtonTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/effPumpTest" />
+
+    <Button
+        android:id="@+id/flowData"
+        android:layout_width="100dp"
+        android:layout_height="@dimen/TestButtonHeight"
+        android:layout_marginStart="28dp"
+        android:background="@color/light_blue_A200"
+        android:text="GPD Flow Data"
+        android:textAlignment="center"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textSize="@dimen/AnrButtonTextSize"
+        app:layout_constraintStart_toEndOf="@+id/alarmHistory"
+        app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
+
+    <Button
+        android:id="@+id/manualTest"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/TestButtonHeight"
+        android:layout_marginStart="20dp"
+        android:background="@color/light_blue_A200"
+        android:text="Probe Status"
+        android:textAlignment="center"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textSize="@dimen/AnrButtonTextSize"
+        app:layout_constraintStart_toEndOf="@+id/flowData"
+        app:layout_constraintTop_toTopOf="@+id/flowData" />
+
+    <TextView
+        android:id="@+id/timeRemote"
+        android:layout_width="297dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:maxLines="2"
+        android:minLines="1"
+        android:paddingStart="10dp"
+        android:paddingTop="1dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="10dp"
+        android:text="00:00:00"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="@dimen/timeTextSize"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Hoot Bug Image -->
+    <!-- ANR Label -->
     <ImageView
         android:id="@+id/hootBug"
         android:layout_width="80dp"
         android:layout_height="63dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="108dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="36dp"
         android:contentDescription="TODO"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -62,8 +94,8 @@
 
     <TextView
         android:id="@+id/textAnr"
-        android:layout_width="247dp"
-        android:layout_height="79dp"
+        android:layout_width="198dp"
+        android:layout_height="58dp"
         android:layout_marginTop="16dp"
         android:text="Night Spray"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -73,136 +105,157 @@
         app:layout_constraintHorizontal_bias="0.622"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- System OK Button -->
     <Button
         android:id="@+id/systemOk"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="100dp"
         android:clickable="false"
         android:text="System OK"
-        android:textSize="12sp"
+        android:textSize="@dimen/AnrButtonTextSize"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- Effluent Pump Test Button -->
     <Button
         android:id="@+id/effPumpTest"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="220dp"
-        android:layout_marginEnd="36dp"
-        android:text=" Effluent Pump"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/ffTest"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
+        android:layout_width="@dimen/TestButtonWidth"
+        android:layout_height="@dimen/TestButtonHeight"
+        android:layout_marginStart="36dp"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="36dp"
-        android:text="Field Flush"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recirTest" />
-
-    <Button
-        android:id="@+id/peristalticTest"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="36dp"
-        android:text="Peristaltic"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ffTest" />
-
+        android:text="Effluent Pump"
+        android:textSize="@dimen/AnrButtonTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/airPressure" />
+    <!-- alarm Reset Label -->
     <Button
         android:id="@+id/alarmReset"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="36dp"
-        android:text="System Alarm Latching Reset"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/effPumpTest" />
-
-    <Button
-        android:id="@+id/recirTest"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="36dp"
-        android:text="Recirculate"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
+        android:layout_width="@dimen/TestButtonWidth"
+        android:layout_height="@dimen/TestButtonHeight"
+        android:layout_marginStart="36dp"
+        android:text="Alarm Silence"
+        android:textSize="@dimen/AnrButtonTextSize"
+        app:layout_constraintStart_toEndOf="@+id/effPumpTest"
+        app:layout_constraintTop_toTopOf="@+id/effPumpTest" />
 
     <TextView
-        android:id="@+id/waterFlowData"
+        android:id="@+id/numberZones"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="92dp"
-        android:layout_marginTop="204dp"
-        android:text="Water Flow Data"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:gravity="end"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:text="Current Dose Remaining:"
         android:textSize="@dimen/anrTextSize"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/effStartTime" />
-
+        app:layout_constraintTop_toBottomOf="@+id/systemOk" />
+    <!-- Dose  Remaining Title TextView -->
+    <TextView
+        android:id="@+id/doseRemaining"
+        android:layout_width="@dimen/anrEditTextWidth"
+        android:layout_height="@dimen/anrEditTextHeight"
+        android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
+        android:autofillHints=""
+        android:gravity="end"
+        android:hint="Count Down"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/numberZones" />
+    <!-- Pump Run Time Title mmm:ss -->
+    <TextView
+        android:id="@+id/FdRunTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:text="Pump Dose Start  (HH:MM)"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/numberZones"
+        app:layout_constraintTop_toBottomOf="@+id/numberZones" />
+    <!-- Spray Runtime Hours EditText -->
+    <EditText
+        android:id="@+id/sprayRunTimeHr"
+        android:layout_width="@dimen/anrEditTextWidth"
+        android:layout_height="@dimen/anrEditTextHeight"
+        android:layout_marginStart="324dp"
+        android:autofillHints=""
+        android:gravity="end"
+        android:hint="HH"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:maxLength="2"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/FdRunTime" />
+    <!-- Colon  -->
+    <TextView
+        android:id="@+id/fdRunColon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text=":"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toEndOf="@+id/sprayRunTimeHr"
+        app:layout_constraintTop_toTopOf="@+id/sprayRunTimeHr" />
+    <!-- Spray Runtime EditText -->
+    <EditText
+        android:id="@+id/sprayRunTimeMin"
+        android:layout_width="@dimen/anrEditTextWidth"
+        android:layout_height="@dimen/anrEditTextHeight"
+        android:layout_marginStart="40dp"
+        android:autofillHints=""
+        android:gravity="end"
+        android:hint="MM"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:maxLength="2"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toEndOf="@+id/sprayRunTimeHr"
+        app:layout_constraintTop_toTopOf="@+id/sprayRunTimeHr" />
+    <!-- Air Pressure TextView -->
+    <TextView
+        android:id="@+id/airPressure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Air Compressor Pressure WCI:"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toStartOf="@+id/effPumpAlarmTime"
+        app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
+    <!-- Effluent Pump Alarm Time Label -->
     <TextView
         android:id="@+id/effPumpAlarmTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
-        android:text="Effluent Pump Runtime Alarm Timer; 0"
+        android:text="Pump Runtime Alarm Minutes:"
         android:textSize="@dimen/anrTextSize"
-        app:layout_constraintStart_toStartOf="@+id/airPressure"
-        app:layout_constraintTop_toBottomOf="@+id/airPressure" />
-
-    <TextView
-        android:id="@+id/effStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="68dp"
-        android:text="Effuent Pump Status"
+        app:layout_constraintStart_toStartOf="@+id/FdRunTime"
+        app:layout_constraintTop_toBottomOf="@+id/FdRunTime" />
+    <!-- Pump Runtime Alarm Time Count down -->
+    <EditText
+        android:id="@+id/effPumpAlarmTimeCount"
+        android:layout_width="@dimen/anrEditTextWidth"
+        android:layout_height="@dimen/anrEditTextHeight"
+        android:layout_marginStart="324dp"
+        android:autofillHints=""
+        android:gravity="end"
+        android:hint="Time to wait before Alarm"
+        android:imeOptions="actionDone"
+        android:inputType="number"
         android:textSize="@dimen/anrTextSize"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/systemOk" />
-
-    <TextView
-        android:id="@+id/effStartTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="Effluent Pump Dose Start Time: 200: AM"
-        android:textSize="@dimen/anrTextSize"
-        app:layout_constraintStart_toStartOf="@+id/recirRepeatTime"
-        app:layout_constraintTop_toBottomOf="@+id/recirRepeatTime" />
-
-    <TextView
-        android:id="@+id/airPressure"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Air Compressor Pressure WCI: 0"
-        android:textSize="@dimen/anrTextSize"
-        app:layout_constraintStart_toStartOf="@+id/effStatus"
-        app:layout_constraintTop_toBottomOf="@+id/effStatus" />
-
-    <TextView
-        android:id="@+id/recirRepeatTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="Current Time Dose Count Down Remaining: 0"
-        android:textSize="@dimen/anrTextSize"
-        app:layout_constraintStart_toStartOf="@+id/effPumpAlarmTime"
-        app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
-
+        app:layout_constraintTop_toTopOf="@+id/effPumpAlarmTime" />
+    <!-- Alarm Latch Button -->
     <Button
         android:id="@+id/alarmLatch"
         android:layout_width="100dp"
@@ -211,34 +264,38 @@
         android:layout_marginTop="100dp"
         android:clickable="false"
         android:text="Alarm Latching"
-        android:textSize="12sp"
+        android:textSize="@dimen/AnrButtonTextSize"
+        android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/airAlarm"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- System Alarm Button -->
     <Button
         android:id="@+id/alarm"
-        android:layout_width="100dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="100dp"
-        android:clickable="false"
-        android:text="System Alarm"
-        android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/systemOk"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/lowProbe"
         android:layout_width="100dp"
         android:layout_height="60dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="100dp"
         android:clickable="false"
-        android:text="Water Level Probe"
-        android:textSize="12sp"
+        android:text="System Alarm"
+        android:textSize="@dimen/AnrButtonTextSize"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/systemOk"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Water Level Good Button -->
+    <Button
+        android:id="@+id/waterAlarm"
+        android:layout_width="100dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="100dp"
+        android:clickable="false"
+        android:text="Water Level Good"
+        android:textSize="@dimen/AnrButtonTextSize"
+        android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/alarm"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- Peristaltic Button -->
+    <!-- Aeration Problem Button -->
     <Button
         android:id="@+id/airAlarm"
         android:layout_width="100dp"
@@ -246,9 +303,19 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="100dp"
         android:text="Aeration Problem"
-        android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/lowProbe"
+        android:textSize="@dimen/AnrButtonTextSize"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/waterAlarm"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Keypad Container -->
+    <FrameLayout
+        android:id="@+id/keypad_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="552dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

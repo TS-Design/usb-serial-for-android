@@ -18,7 +18,7 @@
     <dimen name="spinnerMarginStart">16dp</dimen>
     <dimen name="AnrButtonTextSize">12sp</dimen>
     <dimen name="timeTextSize">16sp</dimen>
-    <dimen name="TestButtonWidth">100dp</dimen>
+    <dimen name="TestButtonWidth">95dp</dimen>
     <dimen name="TestButtonHeight">60dp</dimen>
     <dimen name="SpinnerRightMargin">100dp</dimen>
     <dimen name="SpinnerTextSize">20sp</dimen>
@@ -28,8 +28,9 @@
     <dimen name="ANR_Top_Margin">24dp</dimen>
     <dimen name="flowValueOffset">400dp</dimen>
     <dimen name="flowVerticalSpacing">30dp</dimen>
-    <dimen name="anrEditTextWidth">65dp</dimen>
+    <dimen name="anrEditTextWidth">75dp</dimen>
     <dimen name="anrEditTextHeight">40dp</dimen>
     <dimen name="ANR_MARGIN_START">16dp</dimen>
     <dimen name="ANR_EDITTEXT_START">325dp</dimen>
+    <dimen name="ButtonSpacingSmall">1dp</dimen>
 </resources>

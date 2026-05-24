@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/AnrLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,7 +26,7 @@
      android:id="@+id/alarmHistory"
      android:layout_width="100dp"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="8dp"
+     android:layout_marginStart="@dimen/ButtonSpacingSmall"
      android:layout_marginTop="8dp"
      android:background="@color/colorSendText"
      android:text="Alarm History"
@@ -39,7 +40,7 @@
      android:id="@+id/flowData"
      android:layout_width="100dp"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="4dp"
+     android:layout_marginStart="5dp"
      android:background="@color/light_blue_A200"
      android:text="GPD Flow Data"
      android:textAlignment="center"
@@ -49,11 +50,12 @@
      app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
 
  <!-- Time TextView -->
+
  <Button
      android:id="@+id/manualTest"
-     android:layout_width="100dp"
+     android:layout_width="wrap_content"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="4dp"
+     android:layout_marginStart="5dp"
      android:background="@color/light_blue_A200"
      android:text="Probe Status"
      android:textAlignment="center"
@@ -125,72 +127,72 @@
  <!-- Effluent Pump Test Button -->
 
  <!-- Field Flush Button -->
+
+ <!-- Peristaltic Button -->
+
  <Button
      android:id="@+id/effPumpTest"
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="8dp"
-     android:layout_marginTop="32dp"
-     android:text=" Effluent Pump"
+     android:text="Effluent Pump"
      android:textSize="@dimen/AnrButtonTextSize"
-     app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/peristolticDoseText" />
-
- <!-- Peristaltic Button -->
+     app:layout_constraintStart_toEndOf="@+id/peristalticTest"
+     app:layout_constraintTop_toTopOf="@+id/peristalticTest" />
 
  <Button
      android:id="@+id/ffTest"
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="8dp"
-     android:layout_marginTop="8dp"
+     android:layout_marginStart="@dimen/ButtonSpacingSmall"
+     android:layout_marginTop="32dp"
      android:text="Field Flush"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toBottomOf="@+id/effPumpTest" />
+     app:layout_constraintTop_toBottomOf="@+id/peristolticDoseText" />
 
  <Button
      android:id="@+id/peristalticTest"
-     android:layout_width="@dimen/TestButtonWidth"
+     android:layout_width="wrap_content"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="4dp"
+     android:layout_marginStart="@dimen/ButtonSpacingSmall"
      android:text="Peristaltic"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/ffTest"
      app:layout_constraintTop_toTopOf="@+id/ffTest" />
 
  <!-- Beeper Silent Button -->
+
+ <!-- Recirculate Button -->
+
+ <!-- Number of Zones -->
+
  <Button
      android:id="@+id/alarmReset"
      android:layout_width="@dimen/TestButtonWidth"
      android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="4dp"
      android:text="Alarm Silence"
+     android:textSize="@dimen/AnrButtonTextSize"
+     app:layout_constraintStart_toEndOf="@+id/recirTest"
+     app:layout_constraintTop_toTopOf="@+id/recirTest" />
+
+ <Button
+     android:id="@+id/recirTest"
+     android:layout_width="wrap_content"
+     android:layout_height="@dimen/TestButtonHeight"
+     android:text="Recirculate"
      android:textSize="@dimen/AnrButtonTextSize"
      app:layout_constraintStart_toEndOf="@+id/effPumpTest"
      app:layout_constraintTop_toTopOf="@+id/effPumpTest" />
 
- <!-- Recirculate Button -->
- <Button
-     android:id="@+id/recirTest"
-     android:layout_width="@dimen/TestButtonWidth"
-     android:layout_height="@dimen/TestButtonHeight"
-     android:layout_marginStart="4dp"
-     android:text="Recirculate"
-     android:textSize="@dimen/AnrButtonTextSize"
-     app:layout_constraintStart_toEndOf="@+id/alarmReset"
-     app:layout_constraintTop_toTopOf="@+id/alarmReset" />
-
- <!-- Number of Zones -->
  <TextView
      android:id="@+id/numberZones"
      android:layout_width="wrap_content"
      android:layout_height="wrap_content"
      android:layout_marginStart="12dp"
      android:layout_marginTop="8dp"
+     android:gravity="end"
      android:imeOptions="actionDone"
      android:inputType="number"
-     android:gravity="end"
      android:text="Number of Zones:"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
@@ -201,14 +203,14 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
-     android:hint="1-4"
+     android:autofillHints=""
      android:gravity="end"
+     android:hint="1-4"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/numberZones"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/numberZones" />
 
  <!-- Doses Per Day -->
  <TextView
@@ -228,14 +230,14 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="Number of Doses per Day"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/dosesDay"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/dosesDay" />
 
  <!-- Field Dose Runtime mmm:ss -->
  <TextView
@@ -254,6 +256,7 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="MMM"
      android:imeOptions="actionDone"
@@ -261,8 +264,7 @@
      android:maxLength="3"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/FdRunTime"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/FdRunTime" />
 
  <TextView
      android:id="@+id/fdRunColon"
@@ -280,6 +282,7 @@
      android:id="@+id/FdRunTimeCountSec"
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="SS"
      android:imeOptions="actionDone"
@@ -287,8 +290,7 @@
      android:maxLength="2"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toEndOf="@+id/fdRunColon"
-     app:layout_constraintTop_toTopOf="@+id/FdRunTimeCount"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/FdRunTimeCount" />
 
  <!-- Recirculate Repeat Time mmm:ss -->
  <TextView
@@ -307,14 +309,14 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="MMM"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/recirRepeatTime"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/recirRepeatTime" />
 
 
  <!-- Recirculate Runtime -->
@@ -334,15 +336,15 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
-     android:hint="MMM"
+     android:autofillHints=""
      android:gravity="end"
+     android:hint="MMM"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:maxLength="3"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/recirRunTime"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/recirRunTime" />
 
  <!-- Air Pressure -->
 
@@ -362,14 +364,14 @@
      android:id="@+id/recirRunCountSec"
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="SS"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toEndOf="@+id/recirRunCountColon"
-     app:layout_constraintTop_toTopOf="@+id/recirRunCount"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/recirRunCount" />
 
  <TextView
      android:id="@+id/airPressure"
@@ -399,14 +401,14 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="Time to wait before Alarm"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/effPumpAlarmTime"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/effPumpAlarmTime" />
 
  <!-- Carbon (Peristaltic) Dose mmm:ss -->
  <TextView
@@ -425,14 +427,14 @@
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
      android:layout_marginStart="@dimen/ANR_EDITTEXT_START"
+     android:autofillHints=""
+     android:gravity="end"
      android:hint="Carbon Pump Runtime"
      android:imeOptions="actionDone"
-     android:gravity="end"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toStartOf="parent"
-     app:layout_constraintTop_toTopOf="@+id/peristolticDoseText"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/peristolticDoseText" />
 
  <TextView
      android:id="@+id/peristolticCountColon"
@@ -450,14 +452,14 @@
      android:id="@+id/peristolticCountSec"
      android:layout_width="@dimen/anrEditTextWidth"
      android:layout_height="@dimen/anrEditTextHeight"
+     android:autofillHints=""
      android:gravity="end"
      android:hint="Seconds"
      android:imeOptions="actionDone"
      android:inputType="number"
      android:textSize="@dimen/anrTextSize"
      app:layout_constraintStart_toEndOf="@+id/peristolticCountColon"
-     app:layout_constraintTop_toTopOf="@+id/peristolticCount"
-     android:autofillHints="" />
+     app:layout_constraintTop_toTopOf="@+id/peristolticCount" />
 
  <!-- Alarm Latching Button -->
  <Button
@@ -519,7 +521,7 @@
      android:id="@+id/keypad_container"
      android:layout_width="match_parent"
      android:layout_height="wrap_content"
-     android:layout_marginTop="4dp"
+     android:layout_marginTop="8dp"
      app:layout_constraintEnd_toEndOf="parent"
      app:layout_constraintHorizontal_bias="0.0"
      app:layout_constraintStart_toStartOf="parent"
