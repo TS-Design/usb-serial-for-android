@@ -200,7 +200,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     "bHigh",
                     "bairalrm",
                     "flow",
-                    "log",
+                    // "log",
                     "time",
                     "perdur"
             )
