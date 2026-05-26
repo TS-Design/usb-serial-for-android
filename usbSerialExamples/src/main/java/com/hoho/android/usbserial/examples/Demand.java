@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.hoho.android.usbserial.BuildConfig;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
@@ -67,7 +68,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
-    public PanelData panelData = new PanelData();
+    public PanelData panelData;
 
     private TextView timeRemote;
     //private TextView remoteTime;
@@ -119,7 +120,6 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private Button closeGallonsBtn;
     private TextView gallontextwindow;
     private TextView alarmTextWindow;
-    public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
     public String remoteMin = "00";
@@ -375,6 +375,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         });
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
         return view;
     }
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -794,54 +795,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         }
     }
     public void receive(byte[] data) {
-        SpannableStringBuilder spn = new SpannableStringBuilder();
-        if(data.length > 0)
-        {
-//            spn.append("receive " + data.length + " bytes\n");
-//            spn.append(HexDump.dumpHexString(data)).append("\n");
-            parse(data);
-        }
-    }
-    public void parse(byte[] data) {
-        String rx = new String(data);
-        String K = null;
-        String V =  null;
-        boolean key = false;
-        boolean value = false;
-
-        if(rx.length() > 0){
-            for(int k = 0; k < rx.length(); k++){
-                switch(rx.charAt(k)) {
-                    case '{':                           // start case start key phase
-                        keyString = "";
-                        break;
-                    case '}':                           // End Parse Save [key,Value] and exit
-                        V = keyString;
-                        if(V != null && K != null ) {
-                            panelData.setPanel(K, V);
-                            panelData.setPanel("KEY", K);
-                            panelData.setPanel("VALUE", V);
-                            //receiveText.append( K + ":" + V  + "\n");
-                        }
-                        else
-                            //Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
-                        keyString = "";
-                        mainLooper.post(postMsg);       // Post Message to UI
-                        break;
-                    case ':':                           // save key move to value phase
-                        K = keyString;
-                        keyString = "";
-                        break;
-                    case '"':                           // ignore these
-                    case '\n':
-                    case '\r':
-                    case ' ':
-                        break;
-                    default:
-                        keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
-                        break;
-                }
-            }
+        if(data.length > 0) {
+            panelData.parse(data, () -> mainLooper.post(postMsg));
         }
     }
     void status(String str) {

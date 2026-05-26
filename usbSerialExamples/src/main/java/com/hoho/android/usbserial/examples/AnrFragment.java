@@ -49,6 +49,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -98,7 +99,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
-    public PanelData panelData = new PanelData();
+    public PanelData panelData;
 
     private TextView timeRemote;
     //private TextView remoteTime;
@@ -157,7 +158,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     public Button waterAlarm;
     public Button airAlarm;
     public Button peristalticTest;
-    public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
     public String remoteMin = "00";
@@ -200,7 +200,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                     "bHigh",
                     "bairalrm",
                     "flow",
-                    // "log",
                     "time",
                     "perdur"
             )
@@ -745,9 +744,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             //StringBuilder time = new StringBuilder(panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") + " " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min"));
             textAlarmTime.setText(panelData.getPanelString("time"));
 
-            for (int i = 0; i < alarmList.length; i++) {
-                if (alarmList[i][1] != null) {
-                    alarmTextWindow.append(alarmList[i][1]);
+            // Read fresh log data directly from panelData so the popup always shows current entries
+            String[][] freshLogs = panelData.displayFilterLog("log");
+            alarmTextWindow.setText("");
+            for (int i = 0; i < freshLogs.length; i++) {
+                if (freshLogs[i][1] != null) {
+                    alarmTextWindow.append(freshLogs[i][1]);
                     alarmTextWindow.append("\n");
                 }
             }
@@ -755,6 +757,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             closeAlarmBtn.setOnClickListener(v1 -> {
                 popupWindow.dismiss();
                 alarmTextWindow.setText("");
+                alarmTextWindow = null;  // release reference; popup is closed
             });
             clearAlarm.setOnClickListener((v1 -> clearAlarmCallBack()));
         });
@@ -823,6 +826,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         });
         // Start Update timer to sync UI
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
         return view;
     }
 
@@ -899,6 +903,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     }
 
     public void setLog(String v) {
+        if (alarmTextWindow == null) return;  // popup not currently open
         StringBuilder temp = new StringBuilder(v);
         alarmTextWindow.append(temp);
         alarmTextWindow.append("\n");
@@ -959,6 +964,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
             status("connected");
             connected = true;
+             sendPriorityCommand("log", "Query"); // one-time log refresh on connect
         } catch (Exception e) {
             status("connection failed: " + e.getMessage());
             disconnect();
@@ -1421,53 +1427,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
     }*/
     public void receive(@NonNull byte[] data) {
-        SpannableStringBuilder spn = new SpannableStringBuilder();
         if (data.length > 0) {
-//            spn.append("receive " + data.length + " bytes\n");
-//            spn.append(HexDump.dumpHexString(data)).append("\n");
-            parse(data);
-        }
-    }
-
-    public void parse(byte[] data) {
-        String rx = new String(data);
-        String K = "";
-        String V = "";
-        // boolean key = false;
-        // boolean value = false;
-
-        if (!rx.isEmpty()) {
-            for (int k = 0; k < rx.length(); k++) {
-                switch (rx.charAt(k)) {
-                    case '{':                           // start case start key phase
-                        keyString = "";
-                        break;
-                    case '}':                           // End Parse Save [key,Value] and exit
-                        V = keyString;
-                        if (V != null && K != null) {
-                            panelData.setPanel(K, V);
-                            panelData.setPanel("KEY", K);
-                            panelData.setPanel("VALUE", V);
-                            //receiveText.append( K + ":" + V  + "\n");
-                        } else
-                            // Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
-                            keyString = "";
-                        mainLooper.post(postMsg);       // Post Message to UI
-                        break;
-                    case ':':                           // save key move to value phase
-                        K = keyString;
-                        keyString = "";
-                        break;
-                    case '"':                           // ignore these
-                    case '\n':
-                    case '\r':
-                        //case ' ':
-                        break;
-                    default:
-                        keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
-                        break;
-                }
-            }
+            panelData.parse(data, () -> mainLooper.post(postMsg));
         }
     }
 

@@ -32,6 +32,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
@@ -86,9 +87,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
    // public DataLayer dataLayer = new DataLayer();
-    public PanelData panelData = new PanelData();
     /* Hoot adds */
-    public String keyString = "";
     public String remoteMin = "00";
     public String remoteSec = "00";
     public String remoteHr = "00";
@@ -211,6 +210,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         RY4.setOnClickListener(v -> Ry4Callbacks());
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
         return view;
     }
     private void so0Callback() {
@@ -664,50 +664,11 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         }
     }*/
     public void receive(byte[] data) {
-        SpannableStringBuilder spn = new SpannableStringBuilder();
-        if(data.length > 0)
-        {
-//            spn.append("receive " + data.length + " bytes\n");
-//            spn.append(HexDump.dumpHexString(data)).append("\n");
-            parse(data);
+        if(data.length > 0) {
+            panelData.parse(data, () -> mainLooper.post(postMsg));
         }
     }
 
-    public void parse(byte[] data) {
-        String rx = new String(data);
-        String K = null;
-        String V = null;
-        boolean key = false;
-        boolean value = false;
-
-        if(rx.length() > 0){
-            for(int k = 0; k < rx.length(); k++){
-                switch(rx.charAt(k)) {
-                    case '{':                           // start case start key phase
-                        keyString = "";
-                        break;
-                    case '}':                           // End Parse Save [key,Value] and exit
-                        V = keyString;
-                        panelData.setPanel(K, V);
-                        keyString = "";
-                        mainLooper.post(postMsg);       // Post Message to UI
-                        break;
-                    case ':':                           // save key move to value phase
-                        K = keyString;
-                        keyString = "";
-                        break;
-                    case '"':                           // ignore these
-                    case '\n':
-                    case '\r':
-                    case ' ':
-                        break;
-                    default:
-                        keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
-                        break;
-                }
-            }
-        }
-    }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
         spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

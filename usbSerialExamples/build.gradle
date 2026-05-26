@@ -31,4 +31,5 @@ dependencies {
     implementation project(':usbSerialForAndroid')
     implementation 'androidx.appcompat:appcompat:1.7.1' // later versions have minsdk 21
     implementation 'com.google.android.material:material:1.14.0' // later versions have minsdk 19
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
 }

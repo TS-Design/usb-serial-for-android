@@ -44,6 +44,9 @@ import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import com.hoho.android.usbserial.examples.BuildConfig;
+
+import androidx.lifecycle.ViewModelProvider;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,7 +77,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
-    public PanelData panelData = new PanelData();
+    public PanelData panelData;
     public boolean duplex = false;
     private TextView timeRemote;
     private RadioGroup main_mode;
@@ -97,7 +100,6 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     public boolean connected = false;
     /* Hoot adds */
     public String tankSizeString = "";
-    public String keyString = "";
     //public String KEY = "";
     //public String VALUE = "";
     public String remoteMin = "00";
@@ -329,6 +331,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         });
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
+        panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
         return view;
     }
 
@@ -472,6 +475,10 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     public void postDataLayer() {
         boolean enableMode = false;
         String tankItemIndex = "";
+        // Restore terminal raw data display: show each received key:value pair
+        if (panelData.containsKey("KEY") && panelData.containsKey("VALUE")) {
+            receiveText.append(panelData.getPanelString("KEY") + ":" + panelData.getPanelString("VALUE") + "\n");
+        }
         if (panelData.containsKey("mode")) {          // Set Mode Radio Button
             if (panelData.getPanelString("mode").equals("bANR"))
                 main_mode.check(R.id.banr);
@@ -515,7 +522,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
         //main_mode.check(R.id.binit);
         if(!popUpDialogPosted) {
-            if(panelData.getPanelString("tank").equals("0")) {
+            if(panelData.containsKey("tank") && panelData.getPanelString("tank").equals("0")) {
                 //showTankPopUp();
                 popUpDialogPosted = true;
             }
@@ -808,55 +815,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
     }
     public void receive(byte[] data) {
-        SpannableStringBuilder spn = new SpannableStringBuilder();
-        if(data.length > 0)
-        {
-            //    spn.append("receive " + data.length + " bytes\n");
-            //    spn.append(HexDump.dumpHexString(data)).append("\n");
-            parse(data);
-        }
-    }
-    public void parse(byte[] data) {
-        String rx = new String(data);
-        String K = null;
-        String V = null;
-        boolean key = false;
-        boolean value = false;
-
-        if(rx.length() > 0){
-            for(int k = 0; k < rx.length(); k++){
-                switch(rx.charAt(k)) {
-                    case '{':                           // start case start key phase
-                        key = true;
-                        keyString = "";
-                        break;
-                    case '}':                           // End Parse Save [key,Value] and exit
-                        V = keyString;
-                        if(V != null && K != null ) {
-                            panelData.setPanel(K, V);
-                            panelData.setPanel("KEY", K);
-                            panelData.setPanel("VALUE", V);
-                            receiveText.append( K + ":" + V  + "\n");
-                        }
-                        else
-                            //Toast.makeText(getActivity(), "PARSE -- CMD is Null", Toast.LENGTH_SHORT).show();
-                            keyString = "";
-                        mainLooper.post(postMsg);       // Post Message to UI
-                        break;
-                    case  ':':                           // save key move to value phase
-                        K = keyString;
-                        keyString = "";
-                        break;
-                    case '"':                           // ignore these
-                    case '\n':
-                    case '\r':
-                    //case ' ':
-                        break;
-                    default:
-                        keyString = keyString.concat(String.valueOf(rx.charAt(k)));  // add char to string
-                        break;
-                }
-            }
+        if(data.length > 0) {
+            panelData.parse(data, () -> mainLooper.post(postMsg));
         }
     }
     void status(String str) {
