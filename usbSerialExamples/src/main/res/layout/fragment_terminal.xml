@@ -253,5 +253,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/hootBug" />
 
+    <Button
+        android:id="@+id/bulletButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="80dp"
+        android:text="Bullet"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/hootBug" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 

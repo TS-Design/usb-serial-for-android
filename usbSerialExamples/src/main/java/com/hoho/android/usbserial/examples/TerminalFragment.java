@@ -92,6 +92,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton manual;
     private RadioButton cancelManual;
     private Button altButton;
+    private Button bulletinButton;
     private Spinner tankDropDown;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
@@ -124,6 +125,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         updateCommandList.add("tank");
         updateCommandList.add("bALT");
         updateCommandList.add("bmantest");
+        updateCommandList.add("bair_by");
     }
 
     public int commandLength = updateCommandList.size();
@@ -263,6 +265,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
         if(connected) {
             status("disconnected");
             disconnect();
@@ -290,6 +293,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         receiveText = view.findViewById(R.id.receiveText);
         timeRemote = view.findViewById(R.id.timeRemote);
         altButton = view.findViewById(R.id.altButton);
+        bulletinButton = view.findViewById(R.id.bulletButton);
         bgrav.setOnClickListener(v -> gravCallback());  // something is always true
         banr.setOnClickListener(v -> anrCallback());
         bbnr.setOnClickListener(v -> bbnrCallback());
@@ -300,6 +304,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         binit.setOnClickListener(v -> binitCallback());
         manual.setOnClickListener(v -> manualCallback());
         altButton.setOnClickListener(v -> altButtonCallback());
+        bulletinButton.setOnClickListener(v -> bulletCallBack());
         //cancelManual.setOnClickListener(v -> cancelManualCallback());
 
         /* Spinner Tank Size */
@@ -473,6 +478,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         usbSerialPort = null;
     }
     public void postDataLayer() {
+        if (!isAdded() || getContext() == null) return;
         boolean enableMode = false;
         String tankItemIndex = "";
         // Restore terminal raw data display: show each received key:value pair
@@ -517,29 +523,26 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             else
                 altButton.setText(("Simplex"));
         }
+        if (panelData.containsKey("bair_by")) {
+            if (panelData.getPanelBool("bair_by")) {
+                bulletinButton.setTextColor(Color.BLACK);
+                bulletinButton.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+                bulletinButton.setText(("Bullet On"));
+            } else {
+                bulletinButton.setTextColor(Color.BLACK);
+                bulletinButton.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                bulletinButton.setText("Bullet Off");
+            }
+        }
         for(int i = 0; i < main_mode.getChildCount(); i++){
             main_mode.getChildAt(i).setEnabled(enableMode);
         }
-        //main_mode.check(R.id.binit);
-        if(!popUpDialogPosted) {
+         if(!popUpDialogPosted) {
             if(panelData.containsKey("tank") && panelData.getPanelString("tank").equals("0")) {
                 //showTankPopUp();
                 popUpDialogPosted = true;
             }
         }
-//        if (panelData.containsKey("tank")) {     // Tank pull down
-        //   if (panelData.getPanelString("tank") != "0") {
-        //          tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(panelData.getPanelString("tank")));
-        // mainLooper.post(waitOnTank);
-        //           }
-//            else {
-        //              panelDatak(dataLayer.getVALUE());
-        //            mainLooper.post(modeSpinner);
-        //          }
-
-
-        //       else
-        //Toast.makeText(getActivity(), "CMD not Recognized " + dataLayer.getKEY(), Toast.LENGTH_SHORT).show();
     }
     public void modeEnable(RadioGroup main_mode) {
     }       // TODO modeEnable() No code
@@ -551,6 +554,16 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             } else {
                 altButton.setText("Duplex");
                 sendPriorityCommand("bALT", "true");
+            }
+        }
+    }
+    public void bulletCallBack() {
+        if(panelData.containsKey("bair_by")){
+            if(panelData.getPanelBool("bair_by")) {
+                sendPriorityCommand("bair_by", "false");
+            } else {
+                altButton.setText("Bullet On");
+                sendPriorityCommand("bair_by", "true");
             }
         }
     }
@@ -703,6 +716,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     private void bbnrCallback() {
         sendJson("bBNR","true");
+        Bundle args = new Bundle();
+        args.putInt("device", deviceId);
+        args.putInt("port", portNum);
+        args.putInt("baud", baudRate);
+        args.putBoolean("withIoManager", withIoManager);
+        args.putBoolean("isBNR", true);
+        Fragment fragment = new AnrFragment();
+        fragment.setArguments(args);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, fragment, "bnr").addToBackStack(null).commit();
     }
     private void bspyCallback() {
         sendJson("bSPY","true");
@@ -721,10 +743,11 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         args.putInt("device", deviceId);
         args.putInt("port", portNum);
         args.putInt("baud", baudRate);
+        args.putInt("microdose", 1);
         args.putBoolean("withIoManager", withIoManager);
-        Fragment TerminalFragment = new MicroDose();
+        Fragment TerminalFragment = new Drip();
         TerminalFragment.setArguments(args);
-        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "microdose").addToBackStack(null).commit();
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment, TerminalFragment, "drip").addToBackStack(null).commit();
     }
     private void bdmdCallback() {
         sendJson("bDMD", "true");
@@ -743,6 +766,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         args.putInt("device", deviceId);
         args.putInt("port", portNum);
         args.putInt("baud", baudRate);
+        args.putInt("microdose", 0);
         args.putBoolean("withIoManager", withIoManager);
         Fragment TerminalFragment = new Drip();
         TerminalFragment.setArguments(args);

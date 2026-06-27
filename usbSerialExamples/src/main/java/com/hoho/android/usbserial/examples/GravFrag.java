@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 public class GravFrag extends Fragment implements SerialInputOutputManager.Listener, AdapterView.OnItemSelectedListener {
 
@@ -82,7 +81,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     private TextView airPressure;
     private TextView effPumpAlarmTime;
     private TextView numberZones;
-    public TextView alarmLatchStatus;
+    //public TextView alarmLatchStatus;
 
     public Button systemOk;
     public Button effPumpTest;
@@ -112,8 +111,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
      *   command lenght is length of commandList
      */
     public List<String> updateCommandList = of(
-            "mode", "year", "month","day",
-            "hour", "min", "sec",
+            "mode", "time",
             "tank", "bok", "bptest","balmrset",
             "so1", "so0", "so2",
             "dosesday", "fdrun", "rrepeat",
@@ -143,9 +141,9 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     final Runnable timeHandler = new Runnable() {
         @Override
         public void run() {
-            String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
-            timeRemote.setText(time);
-            mainLooper.postDelayed(timeHandler,1000);
+            if (panelData != null && panelData.containsKey("time"))
+                timeRemote.setText(panelData.getPanelString("time"));
+            mainLooper.postDelayed(timeHandler, 1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
@@ -197,16 +195,22 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         mainLooper.postDelayed(timeHandler,1000);
 
     }
+    @android.annotation.SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
 
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
     }
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
         if(connected) {
             status("disconnected");
             disconnect();
@@ -229,9 +233,11 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         alarmLatch = view.findViewById(R.id.alarmLatch);
         // Body objects
-        alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
+        // alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
         alarmHistory = view.findViewById(R.id.alarmHistory);
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        alarmHistory.setOnClickListener(v ->
+            AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendJson("clrlog", "query")));
         airAlarm = view.findViewById(R.id.airAlarm );
         lowProbe = view.findViewById(R.id.lowProbe);
         airPressure = view.findViewById(R.id.airPressure);
@@ -380,6 +386,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         }
     }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
+        if (!isAdded() || getContext() == null) return;
         boolean enableMode;
         /* Status Banner */
         if(panelData.containsKey("bok"))
@@ -388,8 +395,8 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("balarm"))
-            putTextColor(alarm, !panelData.getPanelBool("balarm"));
+        if(panelData.containsKey("balmrset"))
+            putTextColor(alarm, !panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("bLow"))
             putTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
@@ -397,25 +404,8 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         /* Variables */
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
-        if(panelData.containsKey("dow"))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"dow\")")));
-        if(panelData.containsKey(""))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"\")")));
-        if (panelData.containsKey("dow"))
-            remoteDow = panelData.getPanelString("dow");
-        if (panelData.containsKey("day"))
-            remoteDay = panelData.getPanelString("day");
-        if (panelData.containsKey("month"))
-            remoteMonth = panelData.getPanelString("month");
-        if (panelData.containsKey("year"))
-            remoteYear = panelData.getPanelString("year");
-        if (panelData.containsKey("hrs"))
-            remoteHr = panelData.getPanelString("hrs");
-        if (panelData.containsKey("min"))
-            remoteMin = panelData.getPanelString("min");
-        if (panelData.containsKey("sec"))
-            remoteSec = panelData.getPanelString("sec");
-        //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        if (panelData.containsKey("time"))
+            timeRemote.setText(panelData.getPanelString("time"));
     }
     public void modeEnable(RadioGroup main_mode) {
     }
@@ -509,16 +499,6 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         else {
             alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
-        }
-    }
-    private void alarmHistoryCallback() {
-        if(panelData.getPanelBool("alarmHistory")) {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.textOff));
-            sendJson("ahist", "false");
-        }
-        else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.textGoodBackground));
-            sendJson("ahist", "true");
         }
     }
     private void ffTestCallback() {

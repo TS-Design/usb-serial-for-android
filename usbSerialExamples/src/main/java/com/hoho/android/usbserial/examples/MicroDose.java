@@ -54,7 +54,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
     private static final int UPDATE_INTERVAL_MILLIS = 200;
-    private int deviceId, portNum, baudRate;
+    private int deviceId, portNum, baudRate, microdose;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
@@ -112,13 +112,12 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
      *   command lenght is length of commandList
      */
     public List<String> updateCommandList = of(
-            "mode", "year", "month","day",
-            "hour", "min", "sec",
+            "mode", "time",
             "tank", "bok", "bptest","balmrset",
             "so1", "so0", "so2",
             "effstat", "airpres",
             "palmtime", "balrmltch",
-            "bmantest", "balarm", "bLow", "bairalrm"
+            "bmantest", "balarm", "bLow", "bHigh", "bairalrm"
     );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
@@ -142,9 +141,9 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     final Runnable timeHandler = new Runnable() {
         @Override
         public void run() {
-            String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
-            timeRemote.setText(time);
-            mainLooper.postDelayed(timeHandler,1000);
+            if (panelData != null && panelData.containsKey("time"))
+                timeRemote.setText(panelData.getPanelString("time"));
+            mainLooper.postDelayed(timeHandler, 1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
@@ -192,20 +191,25 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         deviceId = getArguments().getInt("device");
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
+        microdose = getArguments().getInt("microdose");
         withIoManager = getArguments().getBoolean("withIoManager");
         mainLooper.postDelayed(timeHandler,1000);
 
     }
+    @android.annotation.SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
-
-        if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
-            mainLooper.post(this::connect);
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
+        mainLooper.post(this::connect);
     }
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
         if(connected) {
             status("disconnected");
             disconnect();
@@ -241,7 +245,9 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         dosesDay = view.findViewById(R.id.dosesDay);
 
 
-        alarmHistory.setOnClickListener(v -> alarmHistoryCallback());
+        alarmHistory.setOnClickListener(v ->
+            AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendJson("clrlog", "query")));
         alarmReset.setOnClickListener(v -> alarmResetCallback());
 
         /* Start Update timer to sync UI   */
@@ -389,6 +395,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         }
     }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
+        if (!isAdded() || getContext() == null) return;
         boolean enableMode;
         /* Status Banner */
         if(panelData.containsKey("bok"))
@@ -405,48 +412,31 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             putTextColor(peristalticTest, panelData.getPanelBool("so2"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("balarm"))
-            putTextColor(alarm, !panelData.getPanelBool("balarm"));
+        if(panelData.containsKey("bHigh"))
+            putTextColor(alarm, !panelData.getPanelBool("bHigh"));
         if(panelData.containsKey("bLow"))
             putTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
             putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
-        if(panelData.containsKey("dosesday"))
+        if(panelData.containsKey("dosesday") && dosesDay != null)
             dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
-        if(panelData.containsKey("fdrun"))
+        if(panelData.containsKey("fdrun") && FdRunTime != null)
             FdRunTime.setText(String.format("Pump Run Time (Field Dose):%s", panelData.getPanelString("fdrun")));
-        if(panelData.containsKey("rrepeat"))
+        if(panelData.containsKey("rrepeat") && recirRepeatTime != null)
             recirRepeatTime.setText(String.format("Water Pump Recir Repeat Cycle Timer: %s", panelData.getPanelString("rrepeat")));
-        if(panelData.containsKey("rrun"))
+        if(panelData.containsKey("rrun") && recirRunTime != null)
             recirRunTime.setText(String.format("Water Pump Recirc Run Timer: %s", panelData.getPanelString("rrun")));
-        if(panelData.containsKey("effstat"))
+        if(panelData.containsKey("effstat") && effStatus != null)
             effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
-        if(panelData.containsKey("airpres"))
+        if(panelData.containsKey("airpres") && airPressure != null)
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
-        if(panelData.containsKey("palmtime"))
+        if(panelData.containsKey("palmtime") && effPumpAlarmTime != null)
             effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer %s", panelData.getPanelString("palmtime")));
-        if(panelData.containsKey("zone"))
+        if(panelData.containsKey("zone") && numberZones != null)
             numberZones.setText(String.format("Number of Zones %s", panelData.getPanelString("zone")));
-        if(panelData.containsKey("dow"))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"dow\")")));
-        if(panelData.containsKey(""))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"\")")));
-        if (panelData.containsKey("dow"))
-            remoteDow = panelData.getPanelString("dow");
-        if (panelData.containsKey("day"))
-            remoteDay = panelData.getPanelString("day");
-        if (panelData.containsKey("month"))
-            remoteMonth = panelData.getPanelString("month");
-        if (panelData.containsKey("year"))
-            remoteYear = panelData.getPanelString("year");
-        if (panelData.containsKey("hrs"))
-            remoteHr = panelData.getPanelString("hrs");
-        if (panelData.containsKey("min"))
-            remoteMin = panelData.getPanelString("min");
-        if (panelData.containsKey("sec"))
-            remoteSec = panelData.getPanelString("sec");
-        //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        if (panelData.containsKey("time") && timeRemote != null)
+            timeRemote.setText(panelData.getPanelString("time"));
     }
     public void modeEnable(RadioGroup main_mode) {
     }
@@ -540,16 +530,6 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         else {
             alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
             sendJson("balmrset", "true");
-        }
-    }
-    private void alarmHistoryCallback() {
-        if(panelData.getPanelBool("alarmHistory")) {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("ahist", "false");
-        }
-        else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("ahist", "true");
         }
     }
     private void ffTestCallback() {

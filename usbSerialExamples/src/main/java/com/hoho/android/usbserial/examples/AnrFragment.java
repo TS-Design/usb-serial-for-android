@@ -88,6 +88,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private static final int UPDATE_INTERVAL_MILLIS = 100;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
+    private boolean isBNR = false;
     private boolean keypadOn = false;
     private boolean bALT = false;
     private final BroadcastReceiver broadcastReceiver;
@@ -291,6 +292,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
         withIoManager = getArguments().getBoolean("withIoManager");
+        isBNR = getArguments().getBoolean("isBNR", false);
         //  mainLooper.postDelayed(timeHandler,1000);
 
     }
@@ -311,7 +313,12 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
+        if (popupManualTest != null && popupManualTest.isShowing()) {
+            popupManualTest.dismiss();
+        }
         if (connected) {
+            sendJson("bENA", "false");
             status("disconnected");
             disconnect();
         }
@@ -574,7 +581,19 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
         // peristolticCount.setOnClickListener(v -> NumericTimePopup.showNumericTimePopup(getContext(), "perdur", this));
         // dropdowns
-/*        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, R.layout.mode_spinner);
+        // BNR mode: suppress peristaltic pump UI
+        if (isBNR) {
+            peristalticTest.setVisibility(View.GONE);
+            peristolticCount.setVisibility(View.GONE);
+            peristolticCountSec.setVisibility(View.GONE);
+            view.findViewById(R.id.peristolticDoseText).setVisibility(View.GONE);
+            view.findViewById(R.id.peristolticCountColon).setVisibility(View.GONE);
+            ((TextView) view.findViewById(R.id.textAnr)).setText("NR");
+        } else {
+            ((TextView) view.findViewById(R.id.textAnr)).setText("ANR");
+        }
+
+        /*        final ArrayAdapter<CharSequence> zoneCountAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.zoneCountItems, R.layout.mode_spinner);
         zoneCountAdapter.setDropDownViewResource(R.layout.mode_spinner);
         zoneCount.setAdapter(zoneCountAdapter);
         zoneCount.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -725,42 +744,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 popupWindow.dismiss();
             });
         });
-        alarmHistory.setOnClickListener(v -> {
-            //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            View customView = layoutInflater.inflate(R.layout.alarm_history, null);
-
-            closeAlarmBtn = customView.findViewById(R.id.closeAlarmBtn);
-            clearAlarm = customView.findViewById(R.id.clearAlarm);
-            alarmTextWindow = customView.findViewById(R.id.alarmTextWindow);
-            textAlarmTime = customView.findViewById((R.id.textAlarmTime));
-            //instantiate popup window
-            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-            //display the popup window
-            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-            alarmTextWindow.setText(" ");
-            alarmTextWindow.setMovementMethod(new ScrollingMovementMethod());
-            //StringBuilder time = new StringBuilder(panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") + " " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min"));
-            textAlarmTime.setText(panelData.getPanelString("time"));
-
-            // Read fresh log data directly from panelData so the popup always shows current entries
-            String[][] freshLogs = panelData.displayFilterLog("log");
-            alarmTextWindow.setText("");
-            for (int i = 0; i < freshLogs.length; i++) {
-                if (freshLogs[i][1] != null) {
-                    alarmTextWindow.append(freshLogs[i][1]);
-                    alarmTextWindow.append("\n");
-                }
-            }
-            // close the popup window on button click
-            closeAlarmBtn.setOnClickListener(v1 -> {
-                popupWindow.dismiss();
-                alarmTextWindow.setText("");
-                alarmTextWindow = null;  // release reference; popup is closed
-            });
-            clearAlarm.setOnClickListener((v1 -> clearAlarmCallBack()));
-        });
+        alarmHistory.setOnClickListener(v ->
+            AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendPriorityCommand("clrlog", "query")));
         manualInputTest.setOnClickListener(v -> {
 
             //instantiate the popup.xml layout file
@@ -770,6 +756,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             yellowInput = (Button) customView.findViewById(R.id.yellowInput);
             redInput = (Button) customView.findViewById(R.id.redInput);
             blueInput = (Button) customView.findViewById(R.id.blueInput);
+            // Hide Zone 1 and Zone 2 — not applicable to ANR probe status
+            customView.findViewById(R.id.zone1).setVisibility(View.GONE);
+            customView.findViewById(R.id.zone2).setVisibility(View.GONE);
             //instantiate popup window
             popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             //display the popup window
@@ -902,19 +891,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         priorityCommandValue = pValue;
     }
 
-    public void setLog(String v) {
-        if (alarmTextWindow == null) return;  // popup not currently open
-        StringBuilder temp = new StringBuilder(v);
-        alarmTextWindow.append(temp);
-        alarmTextWindow.append("\n");
-    }
-
-    public void clearAlarmCallBack() {
-        int i;
-        sendPriorityCommand("clrlog", "query");
-        panelData.deletePanelLogs("log");   // Remove all log's from panelData
-        alarmTextWindow.setText("");
-    }
 
     private void connect() {
         UsbDevice device = null;
@@ -964,7 +940,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
             status("connected");
             connected = true;
-             sendPriorityCommand("log", "Query"); // one-time log refresh on connect
+            // sendPriorityCommand("log", "Query"); // one-time log refresh on connect
         } catch (Exception e) {
             status("connection failed: " + e.getMessage());
             disconnect();
@@ -1064,10 +1040,11 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
     //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
+        if (!isAdded() || getContext() == null) return;
         // Status Banner
         String formattedTime;
 
-        if (panelData.containsKey("bok")) {
+         if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
             putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
         }
@@ -1149,7 +1126,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
         if (panelData.containsKey("zone") && !zoneCount.hasFocus())
             zoneCount.setText(String.format(panelData.getPanelString("zone")));
-        if (panelData.containsKey("perdur") && !(peristolticCount.hasFocus() || peristolticCountSec.hasFocus())) {
+        if (!isBNR && panelData.containsKey("perdur") && !(peristolticCount.hasFocus() || peristolticCountSec.hasFocus())) {
             int perdur = 0;
             int perdurSec = 0;
             if (panelData.getPanelString("perdur").contentEquals("")) {

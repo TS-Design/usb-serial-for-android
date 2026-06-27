@@ -1,7 +1,9 @@
 package com.hoho.android.usbserial.examples;
 
+import static java.lang.Integer.parseInt;
 import static java.util.List.of;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,12 +28,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,7 +82,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
     //static boolean cmd_busy = false;
-    private Spinner demandAlarmTime;
+    private EditText demandAlarmTime;
     private TextView dosesDay;
     private TextView effStatus;
     private TextView FdRunTime;
@@ -141,8 +144,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
      */
     public List<String> updateCommandList = of(
             "mode",
-            "year", "month","day", "hour", "min", "sec",
-            "bok","balarm", "bLow", "bairalrm", "balrmltch",
+            "time",
+            "bok","balarm", "bLow", "bHigh", "bairalrm", "balrmltch",
             "tank",
             "airpres",
             "palmtime",             // pump runtime alarm
@@ -182,9 +185,9 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     final Runnable timeHandler = new Runnable() {
         @Override
         public void run() {
-            String time = panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") +" " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min");
-            timeRemote.setText(time);
-            mainLooper.postDelayed(timeHandler,1000);
+            if (panelData != null && panelData.containsKey("time"))
+                timeRemote.setText(panelData.getPanelString("time"));
+            mainLooper.postDelayed(timeHandler, 1000);
         }
     };
     final Runnable waitOnTank = new Runnable() {
@@ -208,7 +211,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         public void run() {
 
             //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-            demandAlarmTime.setSelection(((ArrayAdapter)demandAlarmTime.getAdapter()).getPosition(panelData.getPanelString("dalrmtime")));
+            demandAlarmTime.setText(panelData.getPanelString("dalrmtime"));
         }
     };
     final Runnable update5L = () -> {
@@ -243,7 +246,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
         } else {
-            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+            ContextCompat.registerReceiver(requireActivity(), broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), ContextCompat.RECEIVER_NOT_EXPORTED);
         }
         Toast.makeText(getActivity(), "onResume Term", Toast.LENGTH_SHORT).show();
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
@@ -251,6 +254,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
         if(connected) {
             status("disconnected");
             disconnect();
@@ -267,6 +271,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
         alarmLatch = view.findViewById(R.id.alarmLatch);
+        alarmLatch.setOnClickListener(v -> alarmLatchCallback());
         alarm = view.findViewById(R.id.alarm);
         alarmHistory = view.findViewById(R.id.alarmHistory);
         timeRemote = view.findViewById(R.id.timeRemote);
@@ -287,21 +292,21 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         // dropdowns
         demandAlarmTime = view.findViewById(R.id.demandAlarmTime);
-        //final ArrayAdapter<CharSequence> demandAlarmAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.demandAlarmTime, mode_spinner);
-        //demandAlarmAdapter.setDropDownViewResource(mode_spinner);
-        //demandAlarmTime.setAdapter(demandAlarmAdapter);
-        demandAlarmTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                long demandAlarmIndex = parent.getItemIdAtPosition(position);
-                panelData.setPanel("dalrmtime", demandAlarmTime.getSelectedItem().toString());
-                if(demandAlarmIndex != 0)                                              // prevent from reseting Panel tank size on default
-                    mainLooper.post(update5L);
+        demandAlarmTime.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                try {
+                    int dalrmtime = parseInt(demandAlarmTime.getText().toString());
+                    sendJson("dalrmtime", Integer.toString(dalrmtime));
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE))
+                        .hideSoftInputFromWindow(requireView().getWindowToken(), 0);
+                demandAlarmTime.clearFocus();
+                handled = true;
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            Toast.makeText(getActivity(), "Spinner Nothing", Toast.LENGTH_SHORT).show();
-        }
+            return handled;
         });
         //linearLayout1 = (LinearLayout) findViewById(R.id.linearLayout1);
 
@@ -336,7 +341,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 lifetimeValue.setText(panelData.getPanelString("lifeTime"));
                 lifetimeDaysAverageValue.setText(panelData.getPanelString("lifetimeAvg"));
                 //close the popup window on button click
-                closePopupBtn.setOnClickListener(new View.OnClickListener() {
+                closeGallonsBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         popupWindow.dismiss();
@@ -344,47 +349,15 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 });
             }
         });
-        alarmHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //instantiate the popup.xml layout file
-                LayoutInflater layoutInflater = (LayoutInflater) Demand.this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View customView = layoutInflater.inflate(R.layout.alarm_history, null);
-
-                closeAlarmBtn = (Button) customView.findViewById(R.id.closeAlarmBtn);
-                alarmTextWindow = (TextView) customView.findViewById(R.id.alarmTextWindow);
-                //instantiate popup window
-                popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-                //display the popup window
-                popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-                alarmTextWindow.setText("");
-                StringBuilder temp;
-                temp = new StringBuilder("Alarm List");
-                //temp.append(panelData.getPanelString("hours1"));
-                temp.append("\n\n");
-                alarmTextWindow.setText(temp);
-                //close the popup window on button click
-                closeAlarmBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        popupWindow.dismiss();
-                    }
-                });
-            }
-        });
+        alarmHistory.setOnClickListener(v ->
+            AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendJson("clrlog", "query")));
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
         return view;
     }
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        // An item was selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos)
-        long demandAlarmIndex = parent.getItemIdAtPosition(pos);
-        panelData.setPanel("dalrmtime", demandAlarmTime.getSelectedItem().toString());
-        if(demandAlarmIndex != 0)                                              // prevent from reseting Panel tank size on default
-            mainLooper.post(update5L);
     }
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
@@ -544,6 +517,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         }
     }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
+        if (!isAdded() || getContext() == null) return;
         boolean enableMode;
         /* Status Banner */
         if(panelData.containsKey("bok"))
@@ -555,8 +529,16 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         if(panelData.containsKey("balarm")) {
             putRedAlarmTextColor(alarm, !panelData.getPanelBool("balarm"));
             }
-        if(panelData.containsKey("bLow"))
-            putWaterLevelTextColor(lowProbe, panelData.getPanelBool("bLow"));
+        if (panelData.containsKey("bLow") || panelData.containsKey("bHigh")) {
+            if (panelData.getPanelBool("balarm"))
+                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            else if (panelData.getPanelBool("bHigh"))
+                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+            else if (panelData.getPanelBool("bLow"))
+                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));  // bLow=1 → green
+            else
+                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));  // bLow=0 → yellow
+        }
         if(panelData.containsKey("bairalrm"))
             putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
@@ -564,33 +546,20 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime"))
             effPumpAlarmTime.setText("Effluent Pump Runtime Alarm Timer");
-        if(panelData.containsKey("dow"))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"dow\")")));
-        if(panelData.containsKey(""))
-            dosesDay.setText(String.format("%s", panelData.getPanelString("panelData.getPanel(\"\")")));
-        if (panelData.containsKey("dow"))
-            remoteDow = panelData.getPanelString("dow");
-        if (panelData.containsKey("day"))
-            remoteDay = panelData.getPanelString("day");
-        if (panelData.containsKey("month"))
-            remoteMonth = panelData.getPanelString("month");
-        if (panelData.containsKey("year"))
-            remoteYear = panelData.getPanelString("year");
-        if (panelData.containsKey("hrs"))
-            remoteHr = panelData.getPanelString("hrs");
-        if (panelData.containsKey("min"))
-            remoteMin = panelData.getPanelString("min");
-        if (panelData.containsKey("sec"))
-            remoteSec = panelData.getPanelString("sec");
         if(panelData.containsKey("effstat")) {
             effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
             putTextColor(effstat, panelData.getPanelBool("effstat"));
-
         }
-        if (panelData.containsKey("dalrmtime")) {
-            demandAlarmTime.setSelection(((ArrayAdapter) demandAlarmTime.getAdapter()).getPosition(panelData.getPanelString("dalrmtime")));
+        if (panelData.containsKey("airpres"))
+            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString("airpres")));
+        if (panelData.containsKey("dalrmtime") && !demandAlarmTime.hasFocus()) {
+            if (panelData.getPanelString("dalrmtime").contentEquals(""))
+                demandAlarmTime.setText(String.format("%d", 0));
+            else
+                demandAlarmTime.setText(panelData.getPanelString("dalrmtime"));
         }
-        //timeRemote.setText(updateTime(remoteHr, remoteMin, remoteSec));
+        if (panelData.containsKey("time"))
+            timeRemote.setText(panelData.getPanelString("time"));
     }
     public void modeEnable(RadioGroup main_mode) {
     }
@@ -679,6 +648,16 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             sendJson("bptest", "true");
         }
     }
+    private void alarmLatchCallback() {
+        if (panelData.getPanelBool("balrmltch")) {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendJson("balrmltch", "false");
+        } else {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendJson("balrmltch", "true");
+        }
+    }
+
     private void alarmResetCallback() {
         if(panelData.getPanelBool("balmrset")) {
             alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));

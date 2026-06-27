@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     android:background="#EC6E9F">
 
+    <Button
+        android:id="@+id/alarmSelect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="72dp"
+        android:layout_marginBottom="36dp"
+        android:text="Active"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/clearAlarm"
+        app:layout_constraintTop_toTopOf="@+id/clearAlarm" />
+
     <TextView
         android:id="@+id/alarmPopText"
         android:layout_width="wrap_content"
@@ -27,7 +40,8 @@
         android:layout_alignParentBottom="true"
         android:text="Close"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/clearAlarm"
+        app:layout_constraintHorizontal_bias="0.297"
+        app:layout_constraintStart_toEndOf="@+id/alarmSelect"
         app:layout_constraintTop_toTopOf="@+id/clearAlarm" />
 
     <Button

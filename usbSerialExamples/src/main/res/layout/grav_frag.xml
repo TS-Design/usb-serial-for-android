@@ -23,21 +23,23 @@
         android:clickable="false"
         android:text="Alarm Latching"
         android:textSize="@dimen/ModeTextSize"
+        android:visibility="invisible"
         app:layout_constraintStart_toEndOf="@+id/airAlarm"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!--comment out recieve text-->
 
     <Button
         android:id="@+id/alarmHistory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="308dp"
         android:background="@color/colorSendText"
         android:text="Alarm History"
         android:textColor="@color/design_default_color_on_secondary"
-        app:layout_constraintStart_toStartOf="@+id/alarmLatchStatus"
-        app:layout_constraintTop_toBottomOf="@+id/alarmLatchStatus" />
-
-    <!--comment out recieve text-->
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/timeRemote"
@@ -115,16 +117,6 @@
         android:textSize="@dimen/anrTextSize"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/systemOk" />
-
-    <TextView
-        android:id="@+id/alarmLatchStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="Alarm Latching"
-        android:textSize="@dimen/anrTextSize"
-        app:layout_constraintStart_toStartOf="@+id/airPressure"
-        app:layout_constraintTop_toBottomOf="@+id/airPressure" />
 
     <Button
         android:id="@+id/alarm"

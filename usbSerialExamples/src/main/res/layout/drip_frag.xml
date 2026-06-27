@@ -100,8 +100,8 @@
     <!-- ANR Label -->
     <TextView
         android:id="@+id/textAnr"
-        android:layout_width="130dp"
-        android:layout_height="59dp"
+        android:layout_width="207dp"
+        android:layout_height="55dp"
         android:layout_marginTop="16dp"
         android:text="Drip"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"

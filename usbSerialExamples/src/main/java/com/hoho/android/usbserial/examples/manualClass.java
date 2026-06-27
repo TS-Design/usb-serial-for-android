@@ -164,16 +164,22 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         withIoManager = getArguments().getBoolean("withIoManager");
         //mainLooper.postDelayed(timeHandler,1000);
     }
+    @android.annotation.SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requireActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            getActivity().registerReceiver(broadcastReceiver, new IntentFilter(INTENT_ACTION_GRANT_USB));
+        }
 
         if(usbPermission == UsbPermission.Unknown || usbPermission == UsbPermission.Granted)
             mainLooper.post(this::connect);
     }
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
         if(connected) {
             status("disconnected");
             disconnect();
@@ -448,6 +454,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
 
 
     public void postDataLayer() {  // Update UI inputs and outputs
+        if (!isAdded() || getContext() == null) return;
         /* Post these everytime */
         if(panelData.containsKey("bLow"))
             putWaterLevelTextColor(maintLowProbe, panelData.getPanelBool("bLow"));

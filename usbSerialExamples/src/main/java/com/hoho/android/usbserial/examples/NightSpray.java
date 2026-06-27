@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
@@ -313,7 +312,12 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
 
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
+        if (popupManualTest != null && popupManualTest.isShowing()) {
+            popupManualTest.dismiss();
+        }
         if (connected) {
+            sendJson("bENA", "false");
             status("disconnected");
             disconnect();
         }
@@ -393,67 +397,6 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             }
             return handled;
         });
-        /* doseDayCount = view.findViewById(R.id.doseDayCount);
-        doseDayCount.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                int dosesday = parseInt(doseDayCount.getText().toString());
-                sendPriorityCommand("dosesday", Integer.toString(dosesday));
-                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
-                doseDayCount.clearFocus();
-                return true;
-            }
-            return false;
-        }); */      // Field Dose Minutes and Seconds
-/*        FdRunTimeCount = view.findViewById(R.id.FdRunTimeCount);
-        FdRunTimeCount.setOnEditorActionListener((v, actionId, event) -> {
-            boolean handled = false;
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                // int fdrun = parseInt(FdRunTimeCount.getText().toString());
-                int minutes; // Declare here so it's visible after try-catch
-                int seconds; // Declare here so it's visible after try-catch
-                int totalSeconds; // Declare here so it's visible after try-catch
-                try {
-                    minutes = Integer.parseInt(FdRunTimeCount.getText().toString());
-                    seconds = Integer.parseInt(FdRunTimeCountSec.getText().toString());
-                    totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-                Log.d("Drip", "Field Dose Update from Minutes:" + totalSeconds);
-                sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
-                ((InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(requireView().getWindowToken(), 0);
-                FdRunTimeCount.clearFocus();
-                handled = true;
-            }
-            return handled;
-        });
-        FdRunTimeCountSec = view.findViewById(R.id.FdRunTimeCountSec);
-        FdRunTimeCountSec.setOnEditorActionListener((v, actionId, event) -> {
-            boolean handled = false;
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                // int fdrun = parseInt(FdRunTimeCountSec.getText().toString());
-                int minutes; // Declare here so it's visible after try-catch
-                int seconds; // Declare here so it's visible after try-catch
-                int totalSeconds; // Declare here so it's visible after try-catch
-                try {
-                    minutes = Integer.parseInt(FdRunTimeCount.getText().toString());
-                    seconds = Integer.parseInt(FdRunTimeCountSec.getText().toString());
-                    totalSeconds = minutes * 60 + seconds; // Or just use value if that's what you want
-                } catch (NumberFormatException e) {
-                    return false;
-                }
-                sendPriorityCommand("fdrun", Integer.toString(totalSeconds));
-                Log.d("Drio", "Field Dose Update from Seconds:" + totalSeconds);
-                // Hide keyboard using EditText's window token
-                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(FdRunTimeCountSec.getWindowToken(), 0);
-                // Clear focus AFTER hiding keyboard
-                FdRunTimeCountSec.clearFocus();
-                handled = true;
-            }
-            return handled;
-        });
-*/
         // Drip Run Time Minutes and Seconds
         /*dripRunCount = view.findViewById(R.id.dripRunCount);
         dripRunCount.setOnEditorActionListener((v, actionId, event) -> {
@@ -587,38 +530,9 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
                 popupWindow.dismiss();
             });
         });
-        alarmHistory.setOnClickListener(v -> {
-            //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) NightSpray.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            View customView = layoutInflater.inflate(R.layout.alarm_history, null);
-
-            closeAlarmBtn = customView.findViewById(R.id.closeAlarmBtn);
-            clearAlarm = customView.findViewById(R.id.clearAlarm);
-            alarmTextWindow = customView.findViewById(R.id.alarmTextWindow);
-            textAlarmTime = customView.findViewById((R.id.textAlarmTime));
-            //instantiate popup window
-            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-            //display the popup window
-            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-            alarmTextWindow.setText(" ");
-            alarmTextWindow.setMovementMethod(new ScrollingMovementMethod());
-            //StringBuilder time = new StringBuilder(panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") + " " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min"));
-            textAlarmTime.setText(panelData.getPanelString("time"));
-
-            for (int i = 0; i < alarmList.length; i++) {
-                if (alarmList[i][1] != null) {
-                    alarmTextWindow.append(alarmList[i][1]);
-                    alarmTextWindow.append("\n");
-                }
-            }
-            // close the popup window on button click
-            closeAlarmBtn.setOnClickListener(v1 -> {
-                popupWindow.dismiss();
-                alarmTextWindow.setText("");
-            });
-            clearAlarm.setOnClickListener((v1 -> clearAlarmCallBack()));
-        });
+        alarmHistory.setOnClickListener(v ->
+            AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendPriorityCommand("clrlog", "query")));
         manualInputTest.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
             LayoutInflater layoutInflater = (LayoutInflater) NightSpray.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -789,16 +703,6 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         alarmTextWindow.append("\n");
     }*/
 
-    private void clearAlarmCallBack() {
-        sendPriorityCommand("clrlog", "query");
-        panelData.deletePanelLogs("log");   // Remove all logs from panelData
-        alarmTextWindow.setText("");       // Clear the alarmTextWindow
-
-        // Clear the alarmList array
-        for (int i = 0; i < alarmList.length; i++) {
-            Arrays.fill(alarmList[i], null);
-        }
-    }
     private void connect() {
         UsbDevice device = null;
         UsbManager usbManager = (UsbManager) getActivity().getSystemService(Context.USB_SERVICE);
@@ -946,6 +850,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
 
     //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
+        if (!isAdded() || getContext() == null) return;
         // Status Banner
         // String formattedTime;
 
@@ -971,17 +876,14 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         if (panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
 /*        if (panelData.containsKey("so1"))
-            putTextColor(ffTest, panelData.getPanelBool("so1"));*/
-/*        if (panelData.containsKey("so0"))
+            putTextColor(ffTest, panelData.getPanelBool("so1"));
+        if (panelData.containsKey("so0"))
             putTextColor(zone1, panelData.getPanelBool("so0"));
         if (panelData.containsKey("so2"))
             putTextColor( zone2, panelData.getPanelBool("so2")); */
         if (panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
         // Variables
-        if (panelData.containsKey("dosesday") && !doseDayCount.hasFocus())
-            doseDayCount.setText(String.format(panelData.getPanelString("dosesday")));
-
         if (panelData.containsKey("shr") && !(sprayRunTimeHr.hasFocus() || sprayRunTimeMin.hasFocus()) ) {
             if (panelData.getPanelString("shr").contentEquals("")) {
                 sprayRunTimeHr.setText("00");

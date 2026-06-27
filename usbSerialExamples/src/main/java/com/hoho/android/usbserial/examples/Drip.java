@@ -20,7 +20,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
@@ -83,7 +82,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     private static final int WRITE_WAIT_MILLIS = 1000;
     //private static final int READ_WAIT_MILLIS = 1000;
     private static final int UPDATE_INTERVAL_MILLIS = 100;
-    private int deviceId, portNum, baudRate;
+    private int deviceId, portNum, baudRate, microdose;
     private boolean withIoManager;
     // private boolean keypadOn = false;
     // private boolean bALT = false;
@@ -196,7 +195,6 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             "bHigh",
             "bairalrm",
             "flow",
-            "log",
             "time",
             "perdur"
     );
@@ -286,6 +284,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         deviceId = getArguments().getInt("device");
         portNum = getArguments().getInt("port");
         baudRate = getArguments().getInt("baud");
+        microdose = getArguments().getInt("microdose");
         withIoManager = getArguments().getBoolean("withIoManager");
         //  mainLooper.postDelayed(timeHandler,1000);
 
@@ -307,7 +306,12 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
 
     @Override
     public void onPause() {
+        mainLooper.removeCallbacks(postMsg);
+        if (popupManualTest != null && popupManualTest.isShowing()) {
+            popupManualTest.dismiss();
+        }
         if (connected) {
+            sendJson("bENA", "false");
             status("disconnected");
             disconnect();
         }
@@ -532,38 +536,9 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
                 popupWindow.dismiss();
             });
         });
-        alarmHistory.setOnClickListener(v -> {
-            //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) Drip.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            View customView = layoutInflater.inflate(R.layout.alarm_history, null);
-
-            closeAlarmBtn = customView.findViewById(R.id.closeAlarmBtn);
-            clearAlarm = customView.findViewById(R.id.clearAlarm);
-            alarmTextWindow = customView.findViewById(R.id.alarmTextWindow);
-            textAlarmTime = customView.findViewById((R.id.textAlarmTime));
-            //instantiate popup window
-            popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-            //display the popup window
-            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-            alarmTextWindow.setText(" ");
-            alarmTextWindow.setMovementMethod(new ScrollingMovementMethod());
-            //StringBuilder time = new StringBuilder(panelData.getPanelString("year") + "-" + panelData.getPanelString("month") + "-" + panelData.getPanelString("day") + " " + panelData.getPanelString("hrs") + ":" + panelData.getPanelString("min"));
-            textAlarmTime.setText(panelData.getPanelString("time"));
-
-            for (int i = 0; i < alarmList.length; i++) {
-                if (alarmList[i][1] != null) {
-                    alarmTextWindow.append(alarmList[i][1]);
-                    alarmTextWindow.append("\n");
-                }
-            }
-            // close the popup window on button click
-            closeAlarmBtn.setOnClickListener(v1 -> {
-                popupWindow.dismiss();
-                alarmTextWindow.setText("");
-            });
-            clearAlarm.setOnClickListener((v1 -> clearAlarmCallBack()));
-        });
+        alarmHistory.setOnClickListener(v ->
+            AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendPriorityCommand("clrlog", "query")));
         manualInputTest.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
             LayoutInflater layoutInflater = (LayoutInflater) Drip.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -647,6 +622,13 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             });
         });
 
+        // Micro Dose mode: hide Field Flush button and relabel title
+        TextView textAnr = view.findViewById(R.id.textAnr);
+        if (microdose == 1) {
+            ffTest.setVisibility(View.INVISIBLE);
+            textAnr.setText("Micro Dose");
+        }
+
         // Start Update timer to sync UI
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
@@ -725,18 +707,6 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         priorityCommandValue = pValue;
     }
 
-    public void setLog(String v) {
-        StringBuilder temp = new StringBuilder(v);
-        alarmTextWindow.append(temp);
-        alarmTextWindow.append("\n");
-    }
-
-    public void clearAlarmCallBack() {
-        int i;
-        sendPriorityCommand("clrlog", "query");
-        panelData.deletePanelLogs("log");   // Remove all log's from panelData
-        alarmTextWindow.setText("");
-    }
 
     private void connect() {
         UsbDevice device = null;
@@ -885,6 +855,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
 
     //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
+        if (!isAdded() || getContext() == null) return;
         // Status Banner
        // String formattedTime;
 

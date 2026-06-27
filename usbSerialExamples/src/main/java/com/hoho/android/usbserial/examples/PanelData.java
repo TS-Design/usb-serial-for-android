@@ -3,10 +3,18 @@ package com.hoho.android.usbserial.examples;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class PanelData {
     private HashMap<String, String> hmap = new HashMap<String, String>();
-    private String keyString = "";
+    // Parser state — instance fields so partial packets that span two onNewData
+    // callbacks are handled correctly.
+    private String  keyString  = "";
+    private String  K          = "";
+    private boolean inValue    = false;
+    // Tracks the actual data key announced by a {KEY:keyName} packet so that
+    // the following {VALUE:data} packet can be stored under hmap[keyName].
+    private String  pendingKey = "";
 
     public HashMap<String, String> gethmap() {
         return hmap;
@@ -41,31 +49,37 @@ public class PanelData {
     }
 
     public boolean deletePanelLogs(String k) {
-        boolean b = false;
         Iterator<Map.Entry<String, String>> iterator = hmap.entrySet().iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().getKey().contains("log"))
+            if (iterator.next().getKey().startsWith(k))
                 iterator.remove();
         }
-        return b;
+        return true;
     }
     public String[][] displayFilterLog(String k) {
-        String keyIndex;
-        String[][] logList = new String[17][2];
+        // Collect matching entries sorted by their numeric suffix.
+        // Uses startsWith so only keys that genuinely begin with the prefix are matched,
+        // and substring(k.length()) so the prefix is stripped exactly once.
+        TreeMap<Integer, String> found = new TreeMap<>();
         for (Map.Entry<String, String> entry : hmap.entrySet()) {
-            if (entry.getKey().contains(k)) {       // check for substring
-                keyIndex = entry.getKey().replace("log","");
+            String key = entry.getKey();
+            if (key.startsWith(k)) {
+                String suffix = key.substring(k.length());
                 try {
-                    int index = Integer.parseInt(keyIndex);
-                    if (index >= 0 && index < logList.length) {
-                        logList[index][1] = entry.getValue();
-                    }
+                    int index = Integer.parseInt(suffix);
+                    if (index >= 0)
+                        found.put(index, entry.getValue());
                 } catch (NumberFormatException e) {
-                    // Ignore entries that don't have a valid integer index after "log"
+                    // ignore keys without a valid integer suffix (e.g. bare "hist" or "log")
                 }
             }
         }
-        //logList.sort(String::compareToIgnoreCase);
+        if (found.isEmpty())
+            return new String[0][2];
+        // Size the array to cover the highest index present (sparse slots stay null)
+        String[][] logList = new String[found.lastKey() + 1][2];
+        for (Map.Entry<Integer, String> e : found.entrySet())
+            logList[e.getKey()][1] = e.getValue();
         return logList;
     }
 
@@ -76,9 +90,7 @@ public class PanelData {
      */
     public void parse(byte[] data, Runnable onKeyParsed) {
         String rx = new String(data);
-        String K = "";
         String V = "";
-        boolean inValue = false;  // true after the first ':' separator; colons in values are kept
 
         if (!rx.isEmpty()) {
             for (int i = 0; i < rx.length(); i++) {
@@ -90,14 +102,31 @@ public class PanelData {
                         break;
                     case '}':                           // end: save [key, value]
                         V = keyString;
+                        boolean suppressNotify = false;
                         if (K != null && !K.isEmpty() && V != null) {
+                            // If this is a {KEY:actualKeyName} packet, remember the key
+                            // for the {VALUE:data} packet that follows.
+                            if ("KEY".equals(K)) {
+                                pendingKey = V;
+                                suppressNotify = true;  // don't notify until VALUE arrives
+                            }
                             setPanel(K, V);
                             setPanel("KEY", K);
                             setPanel("VALUE", V);
+                            // {KEY:name}{VALUE:data} two-packet protocol:
+                            // also store data directly under the actual key name.
+                            if ("VALUE".equals(K) && !pendingKey.isEmpty()) {
+                                setPanel(pendingKey, V);
+                                setPanel("KEY", pendingKey); // let postDataLayer see the real key
+                                pendingKey = "";
+                            }
                         }
                         keyString = "";
+                        K = "";
                         inValue = false;
-                        onKeyParsed.run();              // notify fragment to update UI
+                        if (!suppressNotify) {
+                            onKeyParsed.run();          // notify fragment to update UI
+                        }
                         break;
                     case ':':
                         if (!inValue) {                 // first ':' separates key from value

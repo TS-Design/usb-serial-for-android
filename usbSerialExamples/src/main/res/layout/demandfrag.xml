@@ -19,13 +19,13 @@
         android:id="@+id/alarmHistory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="144dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="48dp"
         android:background="@color/colorSendText"
         android:text="Alarm History"
         android:textColor="@color/RectangleNotSelected"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/note" />
+        app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
 
     <TextView
         android:id="@+id/timeRemote"
@@ -86,11 +86,11 @@
         android:id="@+id/effstat"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="44dp"
         android:text="Effluent Pump"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/alarmReset"
-        app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
+        app:layout_constraintStart_toEndOf="@+id/alarmReset"
+        app:layout_constraintTop_toTopOf="@+id/alarmReset" />
 
     <Button
         android:id="@+id/manual"
@@ -99,6 +99,7 @@
         android:layout_marginTop="28dp"
         android:text="Manual (Blue)"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/effstat"
         app:layout_constraintTop_toBottomOf="@+id/effstat" />
 
@@ -110,6 +111,7 @@
         android:layout_marginTop="48dp"
         android:text="Timer (YELLOW)"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/manual"
         app:layout_constraintTop_toBottomOf="@+id/manual" />
 
@@ -117,41 +119,42 @@
         android:id="@+id/alarmReset"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="84dp"
         android:text="System Alarm Reset"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/alarmLatch"
-        app:layout_constraintTop_toBottomOf="@+id/alarmLatch" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
 
     <TextView
         android:id="@+id/flowData"
         android:layout_width="206dp"
         android:layout_height="41dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="4dp"
         android:background="@color/light_blue_A200"
         android:text="Water Flow Data"
         android:textColor="@color/RectangleNotSelected"
         android:textSize="25dp"
-        app:layout_constraintStart_toStartOf="@+id/demandAlarmTime"
-        app:layout_constraintTop_toBottomOf="@+id/demandAlarmTime" />
+        app:layout_constraintStart_toEndOf="@+id/alarmHistory"
+        app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
 
     <TextView
         android:id="@+id/note"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="44dp"
         android:text="Note: If RED View Alarm History Before Resetting."
-        android:textSize="12dp"
-        app:layout_constraintStart_toStartOf="@+id/flowData"
-        app:layout_constraintTop_toBottomOf="@+id/flowData" />
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/alarmHistory"
+        app:layout_constraintTop_toBottomOf="@+id/alarmHistory" />
 
     <TextView
         android:id="@+id/effStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="128dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="48dp"
         android:text="Effuent Pump Status"
         android:textSize="@dimen/anrTextSize"
         app:layout_constraintStart_toStartOf="@+id/systemOk"
@@ -161,7 +164,8 @@
         android:id="@+id/airPressure"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="36sp"
         android:text="Air Compressor Pressure WCI: 0"
         android:textSize="@dimen/anrTextSize"
         app:layout_constraintStart_toStartOf="@+id/effStatus"
@@ -171,8 +175,8 @@
         android:id="@+id/effPumpAlarmTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="68dp"
         android:text="Effluent Pump Runtime Alarm Timer"
         android:textSize="@dimen/anrTextSize"
         app:layout_constraintStart_toStartOf="@+id/airPressure"
@@ -223,14 +227,18 @@
         app:layout_constraintStart_toEndOf="@+id/lowProbe"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Spinner
+    <EditText
         android:id="@+id/demandAlarmTime"
-        android:layout_width="170dp"
-        android:layout_height="42dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="16dp"
-        android:entries="@array/demandAlarmTime"
-        app:layout_constraintStart_toStartOf="@+id/effPumpAlarmTime"
-        app:layout_constraintTop_toBottomOf="@+id/effPumpAlarmTime" />
+        android:layout_width="59dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="16dp"
+        android:autofillHints=""
+        android:gravity="end"
+        android:hint="Demand Alarm Time"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/effPumpAlarmTime"
+        app:layout_constraintTop_toTopOf="@+id/effPumpAlarmTime" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,20 +5,22 @@
     android:id="@+id/manualCancel"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <CheckBox
         android:id="@+id/maintSO0"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:text="SO1 J5-1 "
+        android:text="SO0 J5-1 "
         app:layout_constraintStart_toStartOf="@+id/manualOutHeader"
         app:layout_constraintTop_toBottomOf="@+id/manualOutHeader" />
+
     <CheckBox
         android:id="@+id/maintSO1"
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="28dp"
-        android:text="SO2 J5-3  "
+        android:text="S01 J5-3  "
         app:layout_constraintStart_toStartOf="@+id/maintSO0"
         app:layout_constraintTop_toBottomOf="@+id/maintSO0" />
     <CheckBox
@@ -26,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="DPump J5-5 "
+        android:text="S02 J5-5 "
         app:layout_constraintStart_toStartOf="@+id/maintSO1"
         app:layout_constraintTop_toBottomOf="@+id/maintSO1" />
     <CheckBox
@@ -34,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="59dp"
         android:layout_marginTop="28dp"
-        android:text="RY1 J1-1"
+        android:text="RY1 J1-1 "
         app:layout_constraintStart_toStartOf="@+id/maintSO2"
         app:layout_constraintTop_toBottomOf="@+id/maintSO2" />
     <CheckBox
@@ -59,7 +61,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:layout_marginTop="32dp"
-        android:text="RY4 J1-4"
+        android:text="RY4 J1-4 "
         app:layout_constraintStart_toStartOf="@+id/RY3"
         app:layout_constraintTop_toBottomOf="@+id/RY3" />
     <TextView
@@ -116,4 +118,40 @@
         android:text="Alarm Probe"
         app:layout_constraintStart_toStartOf="@+id/maintHiProbe"
         app:layout_constraintTop_toBottomOf="@+id/maintHiProbe" />
+
+    <EditText
+        android:id="@+id/editTextText"
+        android:layout_width="124dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="212dp"
+        android:layout_marginTop="96dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Field Flush"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextText2"
+        android:layout_width="122dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="212dp"
+        android:layout_marginTop="188dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Recirculation "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextText3"
+        android:layout_width="190dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="220dp"
+        android:layout_marginTop="284dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Carbon Dose Pump"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
