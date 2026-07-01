@@ -532,6 +532,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         });
         alarmHistory.setOnClickListener(v ->
             AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendPriorityCommand("log", "query"),
                 () -> sendPriorityCommand("clrlog", "query")));
         manualInputTest.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
@@ -787,14 +788,14 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         } else {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
 
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
@@ -809,7 +810,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
 
@@ -821,7 +822,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
 
@@ -829,7 +830,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         if (value) {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         } else {
             waterAlarm.setText("Water Level Alarm");
             tv.setTextColor(Color.BLACK);
@@ -845,6 +846,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
 

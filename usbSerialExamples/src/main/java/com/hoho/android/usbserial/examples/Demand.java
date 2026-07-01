@@ -270,9 +270,13 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         View view = inflater.inflate(R.layout.demandfrag, container, false);
         PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
+        systemOk.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        systemOk.setTextColor(Color.BLACK);
         alarmLatch = view.findViewById(R.id.alarmLatch);
         alarmLatch.setOnClickListener(v -> alarmLatchCallback());
         alarm = view.findViewById(R.id.alarm);
+        alarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        alarm.setTextColor(Color.BLACK);
         alarmHistory = view.findViewById(R.id.alarmHistory);
         timeRemote = view.findViewById(R.id.timeRemote);
         airAlarm = view.findViewById(R.id.airAlarm );
@@ -281,6 +285,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
         lowProbe = view.findViewById(R.id.lowProbe);
+        lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        lowProbe.setTextColor(Color.BLACK);
         manual = view.findViewById(R.id.manual);
         //alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
         demandTimer = view.findViewById(R.id.demandTimer);
@@ -351,6 +357,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         });
         alarmHistory.setOnClickListener(v ->
             AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendJson("log", "query"),
                 () -> sendJson("clrlog", "query")));
         /* Start Update timer to sync UI   */
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
@@ -507,6 +514,15 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
+    private void putBlueAlarmTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        } else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        }
+    }
     private void putWaterLevelTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
@@ -516,31 +532,65 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
         }
     }
+    private void putWaterLevelText(TextView tv, boolean value) {
+        if (value) {
+            lowProbe.setText("Water Level Alarm");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+        } else {
+            lowProbe.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        }
+    }
+    private void putLowWaterText(TextView tv, boolean value) {
+        if (value) {
+            lowProbe.setText("Water Level Low");
+            tv.setTextColor(Color.YELLOW);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        } else {
+            lowProbe.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        }
+    }
+    private void putHighWaterText(TextView tv, boolean value) {
+        if (value) {
+            lowProbe.setText("Water Level High");
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            tv.setTextColor(Color.BLUE);
+        } else {
+            lowProbe.setText("Water Level Good");
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        }
+    }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
         if (!isAdded() || getContext() == null) return;
         boolean enableMode;
         /* Status Banner */
-        if(panelData.containsKey("bok"))
-            putYellowAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
+        if(panelData.containsKey("bok")) {
+            putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
+            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
+            if (!panelData.getPanelBool("bok"))
+                putWaterLevelText(lowProbe, true);
+            }
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("balarm")) {
-            putRedAlarmTextColor(alarm, !panelData.getPanelBool("balarm"));
-            }
         if (panelData.containsKey("bLow") || panelData.containsKey("bHigh")) {
-            if (panelData.getPanelBool("balarm"))
-                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            if (!panelData.getPanelBool("bok"))
+                putWaterLevelText(lowProbe, true);
             else if (panelData.getPanelBool("bHigh"))
-                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+                putHighWaterText(lowProbe, true);
             else if (panelData.getPanelBool("bLow"))
-                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));  // bLow=1 → green
+                putLowWaterText(lowProbe, false);
             else
-                lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));  // bLow=0 → yellow
+                putLowWaterText(lowProbe, true);
         }
         if(panelData.containsKey("bairalrm"))
-            putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
+            putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));

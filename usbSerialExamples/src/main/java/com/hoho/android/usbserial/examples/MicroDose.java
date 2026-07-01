@@ -247,6 +247,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
 
         alarmHistory.setOnClickListener(v ->
             AlarmHistoryPopup.show(getContext(), view, panelData,
+                () -> sendJson("log", "query"),
                 () -> sendJson("clrlog", "query")));
         alarmReset.setOnClickListener(v -> alarmResetCallback());
 
@@ -394,6 +395,15 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
         }
     }
+    private void putRedAlarmTextColor(TextView tv, boolean value) {
+        if (value) {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        } else {
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+        }
+    }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
         if (!isAdded() || getContext() == null) return;
         boolean enableMode;
@@ -413,11 +423,11 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
         if(panelData.containsKey("bHigh"))
-            putTextColor(alarm, !panelData.getPanelBool("bHigh"));
+            putRedAlarmTextColor(alarm, panelData.getPanelBool("bHigh"));
         if(panelData.containsKey("bLow"))
             putTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
-            putTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
+            putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
         if(panelData.containsKey("dosesday") && dosesDay != null)
             dosesDay.setText(String.format("Dose Setting per Day (Field Dose):%s", panelData.getPanelString("dosesday")));
