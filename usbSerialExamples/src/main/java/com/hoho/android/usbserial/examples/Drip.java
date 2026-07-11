@@ -548,8 +548,6 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             yellowInput = customView.findViewById(R.id.yellowInput);
             redInput = customView.findViewById(R.id.redInput);
             blueInput = customView.findViewById(R.id.blueInput);
-            zone1 = customView.findViewById(R.id.zone1);
-            zone2 = customView.findViewById(R.id.zone2);
             //instantiate popup window
             popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             //display the popup window
@@ -601,24 +599,6 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
                 } else {
                     redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
                     sendPriorityCommand("bAlarmUi", "true");
-                }
-            });
-            zone1.setOnClickListener(v13 -> {
-                if (panelData.getPanelBool("so0")) {  // Zone Manual Toggle
-                    zone1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("so0", "false");
-                } else {
-                    zone1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("so0", "true");
-                }
-            });
-            zone2.setOnClickListener(v13 -> {
-                if (panelData.getPanelBool("so2")) {  // Zone Manual Toggle
-                    zone2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("so2", "false");
-                } else {
-                    zone2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("so2", "true");
                 }
             });
         });

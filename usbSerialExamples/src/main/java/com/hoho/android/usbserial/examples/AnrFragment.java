@@ -757,9 +757,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             yellowInput = (Button) customView.findViewById(R.id.yellowInput);
             redInput = (Button) customView.findViewById(R.id.redInput);
             blueInput = (Button) customView.findViewById(R.id.blueInput);
-            // Hide Zone 1 and Zone 2 — not applicable to ANR probe status
-            customView.findViewById(R.id.zone1).setVisibility(View.GONE);
-            customView.findViewById(R.id.zone2).setVisibility(View.GONE);
             //instantiate popup window
             popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             //display the popup window

@@ -18,14 +18,17 @@ import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -105,6 +108,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     public String remoteDay = "00";
     public String remoteMonth = "00";
     public boolean popUpDialogPosted = false;
+    PopupWindow popupManualTest;
     //Button showPopupBtn, closePopupBtn;
     /*  List of data layer commands to process
      *   command index keeps trck of next command to send
@@ -211,6 +215,10 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     @Override
     public void onPause() {
         mainLooper.removeCallbacks(postMsg);
+        if (popupManualTest != null && popupManualTest.isShowing()) {
+            sendJson("bENA", "false");
+            popupManualTest.dismiss();
+        }
         if(connected) {
             status("disconnected");
             disconnect();
@@ -239,6 +247,8 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             AlarmHistoryPopup.show(getContext(), view, panelData,
                 () -> sendJson("log", "query"),
                 () -> sendJson("clrlog", "query")));
+        manualTest = view.findViewById(R.id.manualTest);
+        manualTest.setOnClickListener(v -> manualTestCallback());
         airAlarm = view.findViewById(R.id.airAlarm );
         lowProbe = view.findViewById(R.id.lowProbe);
         airPressure = view.findViewById(R.id.airPressure);
@@ -571,14 +581,67 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         }
     }
     private void manualTestCallback() {
-        if(panelData.getPanelBool("bmantest")) {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bmantest", "false");
-        }
-        else {
-            manualTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("bmantest", "true");
-        }
+        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
+        Button closeManualInputBtn = customView.findViewById(R.id.closeManualInputBtn);
+        Button yellowInput = customView.findViewById(R.id.yellowInput);
+        Button blueInput = customView.findViewById(R.id.blueInput);
+        Button redInput = customView.findViewById(R.id.redInput);
+        popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        popupManualTest.showAtLocation(requireView(), Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
+        manualTest.setVisibility(View.INVISIBLE);
+        sendJson("bENA", "true");
+
+        boolean[] dismissed = {false};
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable syncColors = new Runnable() {
+            @Override public void run() {
+                if (dismissed[0] || !isAdded() || getContext() == null) return;
+                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(),
+                        panelData.getPanelBool("bLow") ? R.color.textGoodBackground : R.color.yellow));
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(),
+                        panelData.getPanelBool("bHigh") ? R.color.light_blue_900 : R.color.textGoodBackground));
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(),
+                        panelData.getPanelBool("bAlarm") ? R.color.red : R.color.textGoodBackground));
+                handler.postDelayed(this, 250);
+            }
+        };
+        handler.post(syncColors);
+
+        closeManualInputBtn.setOnClickListener(v -> {
+            dismissed[0] = true;
+            handler.removeCallbacks(syncColors);
+            sendJson("bENA", "false");
+            manualTest.setVisibility(View.VISIBLE);
+            popupManualTest.dismiss();
+        });
+        yellowInput.setOnClickListener(v -> {
+            if (panelData.getPanelBool("bLow")) {
+                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+                sendJson("bLowUi", "false");
+            } else {
+                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
+                sendJson("bLowUi", "true");
+            }
+        });
+        blueInput.setOnClickListener(v -> {
+            if (panelData.getPanelBool("bHigh")) {
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+                sendJson("bHighUi", "false");
+            } else {
+                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
+                sendJson("bHighUi", "true");
+            }
+        });
+        redInput.setOnClickListener(v -> {
+            if (panelData.getPanelBool("bAlarm")) {
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+                sendJson("bAlarmUi", "false");
+            } else {
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+                sendJson("bAlarmUi", "true");
+            }
+        });
     }
     private void peristalticTestCallback() {
         if(panelData.getPanelBool("so2")) {

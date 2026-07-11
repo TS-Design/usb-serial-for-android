@@ -123,6 +123,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
     private EditText sprayRunTimeHr;
     private EditText sprayRunTimeMin;
     private TextView doseRemaining;
+    private TextView dosePumpSeconds;
     private TextView airPressure;
     //private TextView effPumpAlarmTime;
     // private Button closePopupBtn;
@@ -347,6 +348,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         //effPumpAlarmTime = view.findViewById(R.id.effPumpAlarmTime);
         // effStatus = view.findViewById(R.id.effStatus);
         doseRemaining = view.findViewById(R.id.doseRemaining);
+        dosePumpSeconds = view.findViewById(R.id.dosePumpSeconds);
         timeRemote = view.findViewById(R.id.timeRemote);
         airAlarm = view.findViewById(R.id.airAlarm);
         alarm = view.findViewById(R.id.alarm);
@@ -542,8 +544,6 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             yellowInput = customView.findViewById(R.id.yellowInput);
             redInput = customView.findViewById(R.id.redInput);
             blueInput = customView.findViewById(R.id.blueInput);
-            zone1 = customView.findViewById(R.id.zone1);
-            zone2 = customView.findViewById(R.id.zone2);
             //instantiate popup window
             popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             //display the popup window
@@ -597,27 +597,6 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
                     sendPriorityCommand("bAlarmUi", "true");
                 }
             });
-            zone1.setOnClickListener(v13 -> {
-                if (panelData.getPanelBool("so0")) {  // Zone Manual Toggle
-                    zone1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("so0", "false");
-                } else {
-                    zone1.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("so0", "true");
-                }
-            });
-            zone2.setOnClickListener(v13 -> {
-                if (panelData.getPanelBool("so2")) {  // Zone Manual Toggle
-                    zone2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("so2", "false");
-                } else {
-                    zone2.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("so2", "true");
-                }
-            });
-            // Hide zone1 and zone2 buttons
-            zone1.setVisibility(View.GONE);
-            zone2.setVisibility(View.GONE);
         });
 
         // Start Update timer to sync UI
@@ -904,9 +883,11 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         if (panelData.containsKey("srun")) {
             if (panelData.getPanelString("srun").contentEquals("")) {
                 doseRemaining.setText("00");
+                dosePumpSeconds.setText("00");
             } else {
                 int sprayCountDown = parseInt(panelData.getPanelString("srun"));
                 doseRemaining.setText(String.format("%d", sprayCountDown / 60));
+                dosePumpSeconds.setText(String.format("%d", sprayCountDown % 60));
             }
         }
 /*        if (panelData.containsKey("fdrun") && !(FdRunTimeCount.hasFocus() || FdRunTimeCountSec.hasFocus()) ) {

@@ -27,6 +27,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/alarmReset" />
 
+    <Button
+        android:id="@+id/manualTest"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/light_blue_A200"
+        android:text="Probe Status"
+        android:textColor="@color/RectangleNotSelected"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/alarmHistory"
+        app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
+
     <TextView
         android:id="@+id/timeRemote"
         android:layout_width="226dp"

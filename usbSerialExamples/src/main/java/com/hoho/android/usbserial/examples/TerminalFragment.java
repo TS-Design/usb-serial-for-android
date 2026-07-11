@@ -93,6 +93,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private RadioButton cancelManual;
     private Button altButton;
     private Button bulletinButton;
+    private Button noChlorineAlarm;
     private Spinner tankDropDown;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
@@ -126,6 +127,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         updateCommandList.add("bALT");
         updateCommandList.add("bmantest");
         updateCommandList.add("bair_by");
+        updateCommandList.add("xcl");
     }
 
     public int commandLength = updateCommandList.size();
@@ -294,6 +296,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         timeRemote = view.findViewById(R.id.timeRemote);
         altButton = view.findViewById(R.id.altButton);
         bulletinButton = view.findViewById(R.id.bulletButton);
+        noChlorineAlarm = view.findViewById(R.id.noChlorineAlarm);
         bgrav.setOnClickListener(v -> gravCallback());  // something is always true
         banr.setOnClickListener(v -> anrCallback());
         bbnr.setOnClickListener(v -> bbnrCallback());
@@ -305,6 +308,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         manual.setOnClickListener(v -> manualCallback());
         altButton.setOnClickListener(v -> altButtonCallback());
         bulletinButton.setOnClickListener(v -> bulletCallBack());
+        noChlorineAlarm.setOnClickListener(v -> noChlorineAlarmCallback());
         //cancelManual.setOnClickListener(v -> cancelManualCallback());
 
         /* Spinner Tank Size */
@@ -534,6 +538,17 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                 bulletinButton.setText("Bullet Off");
             }
         }
+        if (panelData.containsKey("xcl")) {
+            if (panelData.getPanelBool("xcl")) {
+                noChlorineAlarm.setTextColor(Color.BLACK);
+                noChlorineAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
+                noChlorineAlarm.setText("Cl Alarm On");
+            } else {
+                noChlorineAlarm.setTextColor(Color.BLACK);
+                noChlorineAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+                noChlorineAlarm.setText("Cl Alarm Off");
+            }
+        }
         for(int i = 0; i < main_mode.getChildCount(); i++){
             main_mode.getChildAt(i).setEnabled(enableMode);
         }
@@ -564,6 +579,15 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             } else {
                 altButton.setText("Bullet On");
                 sendPriorityCommand("bair_by", "true");
+            }
+        }
+    }
+    public void noChlorineAlarmCallback() {
+        if(panelData.containsKey("xcl")){
+            if(panelData.getPanelBool("xcl")) {
+                sendPriorityCommand("xcl", "false");
+            } else {
+                sendPriorityCommand("xcl", "true");
             }
         }
     }

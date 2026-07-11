@@ -9,55 +9,40 @@
         android:id="@+id/yellowInput"
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="@dimen/manualInputTopMargin"
         android:text="YELLOW Low"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="3dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/redInput"
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/manualInputTopMargin"
         android:text="RED High"
-        app:layout_constraintTop_toBottomOf="@+id/blueInput"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintStart_toStartOf="@+id/blueInput"
+        app:layout_constraintTop_toBottomOf="@+id/blueInput" />
 
     <Button
         android:id="@+id/closeManualInputBtn"
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
-        android:layout_marginTop="12dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/manualInputTopMargin"
         android:text="Close"
-        app:layout_constraintTop_toBottomOf="@+id/zone2"
-        app:layout_goneMarginTop="12dp"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintStart_toStartOf="@+id/redInput"
+        app:layout_constraintTop_toBottomOf="@+id/redInput"
+        app:layout_goneMarginTop="12dp" />
 
     <Button
         android:id="@+id/blueInput"
         android:layout_width="@dimen/ManualPopUpWidth"
         android:layout_height="@dimen/ManualButtonHeight"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/manualInputTopMargin"
         android:text="BLUE Override"
-        app:layout_constraintTop_toBottomOf="@+id/yellowInput"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintStart_toStartOf="@+id/yellowInput"
+        app:layout_constraintTop_toBottomOf="@+id/yellowInput" />
 
-    <Button
-        android:id="@+id/zone1"
-        android:layout_width="@dimen/ManualPopUpWidth"
-        android:layout_height="@dimen/ManualButtonHeight"
-        android:layout_marginTop="12dp"
-        android:text="Zone 1"
-        app:layout_constraintTop_toBottomOf="@+id/redInput"
-        tools:layout_editor_absoluteX="16dp" />
-
-    <Button
-        android:id="@+id/zone2"
-        android:layout_width="@dimen/ManualPopUpWidth"
-        android:layout_height="@dimen/ManualButtonHeight"
-        android:layout_marginTop="12dp"
-        android:text="Zone 2"
-        app:layout_constraintTop_toBottomOf="@+id/zone1"
-        tools:layout_editor_absoluteX="16dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

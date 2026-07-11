@@ -23,7 +23,7 @@
         android:clickable="false"
         android:text="Alarm Latching"
         android:textSize="@dimen/ModeTextSize"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintStart_toEndOf="@+id/airAlarm"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,6 +40,18 @@
         android:textColor="@color/design_default_color_on_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/manualTest"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginStart="8dp"
+        android:background="@color/light_blue_A200"
+        android:text="Probe Status"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textSize="@dimen/ModeTextSize"
+        app:layout_constraintStart_toEndOf="@+id/alarmHistory"
+        app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
 
     <TextView
         android:id="@+id/timeRemote"

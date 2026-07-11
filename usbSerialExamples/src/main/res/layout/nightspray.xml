@@ -8,6 +8,21 @@
     android:theme="@style/AppTheme"
     tools:layout_editor_absoluteY="25dp">
     <!-- Focus Sink View -->
+
+    <TextView
+        android:id="@+id/dosePumpSeconds"
+        android:layout_width="@dimen/anrEditTextWidth"
+        android:layout_height="@dimen/anrEditTextHeight"
+        android:layout_marginStart="36dp"
+        android:autofillHints=""
+        android:gravity="end"
+        android:hint="Count Down"
+        android:imeOptions="actionDone"
+        android:inputType="number"
+        android:textSize="@dimen/anrTextSize"
+        app:layout_constraintStart_toEndOf="@+id/doseRemaining"
+        app:layout_constraintTop_toTopOf="@+id/numberZones" />
+
     <View
         android:id="@+id/focusSink"
         android:layout_width="14dp"
