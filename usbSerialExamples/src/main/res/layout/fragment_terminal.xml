@@ -57,7 +57,7 @@
             android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="Effluent Pumping"
+            android:text="On Demand"
             android:textSize="@dimen/RadioButtonTextSize" />
 
         <RadioButton
@@ -103,7 +103,7 @@
             android:layout_marginTop="10dp"
             android:checked="false"
             android:minWidth="@dimen/minWidth"
-            android:text="BNR"
+            android:text="NR"
             android:textSize="@dimen/RadioButtonTextSize"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/banr" />

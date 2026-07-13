@@ -78,6 +78,9 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
+    public String priorityCommandValue;
+    public String priorityCommand;
+    public boolean priorityCommandEnabled;
     public boolean connected = false;
     //public DataLayer dataLayer = new DataLayer();
     /* Hoot Fragment adds */
@@ -112,7 +115,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     public Button alarmReset;
     public Button manualTest;
     public Button alarm;
-    public Button lowProbe;
+    public Button waterAlarm;
     public Button airAlarm;
     public Button peristalticTest;
     private Button effstat;
@@ -146,7 +149,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     public List<String> updateCommandList = of(
             "mode",
             "time",
-            "bok","bAlarm", "bLow", "bHigh", "bairalrm", "balrmltch",
+            "bok","bwater", "bAlarm", "bLow", "bHigh", "bairalrm", "balrmltch",
             "tank",
             "airpres",
             "palmtime",             // pump runtime alarm
@@ -217,7 +220,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     };
     final Runnable update5L = () -> {
         Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
-        sendJson("dalrmtime", panelData.getPanelString("dalrmtime"));
+        sendPriorityCommand("dalrmtime", panelData.getPanelString("dalrmtime"));
     };
     final Runnable update = () -> {
         //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();
@@ -289,9 +292,9 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
-        lowProbe = view.findViewById(R.id.lowProbe);
-        lowProbe.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-        lowProbe.setTextColor(Color.BLACK);
+        waterAlarm = view.findViewById(R.id.waterAlarm);
+        waterAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        waterAlarm.setTextColor(Color.BLACK);
         manual = view.findViewById(R.id.manual);
         //alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
         demandTimer = view.findViewById(R.id.demandTimer);
@@ -308,7 +311,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 try {
                     int dalrmtime = parseInt(demandAlarmTime.getText().toString());
-                    sendJson("dalrmtime", Integer.toString(dalrmtime));
+                    sendPriorityCommand("dalrmtime", Integer.toString(dalrmtime));
                 } catch (NumberFormatException e) {
                     return false;
                 }
@@ -339,10 +342,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                 lifetimeDaysValue = customView.findViewById(R.id.lifetimeDaysValue);
                 //instantiate popup window
                 popupWindow = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
                 //display the popup window
                 popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-
                 hourTotalValue.setText(panelData.getPanelString("hours1"));
                 hourlyAverageValue.setText(panelData.getPanelString("hours24"));
                 dailyTotalValue.setText(panelData.getPanelString("day30"));
@@ -362,8 +363,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         });
         alarmHistory.setOnClickListener(v ->
             AlarmHistoryPopup.show(getContext(), view, panelData,
-                () -> sendJson("log", "query"),
-                () -> sendJson("clrlog", "query")));
+                () -> sendPriorityCommand("log", "query"),
+                () -> sendPriorityCommand("clrlog", "query")));
         manualTest = view.findViewById(R.id.manualTest);
         manualTest.setOnClickListener(v -> manualTestCallback());
         /* Start Update timer to sync UI   */
@@ -541,33 +542,33 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void putWaterLevelText(TextView tv, boolean value) {
         if (value) {
-            lowProbe.setText("Water Level Alarm");
+            waterAlarm.setText("Water Level Alarm");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
         } else {
-            lowProbe.setText("Water Level Good");
+            waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
     private void putLowWaterText(TextView tv, boolean value) {
         if (value) {
-            lowProbe.setText("Water Level Low");
+            waterAlarm.setText("Water Level Low");
             tv.setTextColor(Color.YELLOW);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         } else {
-            lowProbe.setText("Water Level Good");
+            waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
     private void putHighWaterText(TextView tv, boolean value) {
         if (value) {
-            lowProbe.setText("Water Level High");
+            waterAlarm.setText("Water Level High");
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
             tv.setTextColor(Color.BLUE);
         } else {
-            lowProbe.setText("Water Level Good");
+            waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
@@ -579,23 +580,21 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         if(panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
             putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
-            if (!panelData.getPanelBool("bok"))
-                putWaterLevelText(lowProbe, true);
             }
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if (panelData.containsKey("bLow") || panelData.containsKey("bHigh")) {
-            if (!panelData.getPanelBool("bok"))
-                putWaterLevelText(lowProbe, true);
+//        if (panelData.containsKey("bLow") || panelData.containsKey("bHigh")) {
+        if (panelData.containsKey("bwater"))   //  Water Alarm Button
+            if (panelData.getPanelBool("bAlarm"))
+                putWaterLevelText(waterAlarm, true);
             else if (panelData.getPanelBool("bHigh"))
-                putHighWaterText(lowProbe, true);
+                putHighWaterText(waterAlarm, true);
             else if (panelData.getPanelBool("bLow"))
-                putLowWaterText(lowProbe, false);
+                putLowWaterText(waterAlarm, false);
             else
-                putLowWaterText(lowProbe, true);
-        }
+                putLowWaterText(waterAlarm, true);
         if(panelData.containsKey("bairalrm"))
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
@@ -628,7 +627,11 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         //mainLooper.postDelayed(clearAck, 200);
         if (connected) {
-            sendJson(updateCommandList.get(commandListIndex++), "Query");
+            if (priorityCommandEnabled == true) {
+                sendJson(priorityCommand, priorityCommandValue);
+                priorityCommandEnabled = false;
+            } else
+                sendJson(updateCommandList.get(commandListIndex++), "Query");
             if (commandListIndex == commandLength)
                 commandListIndex = 0;
         }
@@ -652,18 +655,18 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
 
-        sendJson("hour", String.valueOf(hour));
+        sendPriorityCommand("hour", String.valueOf(hour));
 
         int minute = rightNow.get(Calendar.MINUTE);
-        sendJson("min", String.valueOf(minute));
+        sendPriorityCommand("min", String.valueOf(minute));
         int second = rightNow.get(Calendar.SECOND);
-        sendJson("sec", String.valueOf(second));
+        sendPriorityCommand("sec", String.valueOf(second));
         int month = rightNow.get(Calendar.DAY_OF_MONTH);
-        sendJson("month", String.valueOf(month));
+        sendPriorityCommand("month", String.valueOf(month));
         int day = rightNow.get(Calendar.DAY_OF_MONTH);
-        sendJson("day", String.valueOf(day));
+        sendPriorityCommand("day", String.valueOf(day));
         int year = rightNow.get(Calendar.YEAR);
-        sendJson("year", String.valueOf(year));
+        sendPriorityCommand("year", String.valueOf(year));
         return true;
     }
     private SpannableStringBuilder localTime(int remoteHr, int remoteMin, int remoteSec){
@@ -698,51 +701,51 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void effPumpTestCallback() {
         if(panelData.getPanelBool("bptest")) {
             effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("bptest", "false");
+            sendPriorityCommand("bptest", "false");
         }
         else {
             effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("bptest", "true");
+            sendPriorityCommand("bptest", "true");
         }
     }
     private void alarmLatchCallback() {
         if (panelData.getPanelBool("balrmltch")) {
             alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("balrmltch", "false");
+            sendPriorityCommand("balrmltch", "false");
         } else {
             alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("balrmltch", "true");
+            sendPriorityCommand("balrmltch", "true");
         }
     }
 
     private void alarmResetCallback() {
         if(panelData.getPanelBool("balmrset")) {
             alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("balmrset", "false");
+            sendPriorityCommand("balmrset", "false");
         }
         else {
             alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("balmrset", "true");
+            sendPriorityCommand("balmrset", "true");
         }
     }
     private void alarmHistoryCallback() {
         if(panelData.getPanelBool("alarmHistory")) {
             alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("ahist", "false");
+            sendPriorityCommand("ahist", "false");
         }
         else {
             alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("ahist", "true");
+            sendPriorityCommand("ahist", "true");
         }
     }
     private void ffTestCallback() {
         if(panelData.getPanelBool("so0")) {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("so0", "false");
+            sendPriorityCommand("so0", "false");
         }
         else {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("so0", "true");
+            sendPriorityCommand("so0", "true");
         }
     }
     private void manualTestCallback() {
@@ -755,7 +758,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         popupManualTest.showAtLocation(requireView(), Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
         manualTest.setVisibility(View.INVISIBLE);
-        sendJson("bENA", "true");
+        sendPriorityCommand("bENA", "true");
 
         boolean[] dismissed = {false};
         Handler handler = new Handler(Looper.getMainLooper());
@@ -776,58 +779,64 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         closeManualInputBtn.setOnClickListener(v -> {
             dismissed[0] = true;
             handler.removeCallbacks(syncColors);
-            sendJson("bENA", "false");
+            sendPriorityCommand("bENA", "false");
             manualTest.setVisibility(View.VISIBLE);
             popupManualTest.dismiss();
         });
         yellowInput.setOnClickListener(v -> {
             if (panelData.getPanelBool("bLow")) {
                 yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-                sendJson("bLowUi", "false");
+                sendPriorityCommand("bLowUi", "false");
             } else {
                 yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                sendJson("bLowUi", "true");
+                sendPriorityCommand("bLowUi", "true");
             }
         });
         blueInput.setOnClickListener(v -> {
             if (panelData.getPanelBool("bHigh")) {
                 blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-                sendJson("bHighUi", "false");
+                sendPriorityCommand("bHighUi", "false");
             } else {
                 blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-                sendJson("bHighUi", "true");
+                sendPriorityCommand("bHighUi", "true");
             }
         });
         redInput.setOnClickListener(v -> {
             if (panelData.getPanelBool("bAlarm")) {
                 redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-                sendJson("bAlarmUi", "false");
+                sendPriorityCommand("bAlarmUi", "false");
             } else {
                 redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-                sendJson("bAlarmUi", "true");
+                sendPriorityCommand("bAlarmUi", "true");
             }
         });
     }
     private void peristalticTestCallback() {
         if(panelData.getPanelBool("so2")) {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("so2", "false");
+            sendPriorityCommand("so2", "false");
         }
         else {
             peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("so2", "true");
+            sendPriorityCommand("so2", "true");
         }
     }
     private void recirTestCallback() {
         if(panelData.getPanelBool("so1")) {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendJson("so1", "false");
+            sendPriorityCommand("so1", "false");
         }
         else {
             recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-            sendJson("so1", "true");
+            sendPriorityCommand("so1", "true");
         }
     }
+    public void sendPriorityCommand(String pCmd, String pValue) {
+        priorityCommandEnabled = true;
+        priorityCommand = pCmd;
+        priorityCommandValue = pValue;
+    }
+
     private boolean sendJson(String cmd, String value) {
         int j = 0;
         SpannableStringBuilder json = new SpannableStringBuilder();

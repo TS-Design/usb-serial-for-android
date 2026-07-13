@@ -125,6 +125,9 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
+    public String priorityCommandValue;
+    public String priorityCommand;
+    public boolean priorityCommandEnabled;
 
     public GravFrag() {
         broadcastReceiver = new BroadcastReceiver() {
@@ -240,6 +243,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         alarmReset = view.findViewById(R.id.alarmReset);
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         alarmLatch = view.findViewById(R.id.alarmLatch);
+        alarmLatch.setOnClickListener(v -> alarmLatchCallback());
         // Body objects
         // alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
         alarmHistory = view.findViewById(R.id.alarmHistory);
@@ -449,7 +453,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
         if (!isAdded() || getContext() == null) return;
-        boolean enableMode;
+        // boolean enableMode;
         /* Status Banner */
         if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
@@ -486,7 +490,11 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         //mainLooper.postDelayed(clearAck, 200);
         if (connected) {
-            sendJson(updateCommandList.get(commandListIndex++), "Query");
+            if (priorityCommandEnabled) {
+                sendJson(priorityCommand, priorityCommandValue);
+                priorityCommandEnabled = false;
+            } else
+                sendJson(updateCommandList.get(commandListIndex++), "Query");
             if (commandListIndex == commandLength)
                 commandListIndex = 0;
         }
@@ -570,6 +578,16 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("balmrset", "true");
         }
     }
+    private void alarmLatchCallback() {
+        if (panelData.getPanelBool("balrmltch")) {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            sendPriorityCommand("balrmltch", "false");
+        } else {
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            sendPriorityCommand("balrmltch", "true");
+        }
+    }
+
     private void ffTestCallback() {
         if(panelData.getPanelBool("so0")) {
             ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
@@ -663,6 +681,12 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             sendJson("so1", "true");
         }
     }
+    public void sendPriorityCommand(String pCmd, String pValue) {
+        priorityCommandEnabled = true;
+        priorityCommand = pCmd;
+        priorityCommandValue = pValue;
+    }
+
     private boolean sendJson(String cmd, String value) {
         int j = 0;
         SpannableStringBuilder json = new SpannableStringBuilder();

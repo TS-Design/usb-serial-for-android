@@ -532,10 +532,12 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
                 popupWindow.dismiss();
             });
         });
+
         alarmHistory.setOnClickListener(v ->
             AlarmHistoryPopup.show(getContext(), view, panelData,
                 () -> sendPriorityCommand("log", "query"),
                 () -> sendPriorityCommand("clrlog", "query")));
+
         manualInputTest.setOnClickListener(v -> {
             //instantiate the popup.xml layout file
             LayoutInflater layoutInflater = (LayoutInflater) NightSpray.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -548,10 +550,10 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             //display the popup window
             popupManualTest.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
-/*            if(panelData.getPanelBool("bLow"))
-               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-            else
+            if(panelData.getPanelBool("bLow"))
                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            else
+               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
             if(panelData.getPanelBool("bHigh"))
                 blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
             else
@@ -559,8 +561,8 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             if(panelData.getPanelBool("bAlarm"))
                 redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
             else
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOfftextOff));
-*/
+                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+
             manualInputTest.setVisibility(View.INVISIBLE);
             sendPriorityCommand("bENA", "true");
             //close the popup window on button click

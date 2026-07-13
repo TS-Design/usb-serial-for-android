@@ -77,6 +77,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
+    private TextView SerialNumber;
     public PanelData panelData;
     public boolean duplex = false;
     private TextView timeRemote;
@@ -293,6 +294,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bdrip = view.findViewById(R.id.bdrip);
         manual = view.findViewById(R.id.manual);
         receiveText = view.findViewById(R.id.receiveText);
+        SerialNumber = view.findViewById(R.id.SerialNumber);
         timeRemote = view.findViewById(R.id.timeRemote);
         altButton = view.findViewById(R.id.altButton);
         bulletinButton = view.findViewById(R.id.bulletButton);
@@ -339,6 +341,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             }
         });
         /* Start Update timer to sync UI   */
+        SerialNumber.setText("SN 1234567890");
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
         return view;

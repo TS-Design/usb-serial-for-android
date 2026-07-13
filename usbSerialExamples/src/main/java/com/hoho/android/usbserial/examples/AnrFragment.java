@@ -749,7 +749,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
                 () -> sendPriorityCommand("log", "query"),
                 () -> sendPriorityCommand("clrlog", "query")));
         manualInputTest.setOnClickListener(v -> {
-
             //instantiate the popup.xml layout file
             LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
             View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);

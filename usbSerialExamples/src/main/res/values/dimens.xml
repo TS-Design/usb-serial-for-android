@@ -34,4 +34,5 @@
     <dimen name="ANR_EDITTEXT_START">325dp</dimen>
     <dimen name="ButtonSpacingSmall">1dp</dimen>
     <dimen name="manualInputTopMargin">10dp</dimen>
+    <dimen name="StatusMarginStart">8dp</dimen>
 </resources>

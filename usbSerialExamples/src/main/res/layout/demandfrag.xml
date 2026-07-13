@@ -17,10 +17,10 @@
 
     <Button
         android:id="@+id/alarmHistory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="48dp"
+        android:layout_width="116dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
+        android:layout_marginTop="52dp"
         android:background="@color/colorSendText"
         android:text="Alarm History"
         android:textColor="@color/RectangleNotSelected"
@@ -29,15 +29,15 @@
 
     <Button
         android:id="@+id/manualTest"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="96dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:background="@color/light_blue_A200"
         android:text="Probe Status"
         android:textColor="@color/RectangleNotSelected"
         android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/alarmHistory"
-        app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
+        app:layout_constraintStart_toEndOf="@+id/flowData"
+        app:layout_constraintTop_toTopOf="@+id/flowData" />
 
     <TextView
         android:id="@+id/timeRemote"
@@ -86,7 +86,7 @@
         android:id="@+id/systemOk"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:layout_marginTop="100dp"
         android:clickable="false"
         android:text="System OK"
@@ -98,7 +98,7 @@
         android:id="@+id/effstat"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginStart="44dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:text="Effluent Pump"
         android:textSize="12sp"
         app:layout_constraintStart_toEndOf="@+id/alarmReset"
@@ -131,7 +131,7 @@
         android:id="@+id/alarmReset"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginStart="60dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:layout_marginTop="84dp"
         android:text="System Alarm Reset"
         android:textSize="12sp"
@@ -140,14 +140,14 @@
 
     <TextView
         android:id="@+id/flowData"
-        android:layout_width="206dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="101dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:background="@color/light_blue_A200"
         android:text="Water Flow Data"
+        android:textAlignment="center"
         android:textColor="@color/RectangleNotSelected"
-        android:textSize="25dp"
+        android:textSize="18dp"
         app:layout_constraintStart_toEndOf="@+id/alarmHistory"
         app:layout_constraintTop_toTopOf="@+id/alarmHistory" />
 
@@ -169,6 +169,7 @@
         android:layout_marginTop="48dp"
         android:text="Effuent Pump Status"
         android:textSize="@dimen/anrTextSize"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="@+id/systemOk"
         app:layout_constraintTop_toBottomOf="@+id/systemOk" />
 
@@ -198,6 +199,7 @@
         android:id="@+id/alarmLatch"
         android:layout_width="100dp"
         android:layout_height="60dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="100dp"
         android:clickable="false"
         android:text="Alarm Latching"
@@ -209,7 +211,7 @@
         android:id="@+id/alarm"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:layout_marginTop="100dp"
         android:clickable="false"
         android:text="System Alarm"
@@ -218,10 +220,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/lowProbe"
+        android:id="@+id/waterAlarm"
         android:layout_width="100dp"
         android:layout_height="60dp"
         android:layout_marginTop="100dp"
+        android:layout_marginStart="@dimen/StatusMarginStart"
         android:clickable="false"
         android:text="Water Level Probe"
         android:textSize="12sp"
@@ -232,11 +235,11 @@
         android:id="@+id/airAlarm"
         android:layout_width="100dp"
         android:layout_height="60dp"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="100dp"
         android:text="Aeration Problem"
         android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/lowProbe"
+        app:layout_constraintStart_toEndOf="@+id/waterAlarm"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
