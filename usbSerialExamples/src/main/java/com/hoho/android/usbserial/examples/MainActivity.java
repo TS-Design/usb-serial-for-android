@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        getOnBackPressedDispatcher().onBackPressed();
         return true;
     }
 

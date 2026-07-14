@@ -96,6 +96,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private Button bulletinButton;
     private Button noChlorineAlarm;
     private Spinner tankDropDown;
+    private ArrayAdapter<CharSequence> tankAdapter;
     //private TextView remoteTime;
     private SerialInputOutputManager usbIoManager;
     private UsbSerialPort usbSerialPort;
@@ -183,7 +184,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
             //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
             // tankDropDown.setSelection(item);
-            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(panelData.getPanelString("tank")));
+            tankDropDown.setSelection(tankAdapter.getPosition(panelData.getPanelString("tank")));
         }
     };
     final Runnable updateTank = new Runnable() {
@@ -241,6 +242,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         }
     };
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -315,7 +317,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
 
         /* Spinner Tank Size */
         tankDropDown = view.findViewById(R.id.tankDropDown);
-        final ArrayAdapter<CharSequence> tankAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.tankArray, R.layout.mode_spinner);
+        tankAdapter = ArrayAdapter.createFromResource(requireActivity(), R.array.tankArray, R.layout.mode_spinner);
         tankAdapter.setDropDownViewResource(R.layout.mode_spinner);
         tankDropDown.setAdapter(tankAdapter);
         tankDropDown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -356,11 +358,13 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         // Another interface callback
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -377,7 +381,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
-                    spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     receiveText.append(spn);
                 } catch (UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
@@ -521,7 +525,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             if (panelData.getPanelString("tank").equals("1000"))
                 tankItemIndex = "1000/1200";
 
-            tankDropDown.setSelection(((ArrayAdapter)tankDropDown.getAdapter()).getPosition(tankItemIndex));
+            tankDropDown.setSelection(tankAdapter.getPosition(tankItemIndex));
             enableMode = !panelData.getPanelString("tank").equals("0");
         }
         if (panelData.containsKey("bALT")) {
@@ -834,7 +838,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             spn.append(HexDump.dumpHexString(data)).append("\n");
             spn.append(data + "\n");*/
             spn.append(str);
-            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
@@ -872,7 +876,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         receiveText.append(spn);
     }
 }

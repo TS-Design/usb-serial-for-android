@@ -182,6 +182,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -266,11 +267,13 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         // Another interface callback
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -287,7 +290,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
-                    spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     //receiveText.append(spn);
                 } catch(UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
@@ -465,8 +468,8 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     }
     public void showTankPopUp() {
         DialogFragment newFragment = new PopUpFragment();
-        assert getFragmentManager() != null;
-        newFragment.show(getFragmentManager(), "tank");
+        assert getParentFragmentManager() != null;
+        newFragment.show(getParentFragmentManager(), "tank");
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
@@ -610,7 +613,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             spn.append(HexDump.dumpHexString(data)).append("\n");
             spn.append(data + "\n");*/
             spn.append(str);
-            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             //receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
@@ -644,7 +647,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

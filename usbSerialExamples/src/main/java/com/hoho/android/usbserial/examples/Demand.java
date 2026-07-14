@@ -231,6 +231,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
 
         //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
     };
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -378,10 +379,12 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         // Another interface callback
         Toast.makeText(getActivity(), "Spinner Outside Nothing", Toast.LENGTH_SHORT).show();
     }
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -398,7 +401,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
-                    spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     //receiveText.append(spn);
                 } catch(UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
@@ -522,7 +525,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
-    private void putBlueAlarmTextColor(TextView tv, boolean value) {
+    private void putRedAlarmTextColorFlash(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
@@ -579,7 +582,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         /* Status Banner */
         if(panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
+            putRedAlarmTextColorFlash(alarm, !panelData.getPanelBool("bok"));
             }
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
@@ -805,7 +808,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             spn.append(HexDump.dumpHexString(data)).append("\n");
             spn.append(data + "\n");*/
             spn.append(str);
-            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             //receiveText.append(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
@@ -839,7 +842,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

@@ -279,6 +279,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         }
     }; */
     /* OS Callbacks */
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -542,10 +543,13 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         return view;
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
@@ -583,7 +587,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
-                    spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 } catch (UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
@@ -698,7 +702,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         }
     }
 
-    private void putBlueAlarmTextColor(TextView tv, boolean value) {
+    private void putRedAlarmTextColorFlash(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
@@ -774,10 +778,10 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
 
         if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-            // putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
+            // putRedAlarmTextColorFlash(alarm, !panelData.getPanelBool("bok"));
         }
         if (panelData.containsKey("bAlarm")) {
-            putBlueAlarmTextColor(alarm, !panelData.getPanelBool("bAlarm"));
+            putRedAlarmTextColorFlash(alarm, panelData.getPanelBool("bAlarm"));
         }
         if (panelData.containsKey("bwater"))   //  Water Alarm Button
             if (panelData.getPanelBool("bAlarm"))
@@ -1085,7 +1089,6 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         }
     }*/
 
-
     private boolean sendJson(String cmd, String value) {
         // int j = 0;
         SpannableStringBuilder json = new SpannableStringBuilder();
@@ -1112,7 +1115,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
             byte[] data = (str + '\n').getBytes();
             SpannableStringBuilder spn = new SpannableStringBuilder();
             spn.append(str);
-            spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             onRunError(e);
@@ -1147,7 +1150,7 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
 
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str + '\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

@@ -152,6 +152,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -288,11 +289,13 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         // Another interface callback
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_terminal, menu);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -309,7 +312,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
                     usbSerialPort.setBreak(false);
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
-                    spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     //receiveText.append(spn);
                 } catch(UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
@@ -418,7 +421,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
           tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
        }
 }
-    private void putBlueAlarmTextColor(TextView tv, boolean value) {
+    private void flashRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
             tv.setText("High Open");
@@ -459,7 +462,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         if(panelData.containsKey("bLow"))
             putWaterLevelTextColor(maintLowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bHigh"))
-            putBlueAlarmTextColor(maintHiProbe, !panelData.getPanelBool("bHigh"));
+            flashRedAlarmTextColor(maintHiProbe, !panelData.getPanelBool("bHigh"));
         if(panelData.containsKey("bAlarm"))
             putRedAlarmTextColor(maintAlarmProbe, !panelData.getPanelBool("bAlarm"));
 
@@ -643,7 +646,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
             spn.append(HexDump.dumpHexString(data)).append("\n");
             spn.append(data + "\n");*/
                spn.append(str);
-               spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+               spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                //receiveText.append(spn);
                usbSerialPort.write(data, WRITE_WAIT_MILLIS);
            } catch (Exception e) {
@@ -678,7 +681,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
 
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
-        spn.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         //receiveText.append(spn);
     }
 }

@@ -10,6 +10,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbRequest;
+import android.os.Build;
 import android.util.Log;
 
 import com.hoho.android.usbserial.util.MonotonicClock;
@@ -82,7 +83,11 @@ public abstract class CommonUsbSerialPort implements UsbSerialPort {
      */
     @Override
     public String getSerial() {
-        return mConnection.getSerial();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return mDevice.getSerialNumber();
+        } else {
+            return mConnection.getSerial();
+        }
     }
 
     /**
@@ -196,7 +201,7 @@ public abstract class CommonUsbSerialPort implements UsbSerialPort {
 
         } else {
             final ByteBuffer buf = ByteBuffer.wrap(dest);
-            if (!mUsbRequest.queue(buf, dest.length)) {
+            if (!mUsbRequest.queue(buf)) {
                 throw new IOException("Queueing USB request failed");
             }
             final UsbRequest response = mConnection.requestWait();

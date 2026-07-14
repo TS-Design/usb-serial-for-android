@@ -44,6 +44,7 @@ public class DevicesFragment extends ListFragment {
     private int baudRate = 115200;
     private boolean withIoManager = true;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +71,8 @@ public class DevicesFragment extends ListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         setListAdapter(null);
         View header = getActivity().getLayoutInflater().inflate(R.layout.device_list_header, null, false);
         getListView().addHeaderView(header, null, false);
@@ -80,6 +81,7 @@ public class DevicesFragment extends ListFragment {
         setListAdapter(listAdapter);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_devices, menu);
@@ -91,6 +93,7 @@ public class DevicesFragment extends ListFragment {
         refresh();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
