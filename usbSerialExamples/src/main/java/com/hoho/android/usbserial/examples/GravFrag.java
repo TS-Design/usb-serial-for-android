@@ -599,67 +599,7 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
         }
     }
     private void manualTestCallback() {
-        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
-        Button closeManualInputBtn = customView.findViewById(R.id.closeManualInputBtn);
-        Button yellowInput = customView.findViewById(R.id.yellowInput);
-        Button blueInput = customView.findViewById(R.id.blueInput);
-        Button redInput = customView.findViewById(R.id.redInput);
-        popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        popupManualTest.showAtLocation(requireView(), Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
-        manualTest.setVisibility(View.INVISIBLE);
-        sendJson("bENA", "true");
-
-        boolean[] dismissed = {false};
-        Handler handler = new Handler(Looper.getMainLooper());
-        Runnable syncColors = new Runnable() {
-            @Override public void run() {
-                if (dismissed[0] || !isAdded() || getContext() == null) return;
-                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(),
-                        panelData.getPanelBool("bLow") ? R.color.textGoodBackground : R.color.yellow));
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(),
-                        panelData.getPanelBool("bHigh") ? R.color.light_blue_900 : R.color.textGoodBackground));
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(),
-                        panelData.getPanelBool("bAlarm") ? R.color.red : R.color.textGoodBackground));
-                handler.postDelayed(this, 250);
-            }
-        };
-        handler.post(syncColors);
-
-        closeManualInputBtn.setOnClickListener(v -> {
-            dismissed[0] = true;
-            handler.removeCallbacks(syncColors);
-            sendJson("bENA", "false");
-            manualTest.setVisibility(View.VISIBLE);
-            popupManualTest.dismiss();
-        });
-        yellowInput.setOnClickListener(v -> {
-            if (panelData.getPanelBool("bLow")) {
-                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-                sendJson("bLowUi", "false");
-            } else {
-                yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                sendJson("bLowUi", "true");
-            }
-        });
-        blueInput.setOnClickListener(v -> {
-            if (panelData.getPanelBool("bHigh")) {
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-                sendJson("bHighUi", "false");
-            } else {
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-                sendJson("bHighUi", "true");
-            }
-        });
-        redInput.setOnClickListener(v -> {
-            if (panelData.getPanelBool("bAlarm")) {
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
-                sendJson("bAlarmUi", "false");
-            } else {
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-                sendJson("bAlarmUi", "true");
-            }
-        });
+        popupManualTest = ManualInputTestHelper.show(this, requireView(), manualTest, panelData, this::sendJson);
     }
     private void peristalticTestCallback() {
         if(panelData.getPanelBool("so2")) {

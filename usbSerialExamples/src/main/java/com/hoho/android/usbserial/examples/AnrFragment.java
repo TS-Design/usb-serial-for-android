@@ -133,10 +133,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private TextView textAlarmTime;
     private TextView alarmTextWindow;
     private Button closeGallonsBtn;
-    private Button yellowInput;
-    private Button closeManualInputBtn;
-    private Button redInput;
-    private Button blueInput;
     private Button manualInputTest;
     private TextView hourTotalValue;
     private TextView hourlyAverageValue;
@@ -748,68 +744,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             AlarmHistoryPopup.show(getContext(), view, panelData,
                 () -> sendPriorityCommand("log", "query"),
                 () -> sendPriorityCommand("clrlog", "query")));
-        manualInputTest.setOnClickListener(v -> {
-            //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) AnrFragment.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
-            closeManualInputBtn = (Button) customView.findViewById(R.id.closeManualInputBtn);
-            yellowInput = (Button) customView.findViewById(R.id.yellowInput);
-            redInput = (Button) customView.findViewById(R.id.redInput);
-            blueInput = (Button) customView.findViewById(R.id.blueInput);
-            //instantiate popup window
-            popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            //display the popup window
-            popupManualTest.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
-/*            if(panelData.getPanelBool("bLow"))
-               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-            else
-               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            if(panelData.getPanelBool("bHigh"))
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-            else
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            if(panelData.getPanelBool("bAlarm"))
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-            else
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOfftextOff));
-*/
-            manualInputTest.setVisibility(View.INVISIBLE);
-            sendPriorityCommand("bENA", "true");
-            //close the popup window on button click
-            closeManualInputBtn.setOnClickListener(v12 -> {
-                sendPriorityCommand("bENA", "false");
-                manualInputTest.setVisibility(View.VISIBLE);
-                popupManualTest.dismiss();
-            });
-
-            yellowInput.setOnClickListener(v13 -> {
-                if (panelData.getPanelBool("bLow")) {  // Low Probe
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("bLowUi", "false");
-                } else {
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("bLowUi", "true");
-                }
-            });
-            blueInput.setOnClickListener(v14 -> { // Alarm probe
-                if (panelData.getPanelBool("bHigh")) {
-                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("bHighUi", "false");
-                } else {
-                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-                    sendPriorityCommand("bHighUi", "true");
-                }
-            });
-            redInput.setOnClickListener(v15 -> {  //High Probe
-                if (panelData.getPanelBool("bAlarm")) {
-                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("bAlarmUi", "false");
-                } else {
-                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-                    sendPriorityCommand("bAlarmUi", "true");
-                }
-            });
-        });
+        manualInputTest.setOnClickListener(v -> manualTestCallback(view));
         // Start Update timer to sync UI
         mainLooper.postDelayed(update, UPDATE_INTERVAL_MILLIS);
         panelData = new ViewModelProvider(requireActivity()).get(PanelViewModel.class).panelData;
@@ -1308,16 +1243,10 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
         }
     }
 
-    /*private void manualTestCallback() {
-        if(panelData.getPanelBool("bmantest")) {
-            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendPriorityCommand("bmantest", "false");
-        }
-        else {
-            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendPriorityCommand("bmantest", "true");
-        }
-    }*/
+    private void manualTestCallback(View anchorView) {
+        popupManualTest = ManualInputTestHelper.show(this, anchorView, manualInputTest, panelData, this::sendPriorityCommand);
+    }
+
     private void alarmLatchCallback() {
         if (panelData.getPanelBool("balrmltch")) {
             alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));

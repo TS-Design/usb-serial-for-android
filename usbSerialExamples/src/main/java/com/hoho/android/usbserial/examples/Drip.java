@@ -128,10 +128,6 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     private TextView textAlarmTime;
     private TextView alarmTextWindow;
     private Button closeGallonsBtn;
-    private Button yellowInput;
-    private Button closeManualInputBtn;
-    private Button redInput;
-    private Button blueInput;
     private Button manualInputTest;
     private Button zone1;
     private Button zone2;
@@ -540,68 +536,7 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
             AlarmHistoryPopup.show(getContext(), view, panelData,
                 () -> sendPriorityCommand("log", "query"),
                 () -> sendPriorityCommand("clrlog", "query")));
-        manualInputTest.setOnClickListener(v -> {
-            //instantiate the popup.xml layout file
-            LayoutInflater layoutInflater = (LayoutInflater) Drip.this.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-            View customView = layoutInflater.inflate(R.layout.manual_input_popup, null);
-            closeManualInputBtn = customView.findViewById(R.id.closeManualInputBtn);
-            yellowInput = customView.findViewById(R.id.yellowInput);
-            redInput = customView.findViewById(R.id.redInput);
-            blueInput = customView.findViewById(R.id.blueInput);
-            //instantiate popup window
-            popupManualTest = new PopupWindow(customView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-            //display the popup window
-            popupManualTest.showAtLocation(view, Gravity.BOTTOM | Gravity.RIGHT, 0, 0);
-/*            if(panelData.getPanelBool("bLow"))
-               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-            else
-               yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            if(panelData.getPanelBool("bHigh"))
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-            else
-                blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            if(panelData.getPanelBool("bAlarm"))
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-            else
-                redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOfftextOff));
-*/
-            manualInputTest.setVisibility(View.INVISIBLE);
-            sendPriorityCommand("bENA", "true");
-            //close the popup window on button click
-            closeManualInputBtn.setOnClickListener(v12 -> {
-                sendPriorityCommand("bENA", "false");
-                manualInputTest.setVisibility(View.VISIBLE);
-                popupManualTest.dismiss();
-            });
-
-            yellowInput.setOnClickListener(v13 -> {
-                if (panelData.getPanelBool("bLow")) {  // Low Probe
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.yellow));
-                    sendPriorityCommand("bLowUi", "false");
-                } else {
-                    yellowInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("bLowUi", "true");
-                }
-            });
-            blueInput.setOnClickListener(v14 -> { // Alarm probe
-                if (panelData.getPanelBool("bHigh")) {
-                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("bHighUi", "false");
-                } else {
-                    blueInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_900));
-                    sendPriorityCommand("bHighUi", "true");
-                }
-            });
-            redInput.setOnClickListener(v15 -> {  //High Probe
-                if (panelData.getPanelBool("bAlarm")) {
-                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-                    sendPriorityCommand("bAlarmUi", "false");
-                } else {
-                    redInput.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.red));
-                    sendPriorityCommand("bAlarmUi", "true");
-                }
-            });
-        });
+        manualInputTest.setOnClickListener(v -> manualTestCallback(view));
 
         // Micro Dose mode: hide Field Flush button and relabel title
         TextView textAnr = view.findViewById(R.id.textAnr);
@@ -1105,16 +1040,10 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
         }
     }
 
-    /*private void manualTestCallback() {
-        if(panelData.getPanelBool("bmantest")) {
-            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
-            sendPriorityCommand("bmantest", "false");
-        }
-        else {
-            manualInputTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOn));
-            sendPriorityCommand("bmantest", "true");
-        }
-    }*/
+    private void manualTestCallback(View anchorView) {
+        popupManualTest = ManualInputTestHelper.show(this, anchorView, manualInputTest, panelData, this::sendPriorityCommand);
+    }
+
     private void alarmLatchCallback() {
         if (panelData.getPanelBool("balrmltch")) {
             alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
