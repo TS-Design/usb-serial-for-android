@@ -59,6 +59,8 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
+    private TextView flashAlarmView = null;
+    private boolean flashAlarmPhase = false;
     private final boolean UiMessageSent = false;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
@@ -185,6 +187,18 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             postDataLayer();
 
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
+        }
+    };
+    private final Runnable flashAlarmRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (flashAlarmView == null) return;
+            flashAlarmPhase = !flashAlarmPhase;
+            int color = flashAlarmPhase
+                    ? ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground)
+                    : ContextCompat.getColor(requireContext(), R.color.textGoodBackground);
+            flashAlarmView.setBackgroundColor(color);
+            mainLooper.postDelayed(flashAlarmRunnable, 1000);
         }
     };
     @SuppressWarnings("deprecation")
@@ -452,13 +466,31 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
         }
     }
-    public void postDataLayer() {                           // Convert string to bool and update UI with command
+    private void putRedAlarmTextColorFlash(TextView tv, boolean value)  {
+        if (value) {
+            if (flashAlarmView != tv) {
+                mainLooper.removeCallbacks(flashAlarmRunnable);
+                flashAlarmView = tv;
+                flashAlarmPhase = true;
+                tv.setTextColor(Color.BLACK);
+                tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground));
+                mainLooper.postDelayed(flashAlarmRunnable, 1000);
+            }
+        } else {
+            mainLooper.removeCallbacks(flashAlarmRunnable);
+            flashAlarmView = null;
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
+        }
+    }    public void postDataLayer() {                           // Convert string to bool and update UI with command
         if (!isAdded() || getContext() == null) return;
         // boolean enableMode;
         /* Status Banner */
         if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-            flashRedAlarmTextColor(alarm, !panelData.getPanelBool("bok"));
+        }
+        if (panelData.containsKey("bAlarm")) {
+            putRedAlarmTextColorFlash(alarm, panelData.getPanelBool("bAlarm"));
         }
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));

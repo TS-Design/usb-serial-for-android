@@ -67,6 +67,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
+    private TextView flashAlarmView = null;
+    private boolean flashAlarmPhase = false;
     private final boolean UiMessageSent = false;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
@@ -231,6 +233,18 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
 
         //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
     };
+    private final Runnable flashAlarmRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (flashAlarmView == null) return;
+            flashAlarmPhase = !flashAlarmPhase;
+            int color = flashAlarmPhase
+                    ? ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground)
+                    : ContextCompat.getColor(requireContext(), R.color.textGoodBackground);
+            flashAlarmView.setBackgroundColor(color);
+            mainLooper.postDelayed(flashAlarmRunnable, 1000);
+        }
+    };
     @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -260,6 +274,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     @Override
     public void onPause() {
         mainLooper.removeCallbacks(postMsg);
+        mainLooper.removeCallbacks(flashAlarmRunnable);
+        flashAlarmView = null;
         if (popupManualTest != null && popupManualTest.isShowing()) {
             sendJson("bENA", "false");
             popupManualTest.dismiss();
@@ -527,11 +543,19 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void putRedAlarmTextColorFlash(TextView tv, boolean value) {
         if (value) {
-            tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            if (flashAlarmView != tv) {
+                mainLooper.removeCallbacks(flashAlarmRunnable);
+                flashAlarmView = tv;
+                flashAlarmPhase = true;
+                tv.setTextColor(Color.BLACK);
+                tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground));
+                mainLooper.postDelayed(flashAlarmRunnable, 1000);
+            }
         } else {
+            mainLooper.removeCallbacks(flashAlarmRunnable);
+            flashAlarmView = null;
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         }
     }
     private void putWaterLevelTextColor(TextView tv, boolean value) {
@@ -582,8 +606,10 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         /* Status Banner */
         if(panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-            putRedAlarmTextColorFlash(alarm, !panelData.getPanelBool("bok"));
             }
+        if (panelData.containsKey("bAlarm")) {
+            putRedAlarmTextColorFlash(alarm, panelData.getPanelBool("bAlarm"));
+        }
         if(panelData.containsKey("balmrset"))
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("balrmltch"))

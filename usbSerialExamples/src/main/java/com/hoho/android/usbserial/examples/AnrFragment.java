@@ -93,6 +93,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private boolean bALT = false;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
+    private TextView flashAlarmView = null;
+    private boolean flashAlarmPhase = false;
     //private final boolean UiMessageSent = false;
     public String priorityCommandValue;
     public String priorityCommand;
@@ -264,6 +266,18 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     };*/
     final Runnable update = this::getPanelStatus;
     final Runnable postMsg = this::postDataLayer;
+    private final Runnable flashAlarmRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (flashAlarmView == null) return;
+            flashAlarmPhase = !flashAlarmPhase;
+            int color = flashAlarmPhase
+                    ? ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground)
+                    : ContextCompat.getColor(requireContext(), R.color.textGoodBackground);
+            flashAlarmView.setBackgroundColor(color);
+            mainLooper.postDelayed(flashAlarmRunnable, 1000);
+        }
+    };
 
     /*final Runnable update5L = () -> {
         Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
@@ -311,6 +325,8 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     @Override
     public void onPause() {
         mainLooper.removeCallbacks(postMsg);
+        mainLooper.removeCallbacks(flashAlarmRunnable);
+        flashAlarmView = null;
         if (popupManualTest != null && popupManualTest.isShowing()) {
             popupManualTest.dismiss();
         }
@@ -909,11 +925,19 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
     private void putRedAlarmTextColorFlash(TextView tv, boolean value) {
         if (value) {
-            tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            if (flashAlarmView != tv) {
+                mainLooper.removeCallbacks(flashAlarmRunnable);
+                flashAlarmView = tv;
+                flashAlarmPhase = true;
+                tv.setTextColor(Color.BLACK);
+                tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground));
+                mainLooper.postDelayed(flashAlarmRunnable, 1000);
+            }
         } else {
+            mainLooper.removeCallbacks(flashAlarmRunnable);
+            flashAlarmView = null;
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         }
     }
 
@@ -983,7 +1007,9 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
 
          if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
-            putRedAlarmTextColorFlash(alarm, !panelData.getPanelBool("bok"));
+        }
+        if (panelData.containsKey("bAlarm")) {
+            putRedAlarmTextColorFlash(alarm, panelData.getPanelBool("bAlarm"));
         }
         if (panelData.containsKey("bwater"))   //  Water Alarm Button
             if (panelData.getPanelBool("bAlarm"))

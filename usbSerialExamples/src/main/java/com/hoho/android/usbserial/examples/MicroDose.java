@@ -58,6 +58,8 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
     private final Handler mainLooper;
+    private TextView flashAlarmView = null;
+    private boolean flashAlarmPhase = false;
     private final boolean UiMessageSent = false;
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
@@ -117,7 +119,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             "so1", "so0", "so2",
             "effstat", "airpres",
             "palmtime", "balrmltch",
-            "bmantest", "balarm", "bLow", "bHigh", "bairalrm"
+            "bmantest", "bAlarm", "bLow", "bHigh", "bairalrm"
     );                                                  /* dont need bmantest? */
     public int commandLength = updateCommandList.size();
     public int commandListIndex = 0;
@@ -182,6 +184,18 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             //Toast.makeText(getActivity(), "HID Timeout", Toast.LENGTH_SHORT).show();
         }
     };
+    private final Runnable flashAlarmRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (flashAlarmView == null) return;
+            flashAlarmPhase = !flashAlarmPhase;
+            int color = flashAlarmPhase
+                    ? ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground)
+                    : ContextCompat.getColor(requireContext(), R.color.textGoodBackground);
+            flashAlarmView.setBackgroundColor(color);
+            mainLooper.postDelayed(flashAlarmRunnable, 1000);
+        }
+    };
     @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -211,6 +225,8 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
     @Override
     public void onPause() {
         mainLooper.removeCallbacks(postMsg);
+        mainLooper.removeCallbacks(flashAlarmRunnable);
+        flashAlarmView = null;
         if(connected) {
             status("disconnected");
             disconnect();
@@ -407,6 +423,23 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
         }
     }
+    private void putRedAlarmTextColorFlash(TextView tv, boolean value) {
+        if (value) {
+            if (flashAlarmView != tv) {
+                mainLooper.removeCallbacks(flashAlarmRunnable);
+                flashAlarmView = tv;
+                flashAlarmPhase = true;
+                tv.setTextColor(Color.BLACK);
+                tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground));
+                mainLooper.postDelayed(flashAlarmRunnable, 1000);
+            }
+        } else {
+            mainLooper.removeCallbacks(flashAlarmRunnable);
+            flashAlarmView = null;
+            tv.setTextColor(Color.BLACK);
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
+        }
+    }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
         if (!isAdded() || getContext() == null) return;
         boolean enableMode;
@@ -425,8 +458,8 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
             putTextColor(peristalticTest, panelData.getPanelBool("so2"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-        if(panelData.containsKey("bHigh"))
-            putRedAlarmTextColor(alarm, panelData.getPanelBool("bHigh"));
+        if(panelData.containsKey("bAlarm"))
+            putRedAlarmTextColorFlash(alarm, panelData.getPanelBool("bAlarm"));
         if(panelData.containsKey("bLow"))
             putTextColor(lowProbe, panelData.getPanelBool("bLow"));
         if(panelData.containsKey("bairalrm"))
