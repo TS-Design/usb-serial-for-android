@@ -280,19 +280,6 @@ public class NightSpray extends Fragment implements SerialInputOutputManager.Lis
         }
     };
 
-    /*final Runnable update5L = () -> {
-        Toast.makeText(getActivity(), "Send Panel Demand Alarm " + panelData.getPanelString("balrmtime"), Toast.LENGTH_SHORT).show();
-        sendPriorityCommand("zone", panelData.getPanelString("zone"));
-    };*/
-    /*    final Runnable modeSpinner = new Runnable() {
-        @Override
-        public void run() {
-
-            //Toast.makeText(getActivity(), "modeSpinner  " + dataLayer.getTank(), Toast.LENGTH_SHORT).show();
-            zoneCount.setSelection(((ArrayAdapter)zoneCount.getAdapter()).getPosition(panelData.getPanelString("zone")));
-        }
-    }; */
-    /* OS Callbacks */
     @SuppressWarnings("deprecation")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

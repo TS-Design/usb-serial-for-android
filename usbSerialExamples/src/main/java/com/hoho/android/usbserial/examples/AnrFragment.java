@@ -110,10 +110,6 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
     private UsbSerialPort usbSerialPort;
     private UsbPermission usbPermission = UsbPermission.Unknown;
     public boolean connected = false;
-    //public DataLayer dataLayer = new DataLayer();
-    /* Hoot Fragment adds */
-    //static boolean cmd_busy = false;
-    //private Spinner zoneCount;
     private EditText zoneCount;
     private EditText doseDayCount;
     private EditText recirRepeatCount;

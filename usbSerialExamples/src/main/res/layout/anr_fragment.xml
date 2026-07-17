@@ -18,10 +18,6 @@
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toTopOf="parent" />
 
- <!-- Alarm History Button -->
-
- <!-- GPD Flow Data Button -->
-
  <Button
      android:id="@+id/alarmHistory"
      android:layout_width="100dp"

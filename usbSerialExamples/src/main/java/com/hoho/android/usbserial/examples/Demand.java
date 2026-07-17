@@ -602,7 +602,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     public void postDataLayer() {                           // Convert string to bool and update UI with command
         if (!isAdded() || getContext() == null) return;
-        boolean enableMode;
+        // boolean enableMode;
         /* Status Banner */
         if(panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));
@@ -614,7 +614,6 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             putTextColor(alarmReset, panelData.getPanelBool("balmrset"));
         if(panelData.containsKey("balrmltch"))
             putTextColor(alarmLatch, panelData.getPanelBool("balrmltch"));
-//        if (panelData.containsKey("bLow") || panelData.containsKey("bHigh")) {
         if (panelData.containsKey("bwater"))   //  Water Alarm Button
             if (panelData.getPanelBool("bAlarm"))
                 putWaterLevelText(waterAlarm, true);

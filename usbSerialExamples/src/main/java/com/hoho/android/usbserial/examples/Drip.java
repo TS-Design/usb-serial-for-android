@@ -801,8 +801,6 @@ public class Drip extends Fragment implements SerialInputOutputManager.Listener,
     //===POST DATA LAYER ================================
     public void postDataLayer() {                           // Take action on all Panel Data
         if (!isAdded() || getContext() == null) return;
-        // Status Banner
-       // String formattedTime;
 
         if (panelData.containsKey("bok")) {
             putRedAlarmTextColor(systemOk, panelData.getPanelBool("bok"));

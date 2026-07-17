@@ -278,9 +278,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         getActivity().unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
-    /*
-     * UI
-     */
+    // UI
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);

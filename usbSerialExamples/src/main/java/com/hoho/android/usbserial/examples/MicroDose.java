@@ -137,9 +137,7 @@ public class MicroDose extends Fragment implements SerialInputOutputManager.List
         };
         mainLooper = new Handler(Looper.getMainLooper());
     }
-    /*
-     * Lifecycle
-     */
+
     final Runnable timeHandler = new Runnable() {
         @Override
         public void run() {

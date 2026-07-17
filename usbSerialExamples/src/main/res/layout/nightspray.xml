@@ -32,10 +32,6 @@
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- Alarm History Button -->
-    <!-- Flow Data Button -->
-    <!-- Manual Test Button -->
-    <!-- Time -->
 
     <Button
         android:id="@+id/alarmHistory"

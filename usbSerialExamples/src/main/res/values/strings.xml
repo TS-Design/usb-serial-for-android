@@ -11,7 +11,6 @@
     <string name="test">Test</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
-
     <string-array name="tankArray">
         <item>0</item>
         <item>500/600</item>

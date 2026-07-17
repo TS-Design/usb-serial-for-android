@@ -62,8 +62,6 @@ public class GravFrag extends Fragment implements SerialInputOutputManager.Liste
     private TextView flashAlarmView = null;
     private boolean flashAlarmPhase = false;
     private final boolean UiMessageSent = false;
-    //Handler timerHandler;
-    //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
     public PanelData panelData;
 
