@@ -31,6 +31,13 @@ android {
     namespace 'com.hoho.android.usbserial.examples'
 }
 
+// graphics-shapes:1.0.1 (KMP umbrella) and graphics-shapes-android:1.0.1 both define
+// androidx.graphics.shapes.R, causing a dex duplicate error. Exclude the KMP umbrella;
+// the Android-specific artifact provides the actual implementation.
+configurations.all {
+    exclude group: 'androidx.graphics', module: 'graphics-shapes'
+}
+
 dependencies {
     implementation project(':usbSerialForAndroid')
     implementation 'androidx.appcompat:appcompat:1.7.1' // later versions have minsdk 21

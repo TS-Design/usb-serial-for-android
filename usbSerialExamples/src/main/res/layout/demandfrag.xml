@@ -137,6 +137,7 @@
         android:layout_height="55dp"
         android:layout_marginStart="@dimen/StatusMarginStart"
         android:background="@color/light_blue_A200"
+        android:gravity="center"
         android:text="Water Flow Data"
         android:textAlignment="center"
         android:textColor="@color/RectangleNotSelected"

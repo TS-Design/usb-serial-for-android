@@ -1074,7 +1074,7 @@ public class AnrFragment extends Fragment implements SerialInputOutputManager.Li
             }
         }
         if (panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString("airpres")));
+            airPressure.setText(String.format("Air Compressor Pressure WCI:                                         %s", panelData.getPanelString("airpres")));
         if (panelData.containsKey("palmtime") && !effPumpAlarmTimeCount.hasFocus()) {
             if (panelData.getPanelString("palmtime").contentEquals(""))
                 effPumpAlarmTimeCount.setText(String.format("%d", 0));

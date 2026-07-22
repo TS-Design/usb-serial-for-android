@@ -626,16 +626,15 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         if(panelData.containsKey("bairalrm"))
             putRedAlarmTextColor(airAlarm, !panelData.getPanelBool("bairalrm"));
         /* Variables */
+
         if(panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI: %s", panelData.getPanelString ("airpres")));
+            airPressure.setText(String.format("Air Compressor Pressure WCI:                           %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime"))
             effPumpAlarmTime.setText("Effluent Pump Runtime Alarm Timer");
         if(panelData.containsKey("effstat")) {
             effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
             putTextColor(effstat, panelData.getPanelBool("effstat"));
         }
-        if (panelData.containsKey("airpres"))
-            airPressure.setText(String.format("Air Compressor Pressure WCI:               %s", panelData.getPanelString("airpres")));
         if (panelData.containsKey("dalrmtime") && !demandAlarmTime.hasFocus()) {
             if (panelData.getPanelString("dalrmtime").contentEquals(""))
                 demandAlarmTime.setText(String.format("%d", 0));

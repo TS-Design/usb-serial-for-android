@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,6 +31,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +68,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     private static final int WRITE_WAIT_MILLIS = 2000;
     private static final int READ_WAIT_MILLIS = 2000;
     private static final int UPDATE_INTERVAL_MILLIS = 200;
+    private static final int MAX_RECEIVE_LINES = 200;
     private int deviceId, portNum, baudRate;
     private boolean withIoManager;
     private final BroadcastReceiver broadcastReceiver;
@@ -77,6 +80,8 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     //Handler timerHandler;
     //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
+    private ScrollView receiveScrollView;
+    private boolean autoScroll = true;
     private TextView SerialNumber;
     public PanelData panelData;
     public boolean duplex = false;
@@ -294,6 +299,20 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         bdrip = view.findViewById(R.id.bdrip);
         manual = view.findViewById(R.id.manual);
         receiveText = view.findViewById(R.id.receiveText);
+        receiveScrollView = view.findViewById(R.id.receiveScrollView);
+        receiveScrollView.setOnTouchListener((v, event) -> {
+            ScrollView sv = (ScrollView) v;
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                autoScroll = false;
+            } else if (event.getAction() == MotionEvent.ACTION_UP
+                    || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                sv.post(() -> {
+                    int maxScroll = sv.getChildAt(0).getHeight() - sv.getHeight();
+                    if (sv.getScrollY() >= maxScroll - 8) autoScroll = true;
+                });
+            }
+            return false;
+        });
         SerialNumber = view.findViewById(R.id.SerialNumber);
         timeRemote = view.findViewById(R.id.timeRemote);
         altButton = view.findViewById(R.id.altButton);
@@ -380,7 +399,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
                     SpannableStringBuilder spn = new SpannableStringBuilder();
                     spn.append("send <break>\n");
                     spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    receiveText.append(spn);
+                    appendReceiveText(spn);
                 } catch (UnsupportedOperationException ignored) {
                     Toast.makeText(getActivity(), "BREAK not supported", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
@@ -492,7 +511,9 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
         String tankItemIndex = "";
         // Restore terminal raw data display: show each received key:value pair
         if (panelData.containsKey("KEY") && panelData.containsKey("VALUE")) {
-            receiveText.append(panelData.getPanelString("KEY") + ":" + panelData.getPanelString("VALUE") + "\n");
+            SpannableStringBuilder spn = new SpannableStringBuilder(
+                    panelData.getPanelString("KEY") + ":" + panelData.getPanelString("VALUE") + "\n");
+            appendReceiveText(spn);
         }
         if (panelData.containsKey("mode")) {          // Set Mode Radio Button
             if (panelData.getPanelString("mode").equals("bANR"))
@@ -837,7 +858,7 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
             spn.append(data + "\n");*/
             spn.append(str);
             spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.colorSendText)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            receiveText.append(spn);
+            appendReceiveText(spn);
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             onRunError(e);
@@ -875,6 +896,32 @@ public class TerminalFragment extends Fragment implements SerialInputOutputManag
     void status(String str) {
         SpannableStringBuilder spn = new SpannableStringBuilder(str+'\n');
         spn.setSpan(new ForegroundColorSpan(ContextCompat.getColor(requireContext(), R.color.yellow)), 0, spn.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        appendReceiveText(spn);
+    }
+
+    private void appendReceiveText(SpannableStringBuilder spn) {
         receiveText.append(spn);
+        trimReceiveText();
+        if (autoScroll) {
+            receiveScrollView.post(() -> receiveScrollView.fullScroll(View.FOCUS_DOWN));
+        }
+    }
+
+    private void trimReceiveText() {
+        android.text.Editable text = receiveText.getEditableText();
+        int lineCount = 0;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '\n') lineCount++;
+        }
+        if (lineCount > MAX_RECEIVE_LINES) {
+            int linesToRemove = lineCount - MAX_RECEIVE_LINES;
+            int pos = 0;
+            int removed = 0;
+            while (removed < linesToRemove && pos < text.length()) {
+                if (text.charAt(pos) == '\n') removed++;
+                pos++;
+            }
+            text.delete(0, pos);
+        }
     }
 }

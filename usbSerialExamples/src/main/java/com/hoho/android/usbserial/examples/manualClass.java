@@ -129,16 +129,7 @@ public class manualClass extends TerminalFragment implements SerialInputOutputMa
         };
         mainLooper = new Handler(Looper.getMainLooper());
     }
-    /*
-     * Lifecycle
-     */
-/*    final Runnable timeHandler = new Runnable() {  // Post Time not used
-        @Override
-        public void run() {
-            //timeRemote.setText(dataLayer.getTime());
-            mainLooper.postDelayed(timeHandler,1000);
-        }
-    };*/
+
     final Runnable update = new Runnable() { // Read Panel Status
         public void run() {
             //Toast.makeText(getActivity(), "Update ", Toast.LENGTH_SHORT).show();

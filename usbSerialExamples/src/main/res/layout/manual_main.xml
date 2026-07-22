@@ -1,9 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/manualCancel"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/editTextText21"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="48dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Zone 2"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText13" />
+
+    <TextView
+        android:id="@+id/editTextText18"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="108dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Zone 2"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText21" />
+
+    <TextView
+        android:id="@+id/editTextText19"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="268dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="NA"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText20" />
+
+    <TextView
+        android:id="@+id/editTextText20"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="188dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Carb"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText18" />
+
+    <TextView
+        android:id="@+id/editTextText14"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="108dp"
+        android:background="#009688"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Drip"
+        android:textAlignment="gravity"
+        android:gravity="center"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText17" />
+
+    <TextView
+        android:id="@+id/editTextText15"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="268dp"
+        android:background="#009688"
+        android:ems="10"
+        android:inputType="text"
+        android:text="NR"
+        android:textAlignment="gravity"
+        android:gravity="center"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText16" />
+
+    <TextView
+        android:id="@+id/editTextText16"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="188dp"
+        android:background="#009688"
+        android:ems="10"
+        android:inputType="text"
+        android:text="ANR"
+        android:textAlignment="gravity"
+        android:gravity="center"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText14" />
+
+    <TextView
+        android:id="@+id/editTextText17"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="12dp"
+        android:background="#009688"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Micro"
+        android:textAlignment="gravity"
+        android:gravity="center"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/manualOutHeader" />
+
+    <TextView
+        android:id="@+id/editTextText13"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="36dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="NA"
+        android:textAlignment="center"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText9" />
+
+    <TextView
+        android:id="@+id/editTextText10"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="108dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Flush"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText13" />
+
+    <TextView
+        android:id="@+id/editTextText11"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="268dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Recirc"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText12" />
+
+    <TextView
+        android:id="@+id/editTextText12"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="188dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Recirc"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText10" />
+
+    <TextView
+        android:id="@+id/editTextText9"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Zone 1"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText17" />
+
+    <TextView
+        android:id="@+id/editTextText"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="108dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Zone 1"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText9" />
+
+    <TextView
+        android:id="@+id/editTextText2"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="268dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Flush"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText3" />
+
+    <TextView
+        android:id="@+id/editTextText3"
+        android:layout_width="62dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="188dp"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="text"
+        android:text="Flush"
+        app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
+        app:layout_constraintTop_toTopOf="@+id/editTextText" />
 
     <CheckBox
         android:id="@+id/maintSO0"
@@ -76,12 +286,13 @@
         android:textSize="34sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/manualInHeader"
-        android:layout_width="137dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="244dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="136dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="156dp"
+        android:layout_marginTop="436dp"
         android:fontFamily="sans-serif-black"
         android:gravity="center|center_horizontal"
         android:text="Inputs"
@@ -89,6 +300,7 @@
         android:textSize="34sp"
         app:layout_constraintStart_toEndOf="@+id/manualOutHeader"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/maintLowProbe"
         android:layout_width="100dp"
@@ -118,39 +330,4 @@
         app:layout_constraintStart_toStartOf="@+id/maintHiProbe"
         app:layout_constraintTop_toBottomOf="@+id/maintHiProbe" />
 
-    <EditText
-        android:id="@+id/editTextText"
-        android:layout_width="124dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="212dp"
-        android:layout_marginTop="96dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Field Flush"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextText2"
-        android:layout_width="122dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="212dp"
-        android:layout_marginTop="188dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Recirculation "
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/editTextText3"
-        android:layout_width="190dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="220dp"
-        android:layout_marginTop="284dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Carbon Dose Pump"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

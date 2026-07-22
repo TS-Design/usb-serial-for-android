@@ -19,6 +19,6 @@
     </string-array>
     <string name="alert_name">AlertDialog</string>
     <string name="dialog_message">No Tanks Set</string>
-    <string name="dialog_title">Javatpoint Alert Dialog</string>
-    <string name="UiRevision">V4.0.7</string>
+    <string name="dialog_title">Savepoint Alert Dialog</string>
+    <string name="UiRevision">V4.0.8</string>
 </resources>
