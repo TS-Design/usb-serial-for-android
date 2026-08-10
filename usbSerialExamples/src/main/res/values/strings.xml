@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_title">Hoot HID Android App V4.0.7</string>
+    <string name="app_title">Hoot HID Android App V4.0.9</string>
     <string name="app_name">Hoot Systems Profile Selection</string>
     <string name="devices">USB Devices</string>
     <string name="buttonTextSize">20sp</string>
@@ -20,5 +20,5 @@
     <string name="alert_name">AlertDialog</string>
     <string name="dialog_message">No Tanks Set</string>
     <string name="dialog_title">Savepoint Alert Dialog</string>
-    <string name="UiRevision">V4.0.8</string>
+    <string name="UiRevision">V4.0.9</string>
 </resources>

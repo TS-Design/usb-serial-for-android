@@ -70,8 +70,8 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private TextView flashAlarmView = null;
     private boolean flashAlarmPhase = false;
     private final boolean UiMessageSent = false;
-    //Handler timerHandler;
-    //String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
+    // Handler timerHandler;
+    // String currentDateTimeString = java.text.DateFormat.getDateTimeInstance().format(new Date());
     private TextView receiveText;
     public PanelData panelData;
 
@@ -155,7 +155,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
             "tank",
             "airpres",
             "palmtime",             // pump runtime alarm
-            "dalrmtime",            // demand runtime befor alarm
+            "dalrmtime",            // demand runtime before alarm
             "bptest",
             "balmrset",
             "bmantest",
@@ -295,12 +295,12 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         View view = inflater.inflate(R.layout.demandfrag, container, false);
         PopUpFragment popUpFragment;
         systemOk = view.findViewById(R.id.systemOk);
-        systemOk.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        systemOk.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         systemOk.setTextColor(Color.BLACK);
         alarmLatch = view.findViewById(R.id.alarmLatch);
         alarmLatch.setOnClickListener(v -> alarmLatchCallback());
         alarm = view.findViewById(R.id.alarm);
-        alarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        alarm.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         alarm.setTextColor(Color.BLACK);
         alarmHistory = view.findViewById(R.id.alarmHistory);
         timeRemote = view.findViewById(R.id.timeRemote);
@@ -310,7 +310,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         alarmReset.setOnClickListener(v -> alarmResetCallback());
         airPressure = view.findViewById(R.id.airPressure);
         waterAlarm = view.findViewById(R.id.waterAlarm);
-        waterAlarm.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+        waterAlarm.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         waterAlarm.setTextColor(Color.BLACK);
         manual = view.findViewById(R.id.manual);
         //alarmLatchStatus = view.findViewById(R.id.alarmLatchStatus);
@@ -517,28 +517,28 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void putTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
         }
     }
     private void putYellowAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.YELLOW);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.light_blue_A400));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_blue_A400));
         }
     }
     private void putRedAlarmTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground));
         }
     }
     private void putRedAlarmTextColorFlash(TextView tv, boolean value) {
@@ -561,32 +561,32 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     private void putWaterLevelTextColor(TextView tv, boolean value) {
         if (value) {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         } else {
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.WaterLevelBackground));
         }
     }
     private void putWaterLevelText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level Alarm");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.WaterLevelBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.WaterLevelBackground));
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         }
     }
     private void putLowWaterText(TextView tv, boolean value) {
         if (value) {
             waterAlarm.setText("Water Level Low");
             tv.setTextColor(Color.YELLOW);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.RedAlarmBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.RedAlarmBackground));
         } else {
             waterAlarm.setText("Water Level Good");
             tv.setTextColor(Color.BLACK);
-            tv.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            tv.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
         }
     }
     private void putHighWaterText(TextView tv, boolean value) {
@@ -630,14 +630,14 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
         if(panelData.containsKey("airpres"))
             airPressure.setText(String.format("Air Compressor Pressure WCI:                           %s", panelData.getPanelString ("airpres")));
         if(panelData.containsKey("palmtime"))
-            effPumpAlarmTime.setText("Effluent Pump Runtime Alarm Timer");
+            effPumpAlarmTime.setText(String.format("Effluent Pump Runtime Alarm Timer"));
         if(panelData.containsKey("effstat")) {
-            effStatus.setText(String.format("Effuent Pump Status :%s", panelData.getPanelString("effstat")));
+            effStatus.setText(String.format("Effluent Pump Status :%s", panelData.getPanelString("effstat")));
             putTextColor(effstat, panelData.getPanelBool("effstat"));
         }
         if (panelData.containsKey("dalrmtime") && !demandAlarmTime.hasFocus()) {
             if (panelData.getPanelString("dalrmtime").contentEquals(""))
-                demandAlarmTime.setText(String.format("%d", 0));
+                demandAlarmTime.setText("0");
             else
                 demandAlarmTime.setText(panelData.getPanelString("dalrmtime"));
         }
@@ -670,7 +670,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void setTextViewFlavor(TextView textview, String value) {
         if (value.equalsIgnoreCase("true")) {
-            textview.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            textview.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             textview.setTextColor(Color.BLACK);
         }
         else {
@@ -727,51 +727,51 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void effPumpTestCallback() {
         if(panelData.getPanelBool("bptest")) {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("bptest", "false");
         }
         else {
-            effPumpTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            effPumpTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("bptest", "true");
         }
     }
     private void alarmLatchCallback() {
         if (panelData.getPanelBool("balrmltch")) {
-            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("balrmltch", "false");
         } else {
-            alarmLatch.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            alarmLatch.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("balrmltch", "true");
         }
     }
 
     private void alarmResetCallback() {
         if(panelData.getPanelBool("balmrset")) {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("balmrset", "false");
         }
         else {
-            alarmReset.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            alarmReset.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("balmrset", "true");
         }
     }
     private void alarmHistoryCallback() {
         if(panelData.getPanelBool("alarmHistory")) {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("ahist", "false");
         }
         else {
-            alarmHistory.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            alarmHistory.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("ahist", "true");
         }
     }
     private void ffTestCallback() {
         if(panelData.getPanelBool("so0")) {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            ffTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("so0", "false");
         }
         else {
-            ffTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            ffTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("so0", "true");
         }
     }
@@ -780,21 +780,21 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void peristalticTestCallback() {
         if(panelData.getPanelBool("so2")) {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("so2", "false");
         }
         else {
-            peristalticTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            peristalticTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("so2", "true");
         }
     }
     private void recirTestCallback() {
         if(panelData.getPanelBool("so1")) {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textOff));
+            recirTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textOff));
             sendPriorityCommand("so1", "false");
         }
         else {
-            recirTest.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.textGoodBackground));
+            recirTest.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.textGoodBackground));
             sendPriorityCommand("so1", "true");
         }
     }
@@ -822,7 +822,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void send(String str) {
         if(!connected) {
-            Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
@@ -841,7 +841,7 @@ public class Demand extends Fragment implements SerialInputOutputManager.Listene
     }
     private void read() {
         if(!connected) {
-            Toast.makeText(getActivity(), "not connected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "not connected", Toast.LENGTH_SHORT).show();
             return;
         }
         try {

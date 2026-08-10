@@ -61,11 +61,15 @@
 
     <!-- Hoot Bug Image -->
 
+    <!-- Drip Label -->
+
+    <!-- System OK Button -->
+
     <TextView
         android:id="@+id/timeRemote"
-        android:layout_width="297dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="16dp"
         android:maxLines="2"
         android:minLines="1"
@@ -84,29 +88,26 @@
         android:id="@+id/hootBug"
         android:layout_width="80dp"
         android:layout_height="63dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="108dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="56dp"
         android:contentDescription="TODO"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/hoot_big" />
 
-    <!-- Drip Label -->
     <TextView
         android:id="@+id/textAnr"
         android:layout_width="207dp"
         android:layout_height="55dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="210dp"
+        android:layout_marginTop="24dp"
         android:text="Drip"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="?android:attr/colorFocusedHighlight"
         android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.622"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- System OK Button -->
     <Button
         android:id="@+id/systemOk"
         android:layout_width="100dp"

@@ -60,12 +60,13 @@
      app:layout_constraintStart_toEndOf="@+id/flowData"
      app:layout_constraintTop_toTopOf="@+id/flowData" />
 
+ <!-- Hoot Bug Image -->
+
  <TextView
      android:id="@+id/timeRemote"
-     android:layout_width="297dp"
-     android:layout_height="56dp"
-     android:layout_marginStart="8dp"
-     android:layout_marginTop="16dp"
+     android:layout_width="@dimen/timeWidth"
+     android:layout_height="@dimen/timeHeight"
+     android:layout_marginTop="40dp"
      android:maxLines="2"
      android:minLines="1"
      android:paddingStart="10dp"
@@ -79,7 +80,6 @@
      app:layout_constraintStart_toStartOf="parent"
      app:layout_constraintTop_toTopOf="parent" />
 
- <!-- Hoot Bug Image -->
  <ImageView
      android:id="@+id/hootBug"
      android:layout_width="80dp"

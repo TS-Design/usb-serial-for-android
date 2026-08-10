@@ -35,4 +35,8 @@
     <dimen name="ButtonSpacingSmall">1dp</dimen>
     <dimen name="manualInputTopMargin">10dp</dimen>
     <dimen name="StatusMarginStart">8dp</dimen>
+    <dimen name="timeWidth">300dp</dimen>
+    <dimen name="timeHeight">40dp</dimen>
+    <dimen name="timeMarginStart">8dp</dimen>
+    <dimen name="timeMarginTop">8dp</dimen>
 </resources>

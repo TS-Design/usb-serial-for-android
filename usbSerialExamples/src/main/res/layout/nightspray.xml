@@ -72,30 +72,24 @@
         app:layout_constraintStart_toEndOf="@+id/flowData"
         app:layout_constraintTop_toTopOf="@+id/flowData" />
 
+    <!-- Hoot Bug Image -->
+    <!-- ANR Label -->
     <TextView
         android:id="@+id/timeRemote"
-        android:layout_width="297dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:maxLines="2"
-        android:minLines="1"
-        android:paddingStart="10dp"
-        android:paddingTop="1dp"
-        android:paddingEnd="10dp"
-        android:paddingBottom="10dp"
+        android:layout_width="155dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="44dp"
         android:text="00:00:00"
         android:textColor="@android:color/secondary_text_dark"
         android:textSize="@dimen/timeTextSize"
-        android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- Hoot Bug Image -->
-    <!-- ANR Label -->
+
     <ImageView
         android:id="@+id/hootBug"
         android:layout_width="80dp"
-        android:layout_height="63dp"
+        android:layout_height="73dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="36dp"
         android:contentDescription="TODO"
@@ -103,20 +97,21 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/hoot_big" />
 
+    <!-- System OK Button -->
+
     <TextView
         android:id="@+id/textAnr"
         android:layout_width="198dp"
         android:layout_height="58dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="20dp"
         android:text="Night Spray"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="?android:attr/colorFocusedHighlight"
         android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.622"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/timeRemote"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- System OK Button -->
+
     <Button
         android:id="@+id/systemOk"
         android:layout_width="100dp"
